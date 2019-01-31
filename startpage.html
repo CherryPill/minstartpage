@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en-US">
+        <head>
+        <meta charset="utf-8"/>
+                <title>
+                        Start page
+                </title>
+        <link rel="shortcut icon" type="image/x-con" href="doge.jpg"/>
+        <link rel="stylesheet" type="text/css" href="style.css"/>
+        </head>
+<body onload="initStartPage()" id="docBody">
+        <div id="time">
+        </div>
+                <div class="main" style="margin-top: 35px;">
+                <div class="wrap">
+                        <div class="b">
+                                    <select id="searchOptions" name="chosenEngine">
+                                    </select>
+                              <form action="https://www.google.by/search" type="get" id="searchForm">
+                              <div class="input-group">
+                                      <input class=""
+                                        type="text"
+                                        name="q"
+                                        size="31"
+                                        placeholder="Your query here..."/>
+                                      <button
+                                        formtarget="_blank"
+                                        type="submit">Search
+                                      </button>
+                              </div>
+                              </form>
+                        </div>
+                </div>
+        </div>
+        <div class="main">
+                <div class="wrap">
+                <div class="b">
+                        <div class="sectionHeader">
+                              NEWS
+                        </div>
+                        <div class="linkTilesSection">
+                          <a target="_blank" href="https://vk.com/feed">
+                            <div class="linkTile">gn</div>
+                          </a>
+                          <a target="_blank" href="https://vk.com/feed">
+                            <div class="linkTile"  id="2">at</div>
+                          </a>
+
+                        </div>
+                </div>
+                <div class="b">
+                  <div class="sectionHeader">
+                       WORK
+                  </div>
+                  <div class="linkTilesSection">
+                    <a target="_blank" href="https://vk.com/feed">
+                      <div class="linkTile">so</div>
+                    </a>
+                    <a target="_blank" href="https://vk.com/feed">
+                      <div class="linkTile"  id="2">sm</div>
+                    </a>
+                    <a target="_blank" href="https://vk.com/feed">
+                      <div class="linkTile" id="3">sm</div>
+                    </a>
+                    <a target="_blank" href="https://vk.com/feed">
+                      <div class="linkTile" id="4">sm</div>
+                    </a>
+                  </div>
+                </div>
+                <div class="b">
+                      <div class="sectionHeader">
+                           SOCIAL
+                      </div>
+                      <div class="linkTilesSection">
+                        <a target="_blank"href="https://vk.com/feed" title="Full title here">
+                          <div class="linkTile" id="hurr">vk</div>
+                        </a>
+                        <a target="_blank"href="https://vk.com/feed">
+                          <div class="linkTile">ma</div>
+                        </a>
+                        <a target="_blank"href="https://vk.com/feed">
+                          <div class="linkTile">ya</div>
+                        </a>
+                        <a target="_blank"href="https://vk.com/feed">
+                          <div class="linkTile">te</div>
+                        </a>
+                      </div>
+
+
+                </div>
+
+                </div>
+        </div>
+        <div class="main settingsPane">
+              <div class="option" title="Settings" onclick="toggleSettingsMenu(this)" open="false">
+                  <a href="#">
+                        <img src="img/settingsIcon.png" alt="settingsIcond">
+                  </a>
+              </div>
+        </div>
+        <!--<div class="contextMenu">
+          <ol>
+            <ul>
+              Edit tile
+            </ul>
+            <ul>
+              Details
+            </ul>
+            <ul class="warning">
+              Delete
+            </ul>
+          </ol>
+        </div>-->
+        <div class="tileEditWindow">
+            <div class="form-row">
+                <label for="">url:</label>
+                <input type="text" name="url" value="">
+            </div>
+            <div class="form-row">
+                <label for="">short name:</label>
+                <input type="text" name="url" value="">
+            </div>
+            <div class="iconCustomizationSection">
+              <div class="linkTilesSection">
+                <a href="https://vk.com/feed" title="Full title here">
+                  <div class="linkTile editMode" id="hurr">vk</div>
+                </a>
+              </div>
+              <div class="colorPickerSection">
+                <div class="color-form">
+                  <label for="">background:</label>
+                  <input class="colorPickerInput" type="color" name="colorBg" value="#45688E">
+                </div>
+                <div class="color-form">
+                  <label for="">foreground</label>
+                  <input class="colorPickerInput" type="color" name="colorFg" value="#000000">
+
+                </div>
+
+
+              </div>
+
+            </div>
+            <div class="actionButtons">
+              <div class="button reset">
+
+              </div>
+            </div>
+        </div>
+        <script type="text/javascript" src="time.js"></script>
+<script type="text/javascript" src="pageEngline.js"></script>
+<div class="settingsWindow">
+
+</div>
+        </body>
+</html>
