@@ -180,6 +180,10 @@ div.tileEditWindow{
 	font-family: Consolas;
 	padding: 10px;
 }
+div.tileEditWindow > div.header{
+	text-align: center;
+	margin-bottom: 5px;
+}
 div.form-row{
 	margin-bottom: 10px;
 }

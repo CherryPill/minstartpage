@@ -108,6 +108,7 @@ function addTileContextMenuTest(){
 var userData = {
 	sections: [
 		{sectionName: "NEWS",
+		sectionId: 1,
 		sectionItems: [{sectionItemName: "stackoverflow",
 									sectionItemNameShort: "so",
 									sectionItemUrl: "stackoverflow.com",
@@ -118,6 +119,7 @@ var userData = {
 																	sectionItemColors: ["white", "blue"]
 									}]},
 									{sectionName: "WORK",
+									sectionId: 2,
 									sectionItems: [{sectionItemName: "stackoverflow",
 																sectionItemNameShort: "so",
 																sectionItemUrl: "stackoverflow.com",
@@ -128,6 +130,7 @@ var userData = {
 																								sectionItemColors: ["#fff", "#000"]
 																}]},
 																{sectionName: "SOCIAL",
+																sectionId: 3,
 																sectionItems: [{sectionItemName: "vkontakte",
 																							sectionItemNameShort: "vk",
 																							sectionItemUrl: "vkontakte.com",
@@ -180,6 +183,8 @@ function createSection(sectionItemObj){
 		linkTileAnchorInnerDiv.style.backgroundColor = sectionItem.sectionItemColors[1];
 		linkTileAnchorInnerDiv.className = "linkTile";
 		linkTileAnchorInnerDiv.innerHTML = sectionItem.sectionItemNameShort;
+		linkTileAnchorInnerDiv.setAttribute("sectionId", sectionItemObj.sectionId);
+		linkTileAnchorInnerDiv.setAttribute("tileId", 100);
 		linkTileAnchor.appendChild(linkTileAnchorInnerDiv);
 		linkTilesSection.appendChild(linkTileAnchor);
 	}
@@ -187,6 +192,9 @@ function createSection(sectionItemObj){
 	linkTileAnchorAddNew.setAttribute("href","#");
 	let linkTileAnchorAddNewInnerDiv = document.createElement("div");
 	linkTileAnchorAddNewInnerDiv.className = "linkTile addNew";
+	linkTileAnchorAddNewInnerDiv.setAttribute("sectionId", sectionItemObj.sectionId);
+	linkTileAnchorAddNewInnerDiv.setAttribute("tileId", null);
+
 	linkTileAnchorAddNewInnerDiv.style.color = "black";
 	linkTileAnchorAddNewInnerDiv.style.backgroundColor = "white";
 	linkTileAnchorAddNew.appendChild(linkTileAnchorAddNewInnerDiv);
@@ -212,7 +220,6 @@ function toggleColorLock(_state_){
 	}
 	else{
 		labelBkColor = "#ccc";
-
 	}
 	for(cil of colorInputLabels){
 		cil.style.backgroundColor = labelBkColor;
@@ -228,11 +235,34 @@ function addEventListeners(){
 				toggleColorLock(state.colorAutoDetectOn)
 		state.colorAutoDetectOn = !state.colorAutoDetectOn;
 	});
-	//let section = document.getElementById()
+	let a = document.getElementsByClassName("addNew");
+	for(e of a){
+		e.addEventListener("click", function(){
+			generateAddEditTileWindow(e.getAttribute("sectionid"), e.getAttribute("tileid"))
+		}) ;
+	}
 }
 
 function generateContextMenu(id){
 
+}
+
+function generateAddEditTileWindow(sectionId, tileId){
+	if(tileId == "null"){
+		let tileEditWindow = document.createElement("div");
+		let header = document.createElement("div");
+		header.innerHTML = "Add new tile";
+		let formRowUrl = document.createElement("div");
+		formRowUrl.className = "form-row";
+		let formRowUrlLabel = document.createElement("label");
+		formRowUrlLabel.innerHTML = "url:"
+		let formRowUrlInput = document.createElement("input");
+		formRowUrlInput.setAttribute("type", "text");
+		formRowUrlInput.setAttribute("name", "url");
+	}
+	else{
+
+	}
 }
 
 function autoSetColor(url){
