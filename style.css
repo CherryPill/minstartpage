@@ -63,7 +63,12 @@ a:visited:hover{
 	display: flex;
 }
 
-.sectionHeader{
+.sectionHeaderRow{
+	display: flex;
+	flex-direction: row;
+}
+
+.sectionHeaderName{
 	font-size: 1.9em;
 	font-weight: bold;
 }
@@ -71,6 +76,13 @@ a:visited:hover{
 .sectionHeaderRename{
 	font-size: .8em;
 	visibility: hidden;
+}
+.sectionHeaderManagement{
+	display: flex;
+	flex-direction: row;
+}
+.sectionHeaderManagement div{
+	margin-right: 10px;
 }
 
 .settingsPane{
@@ -98,6 +110,11 @@ div.linkTilesSection{
 	display: flex;
 	flex-direction: row;
 }
+div.iconPreview{
+	display: flex;
+	flex-direction: column;
+	text-align: center;
+}
 div.linkTile{
 	padding: 10px;
 	border: 1px solid #ccc;
@@ -110,6 +127,15 @@ div.linkTile{
 	font-size: 1.5em;
 	margin-right: 5px;
 	font-family: inherit;
+}
+div.addNew{
+	background-color: #FFF;
+	color: #000;
+	width: 30px;
+	text-align: center;
+}
+div.addNew::before{
+	content: "+";
 }
 div.linkTile:hover{
 	background-color: #fff !important;
@@ -152,6 +178,7 @@ div.tileEditWindow{
 	position: absolute;
 	border: 1px solid #ccc;
 	font-family: Consolas;
+	padding: 10px;
 }
 div.form-row{
 	margin-bottom: 10px;
@@ -165,7 +192,7 @@ div.tileEditWindow input{
 
 div.tileEditWindow label{
 	display: inline-block;
-	width: 140px;
+	width: 200px;
 }
 div.linkTile.editMode{
 	width: 60px;
@@ -178,7 +205,12 @@ div.linkTile.editMode{
 div.iconCustomizationSection{
 	display: flex;
 	flex-direction: row;
+	border: 1px solid #ccc;
+	padding: 5px;
 }
 div.iconCustomizationSection input.colorPickerInput{
 	height: 30px !important;
+}
+div.actionButtons{
+	text-align: center;
 }

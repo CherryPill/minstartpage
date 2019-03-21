@@ -33,9 +33,10 @@
                 </div>
         </div>
         <div class="main">
-                <div class="wrap">
-                <div class="b">
-                        <div class="sectionHeader">
+
+                <div class="wrap" id="mainArea">
+                <!--<div class="b">
+                        <div class="sectionHeaderName">
                               NEWS
                         </div>
                         <div class="linkTilesSection">
@@ -45,15 +46,29 @@
                           <a target="_blank" href="https://vk.com/feed">
                             <div class="linkTile"  id="2">at</div>
                           </a>
-
+                          <a href="">
+                            <div class="linkTile addNew"></div>
+                          </a>
                         </div>
                 </div>
                 <div class="b">
-                  <div class="sectionHeader">
-                       WORK
+                  <div class="sectionHeaderRow" id="2">
+                    <div class="sectionHeaderName">
+                      WORK
+                    </div>
+                    <div class="sectionHeaderManagement">
+                      <div class="sectionHeaderManagementEdit">
+                        <a href="#">e</a>
+                      </div>
+                      <div class="sectionHeaderManagementRem">
+                        <a href="#">r</a>
+                      </div>
+
+                    </div>
                   </div>
+
                   <div class="linkTilesSection">
-                    <a target="_blank" href="https://vk.com/feed">
+                    <a target="_blank" href="https://vk.com/feed" title="vkontakte">
                       <div class="linkTile">so</div>
                     </a>
                     <a target="_blank" href="https://vk.com/feed">
@@ -68,7 +83,7 @@
                   </div>
                 </div>
                 <div class="b">
-                      <div class="sectionHeader">
+                      <div class="sectionHeaderName">
                            SOCIAL
                       </div>
                       <div class="linkTilesSection">
@@ -87,9 +102,9 @@
                       </div>
 
 
-                </div>
+                </div>-->
 
-                </div>
+              </div>
         </div>
         <div class="main settingsPane">
               <div class="option" title="Settings" onclick="toggleSettingsMenu(this)" open="false">
@@ -117,22 +132,28 @@
                 <input type="text" name="url" value="">
             </div>
             <div class="form-row">
-                <label for="">short name:</label>
+                <label for="">name:</label>
                 <input type="text" name="url" value="">
             </div>
+
             <div class="iconCustomizationSection">
-              <div class="linkTilesSection">
+              <div class="linkTilesSection iconPreview">
+                <div>Preview</div>
                 <a href="https://vk.com/feed" title="Full title here">
                   <div class="linkTile editMode" id="hurr">vk</div>
                 </a>
               </div>
               <div class="colorPickerSection">
+                <div class="color-autodetect">
+                  <label for="colorAutoID">autodetect color:</label>
+                  <input id="colorAutoID" type="checkbox" name="colorAuto" value="">
+                </div>
                 <div class="color-form">
-                  <label for="">background:</label>
+                  <label for="colorPickerInput" class="colorPickerInputLabel">background:</label>
                   <input class="colorPickerInput" type="color" name="colorBg" value="#45688E">
                 </div>
                 <div class="color-form">
-                  <label for="">foreground</label>
+                  <label for="colorPickerInput" class="colorPickerInputLabel">foreground</label>
                   <input class="colorPickerInput" type="color" name="colorFg" value="#000000">
 
                 </div>
@@ -142,9 +163,8 @@
 
             </div>
             <div class="actionButtons">
-              <div class="button reset">
-
-              </div>
+              <button type="button" name="button">OK</button>
+              <button type="button" name="button">Cancel</button>
             </div>
         </div>
         <script type="text/javascript" src="time.js"></script>
