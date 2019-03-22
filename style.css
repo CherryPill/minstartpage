@@ -80,9 +80,24 @@ a:visited:hover{
 .sectionHeaderManagement{
 	display: flex;
 	flex-direction: row;
+	text-align: center;
 }
 .sectionHeaderManagement div{
-	margin-right: 10px;
+	margin-left: 15px;
+
+}
+div.sectionHeaderManagementEnclosure div.sectionHeaderManagement {
+	visibility: hidden;
+}
+div.sectionHeaderManagementEnclosure:hover div.sectionHeaderManagement{
+	visibility: visible;
+}
+.sectionHeaderManagementEdit img{
+	padding-top: 14px;
+}
+
+.sectionHeaderManagementRem img{
+	padding-top: 12px;
 }
 
 .settingsPane{
@@ -179,6 +194,10 @@ div.tileEditWindow{
 	border: 1px solid #ccc;
 	font-family: Consolas;
 	padding: 10px;
+	width: 500px;
+	margin: 0 auto;
+	background-color: #fff;
+
 }
 div.tileEditWindow > div.header{
 	text-align: center;
@@ -217,4 +236,13 @@ div.iconCustomizationSection input.colorPickerInput{
 }
 div.actionButtons{
 	text-align: center;
+}
+div#overlay{
+		position: fixed;
+		background-color: #ccc;
+		top: 0;
+		opacity: .8;
+		width: 100%;
+		height: 100%;
+		visibility: hidden;
 }
