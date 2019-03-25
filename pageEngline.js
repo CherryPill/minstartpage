@@ -9,18 +9,28 @@ var state = {
 	}
 };
 
-var internalTilesSet = new Set();
+
+function SectionItem(_sectionItemName, _sectionItemNameShort, _sectionItemUrl, _sectionItemColors){
+	this.sectionItemName = _sectionItemName;
+	this.sectionItemNameShort = _sectionItemNameShort;
+	this.sectionItemUrl = _sectionItemUrl;
+	this.sectionItemColors = _sectionItemColors;
+}
+
+var tempSectionStore = {
+	currentSectionId: 0,
+};
+
+var tempAddTileStore = {
+	actualUrl: "",
+	actualShortName: "",
+};
 
 var modalDialogs = {
 
 };
 
-function fillTilesSet(userData){
-	for(section of userData.sections){
-		internalTilesSet.add(section);
-	}
-	updateUI(internalTilesSet);
-}
+
 
 //updates UI reflecting tiles data structure changes
 
@@ -64,22 +74,16 @@ var webAppColors = {
 	tw: ["color", "color"],
 };
 //twitch, netflix, mail.ru, ph, xv, imdb, ebay, linkedin,
-var webAppShortNames = {
-	vk: "vk",
-	fb: "fb",
-	ig: "ig",
-	tg: "tg",
-	sc: "sc",
-	ggl: "gl",
-	yh: "yh",
-	at: "at",
-	mal: "ml",
-	rdt: "rd",
-	wp: "wp",
-	yt: "yt",
-	bd: "bd",
-	az: "az",
-	tw: "tw",
+//full name (autosuggestion, url, short display name on tile)
+var webAppSuggestions = {
+	"vkontakte": ["vk","https://vk.com"],
+	"facebook": ["fb","https://facebook.com"],
+	"instagram": ["ig","https://instagram.com"],
+	"telegram": ["tg","https://web.telegram.org/"],
+	"google": ["go","https://google.com"],
+	"yahoo": ["yh","https://yahoo.com"],
+	"ars technica": ["at","https://arstechnica.com"],
+	"myanimelist": ["ma","https://myanimelist.net"],
 };
 
 function generateSearchEngineOptions(){
@@ -102,7 +106,7 @@ function initStartPage(){
 	generateSearchEngineOptions();
 	initTimeScript();
 	//addTileContextMenuTest();
-	fillTilesSet(userData);
+	updateUI();
 	addEventListeners();
 }
 
@@ -144,7 +148,7 @@ function addTileContextMenuTest(){
 var userData = {
 	sections: [
 		{sectionName: "NEWS",
-		sectionId: 1,
+		sectionId: 3,
 		sectionItems: [{sectionItemName: "stackoverflow",
 									sectionItemNameShort: "so",
 									sectionItemUrl: "stackoverflow.com",
@@ -166,7 +170,7 @@ var userData = {
 																								sectionItemColors: ["#fff", "#000"]
 																}]},
 																{sectionName: "SOCIAL",
-																sectionId: 3,
+																sectionId: 11,
 																sectionItems: [{sectionItemName: "vkontakte",
 																							sectionItemNameShort: "vk",
 																							sectionItemUrl: "vkontakte.com",
@@ -180,9 +184,16 @@ var userData = {
 };
 
 
+function removeSections(){
+	let targetSectionDiv = document.getElementsByClassName("b");
+	for(d of targetSectionDiv){
+		d.innerHTML = "";
+	}
+}
 
-function updateUI(sectionSet){
-	for(section of sectionSet){
+function updateUI(){
+	removeSections();
+	for(section of userData.sections){
 		createSection(section);
 	}
 }
@@ -212,6 +223,7 @@ function createSection(sectionItemObj){
 
 	let linkTilesSection = document.createElement("div");
 	linkTilesSection.className = "linkTilesSection";
+	linkTilesSection.id = sectionItemObj.sectionId;
 	for(sectionItem of section.sectionItems){
 		let linkTileAnchor = document.createElement("a");
 		linkTileAnchor.setAttribute("href", sectionItem.sectionItemUrl);
@@ -271,12 +283,14 @@ function toggleColorLock(_state_){
 function addEventListeners(){
 
 	let a = document.getElementsByClassName("addNew");
-	for(e of a){
-		e.addEventListener("click", function(){
-			generateAddEditTileWindow(e.getAttribute("sectionid"), e.getAttribute("tileid"))
-		});
-	}
+	for(var i=0; i < a.length; i++){
+		a[i].addEventListener("click", generateAddEditTileWindow.bind(this, a[i].getAttribute("sectionid"),
+	a[i].getAttribute("tileid")), false);
+ }
+
 	state.overlayElement.addEventListener("click", function(){state.toggleOverLay(false)});
+
+
 	/*
 	let s = document.getElementById("colorAutoID");
 	s.addEventListener("click", function(){
@@ -285,11 +299,14 @@ function addEventListeners(){
 	});*/
 }
 
+
+
 function generateContextMenu(id){
 
 }
 
 function generateAddEditTileWindow(sectionId, tileId){
+	console.log("in add tile window "+sectionId);
 	if(tileId == "null"){
 		let tileEditWindow = document.createElement("div");
 		tileEditWindow.className = "tileEditWindow";
@@ -302,7 +319,7 @@ function generateAddEditTileWindow(sectionId, tileId){
 		let formRowUrlInput = document.createElement("input");
 		formRowUrlInput.setAttribute("type", "text");
 		formRowUrlInput.setAttribute("name", "url");
-
+		formRowUrlInput.id = "formInputFieldUrl";
 		let formRowName = document.createElement("div");
 		formRowUrl.className = "form-row";
 		let formRowNameLabel = document.createElement("label");
@@ -310,6 +327,7 @@ function generateAddEditTileWindow(sectionId, tileId){
 		let formRowNameInput = document.createElement("input");
 		formRowNameInput.setAttribute("type", "text");
 		formRowNameInput.setAttribute("name", "name");
+		formRowNameInput.id = "formInputFieldName";
 
 
 		let iconCustomizationSection = document.createElement("div");
@@ -319,7 +337,7 @@ function generateAddEditTileWindow(sectionId, tileId){
 		let linkTilesSectionIconPreviewInnerDiv = document.createElement("div");
 		linkTilesSectionIconPreviewInnerDiv.innerHTML = "Preview";
 		let fullTitleAnchor = generateAnchor("https://vk.com/feed");
-		let linkTileEditMode = generateDiv("linkTile editMode", "", "hurr");
+		let linkTileEditMode = generateDiv("linkTile editMode", "", "iconPreviewDiv");
 		let colorPickerSection = generateDiv("colorPickerSection","","");
 		let colorAutodetect = generateDiv("color-autodetect", "", "")
 		let colorAutodetectLabel = document.createElement("label");
@@ -332,16 +350,17 @@ function generateAddEditTileWindow(sectionId, tileId){
 
 		let colorPicker = generateDiv("color-form", "", "");
 		let colorPickerLabel = generateLabel("colorPickerInput", "colorPickerInputLabel", "background:");
-		let colorPickerInput = generateInput("color", "colorBg", "#45688E", "colorPickerInput");
+		let colorPickerInput = generateInput("color", "colorBg", "#45688E", "colorPickerInput", "formInputFieldColorBg");
 
 		let colorPicker_1 = generateDiv("color-form", "", "");
-		let colorPickerLabel_1 = generateLabel("colorPickerInput", "colorPickerInputLabel", "foreground:");
+		let colorPickerLabel_1 = generateLabel("colorPickerInput", "colorPickerInputLabel", "foreground:", "formInputFieldColorFg");
 		let colorPickerInput_1 = generateInput("color", "colorFg", "#000000", "colorPickerInput");
 
 		let actionButtonsDiv = document.createElement("div");
 		actionButtonsDiv.className = "actionButtons";
 
 		let actionButtonOk = generateButton("OK");
+		actionButtonOk.addEventListener("click", addNewTile);
 		let actionButtonCancel = generateButton("Cancel");
 
 		fullTitleAnchor.appendChild(linkTileEditMode);
@@ -378,11 +397,12 @@ function generateAddEditTileWindow(sectionId, tileId){
 		state.toggleOverLay(true);
 		state.overlayElement.style.zIndex = 0;
 		tileEditWindow.style.zIndex = 5;
-		let windowTopOffset = _sysVars.getViewPortHeight()/2 - 250/2+"px";
+		let windowTopOffset = _sysVars.getViewPortHeight()/2 - 247/2 + "px";
 		tileEditWindow.style.top = windowTopOffset;
-		let windowLeftOffset = _sysVars.getViewPortWidth()/2+"px";
-		tileEditWindow.style.top = windowTopOffset;
-
+		let windowLeftOffset = _sysVars.getViewPortWidth()/2 - 522/2 +"px";
+		tileEditWindow.style.left = windowLeftOffset;
+		tempSectionStore.currentSectionId = sectionId;
+		autocomplete(document.getElementById("formInputFieldName"), webAppSuggestions);
 	}
 	else{
 
@@ -403,6 +423,7 @@ function generateTile(sectionItem){
 	linkTileAnchorInnerDiv.setAttribute("tileId", 100);
 	linkTileAnchor.appendChild(linkTileAnchorInnerDiv);
 	linkTilesSection.appendChild(linkTileAnchor);
+
 }
 
 function generateButton(_innerHTML){
@@ -411,12 +432,13 @@ function generateButton(_innerHTML){
 	return button;
 }
 
-function generateInput(_type, _name, _value, _className){
+function generateInput(_type, _name, _value, _className, _id){
 	let input = document.createElement("input");
 	input.className = _className;
 	input.setAttribute("type", _type);
 	input.setAttribute("name", _name);
 	input.setAttribute("value", _value);
+	input.id = _id;
 	return input;
 }
 
@@ -443,11 +465,49 @@ function generateAnchor(href){
 }
 
 
-function addNewTile(sectionId, url, name, colorBg, colorFg){
-	addUI();
+function addNewTile(){
 
+	let enteredData = getFormData();
+	for(let s = 0; s<userData.sections.length;s++){
+		if(userData.sections[s].sectionId == tempSectionStore.currentSectionId){
+			userData.sections[s].sectionItems.push(enteredData);
+		}
+	}
+	//addUI();
+	//createSectionItem(enteredData);
+	console.log("add");
 	//addBackEnd();
+	updateUI();
 }
+function createSectionItem(enteredData){
+	let targetSectionDiv = document.getElementById(tempSectionStore.currentSectionId);
+	console.log(tempSectionStore.currentSectionId);
+	let linkTileAnchor = document.createElement("a");
+	linkTileAnchor.setAttribute("href", enteredData.sectionItemUrl);
+	linkTileAnchor.setAttribute("target", "_blank");
+	let linkTileAnchorInnerDiv = document.createElement("div");
+	linkTileAnchorInnerDiv.style.color = sectionItem.sectionItemColors[0];
+	linkTileAnchorInnerDiv.style.backgroundColor = enteredData.sectionItemColors[1];
+	linkTileAnchorInnerDiv.className = "linkTile";
+	linkTileAnchorInnerDiv.innerHTML = enteredData.sectionItemNameShort;
+	linkTileAnchorInnerDiv.setAttribute("sectionId", tempSectionStore.currentSectionId);
+	linkTileAnchorInnerDiv.setAttribute("tileId", 100);
+	linkTileAnchor.appendChild(linkTileAnchorInnerDiv);
+	targetSectionDiv.appendChild(linkTileAnchor);
+}
+
+//add new tile
+function addUI(enteredData){
+
+}
+function getFormData(){
+	let fieldUrl = document.getElementById("formInputFieldUrl").value;
+	let fieldName = document.getElementById("formInputFieldName").value;
+	let fieldColorBg = document.getElementById("formInputFieldName").value;
+	let fieldColorFg = document.getElementById("formInputFieldName").value;
+	return new SectionItem(fieldUrl, fieldName, fieldColorBg, fieldColorFg);
+}
+
 function removeTile(sectionId, tileId){
 
 }
@@ -455,4 +515,102 @@ function removeTile(sectionId, tileId){
 
 function autoSetColor(url){
 
+}
+function autocomplete(inp, arr) {
+  /*the autocomplete function takes two arguments,
+  the text field element and an array of possible autocompleted values:*/
+  var currentFocus;
+  /*execute a function when someone writes in the text field:*/
+  inp.addEventListener("input", function(e) {
+      var a, b, i, val = this.value;
+			var previewIconTextElement = document.getElementById("iconPreviewDiv");
+      /*close any already open lists of autocompleted values*/
+      closeAllLists();
+      if (!val) { return false;}
+      currentFocus = -1;
+      /*create a DIV element that will contain the items (values):*/
+      a = document.createElement("DIV");
+      a.setAttribute("id", this.id + "autocomplete-list");
+      a.setAttribute("class", "autocomplete-items");
+      /*append the DIV element as a child of the autocomplete container:*/
+      this.parentNode.appendChild(a);
+      /*for each item in the array...*/
+      for (webApp in webAppSuggestions) {
+        /*check if the item starts with the same letters as the text field value:*/
+        if (webApp.substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+          /*create a DIV element for each matching element:*/
+          b = document.createElement("div");
+          /*make the matching letters bold:*/
+          b.innerHTML = "<strong>" + webApp.substr(0, val.length) + "</strong>";
+          b.innerHTML += webApp.substr(val.length);
+          /*insert a input field that will hold the current array item's value:*/
+          b.innerHTML += "<input type='hidden' value='" + webAppSuggestions[webApp][0] + "'>";
+					previewIconTextElement.innerHTML = webAppSuggestions[webApp][0];
+          /*execute a function when someone clicks on the item value (DIV element):*/
+              b.addEventListener("click", function(e) {
+              /*insert the value for the autocomplete text field:*/
+              inp.value = this.getElementsByTagName("input")[0].value;
+              /*close the list of autocompleted values,
+              (or any other open lists of autocompleted values:*/
+              closeAllLists();
+          });
+          a.appendChild(b);
+        }
+      }
+  });
+  /*execute a function presses a key on the keyboard:*/
+  inp.addEventListener("keydown", function(e) {
+      var x = document.getElementById(this.id + "autocomplete-list");
+      if (x) x = x.getElementsByTagName("div");
+      if (e.keyCode == 40) {
+        /*If the arrow DOWN key is pressed,
+        increase the currentFocus variable:*/
+        currentFocus++;
+        /*and and make the current item more visible:*/
+        addActive(x);
+      } else if (e.keyCode == 38) { //up
+        /*If the arrow UP key is pressed,
+        decrease the currentFocus variable:*/
+        currentFocus--;
+        /*and and make the current item more visible:*/
+        addActive(x);
+      } else if (e.keyCode == 13) {
+        /*If the ENTER key is pressed, prevent the form from being submitted,*/
+        e.preventDefault();
+        if (currentFocus > -1) {
+          /*and simulate a click on the "active" item:*/
+          if (x) x[currentFocus].click();
+        }
+      }
+  });
+  function addActive(x) {
+    /*a function to classify an item as "active":*/
+    if (!x) return false;
+    /*start by removing the "active" class on all items:*/
+    removeActive(x);
+    if (currentFocus >= x.length) currentFocus = 0;
+    if (currentFocus < 0) currentFocus = (x.length - 1);
+    /*add class "autocomplete-active":*/
+    x[currentFocus].classList.add("autocomplete-active");
+  }
+  function removeActive(x) {
+    /*a function to remove the "active" class from all autocomplete items:*/
+    for (var i = 0; i < x.length; i++) {
+      x[i].classList.remove("autocomplete-active");
+    }
+  }
+  function closeAllLists(elmnt) {
+    /*close all autocomplete lists in the document,
+    except the one passed as an argument:*/
+    var x = document.getElementsByClassName("autocomplete-items");
+    for (var i = 0; i < x.length; i++) {
+      if (elmnt != x[i] && elmnt != inp) {
+      x[i].parentNode.removeChild(x[i]);
+    }
+  }
+}
+/*execute a function when someone clicks in the document:*/
+document.addEventListener("click", function (e) {
+    closeAllLists(e.target);
+});
 }

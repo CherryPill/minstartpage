@@ -198,16 +198,11 @@ div.tileEditWindow{
 	background-color: #fff;
 
 }
-div.tileEditWindow > div.header{
-	text-align: center;
+div.tileEditWindow div{
+	text-align: center !important;
 	margin-bottom: 5px;
 }
-div.form-row{
-	margin-bottom: 10px;
-}
-div.tileEditWindow{
-	text-align: right;
-}
+
 div.tileEditWindow input{
 	height: 15px;
 }
@@ -244,4 +239,32 @@ div#overlay{
 		width: 100%;
 		height: 100%;
 		visibility: hidden;
+}
+
+/* Auto complete*/
+.autocomplete-items {
+  position: absolute;
+  border: 1px solid #d4d4d4;
+  border-bottom: none;
+  border-top: none;
+  z-index: 99;
+  /*position the autocomplete items to be the same width as the container:*/
+  top: 100%;
+  left: 0;
+  right: 0;
+}
+.autocomplete-items div {
+  padding: 10px;
+  cursor: pointer;
+  background-color: #fff;
+  border-bottom: 1px solid #d4d4d4;
+}
+.autocomplete-items div:hover {
+  /*when hovering an item:*/
+  background-color: #e9e9e9;
+}
+.autocomplete-active {
+  /*when navigating through the items using the arrow keys:*/
+  background-color: DodgerBlue !important;
+  color: #ffffff;
 }
