@@ -9,7 +9,6 @@ var state = {
 	}
 };
 
-
 function SectionItem(_sectionItemName, _sectionItemNameShort, _sectionItemUrl, _sectionItemColors){
 	this.sectionItemName = _sectionItemName;
 	this.sectionItemNameShort = _sectionItemNameShort;
@@ -20,20 +19,6 @@ function SectionItem(_sectionItemName, _sectionItemNameShort, _sectionItemUrl, _
 var tempSectionStore = {
 	currentSectionId: 0,
 };
-
-var tempAddTileStore = {
-	actualUrl: "",
-	actualShortName: "",
-};
-
-var modalDialogs = {
-
-};
-
-
-
-//updates UI reflecting tiles data structure changes
-
 
 function initSysVars(){
 	let _viewPortWidth = document.documentElement.clientWidth;
@@ -196,6 +181,7 @@ function updateUI(){
 	for(section of userData.sections){
 		createSection(section);
 	}
+	addEventListenersDynamic();
 }
 
 function createSection(sectionItemObj){
@@ -280,16 +266,16 @@ function toggleColorLock(_state_){
 	}
 }
 
-function addEventListeners(){
-
+function addEventListenersDynamic(){
 	let a = document.getElementsByClassName("addNew");
 	for(var i=0; i < a.length; i++){
 		a[i].addEventListener("click", generateAddEditTileWindow.bind(this, a[i].getAttribute("sectionid"),
 	a[i].getAttribute("tileid")), false);
- }
+	}
+}
 
-	state.overlayElement.addEventListener("click", function(){state.toggleOverLay(false)});
-
+function addEventListeners(){
+	state.overlayElement.addEventListener("click", dismissAddDialog);
 
 	/*
 	let s = document.getElementById("colorAutoID");
@@ -299,7 +285,11 @@ function addEventListeners(){
 	});*/
 }
 
-
+function dismissAddDialog(){
+	state.toggleOverLay(false);
+	let tileEditWindow = document.getElementsByClassName("tileEditWindow");
+	document.body.removeChild(tileEditWindow[0]);
+}
 
 function generateContextMenu(id){
 
@@ -319,6 +309,8 @@ function generateAddEditTileWindow(sectionId, tileId){
 		let formRowUrlInput = document.createElement("input");
 		formRowUrlInput.setAttribute("type", "text");
 		formRowUrlInput.setAttribute("name", "url");
+		formRowUrlInput.disabled = true;
+
 		formRowUrlInput.id = "formInputFieldUrl";
 		let formRowName = document.createElement("div");
 		formRowUrl.className = "form-row";
@@ -383,14 +375,13 @@ function generateAddEditTileWindow(sectionId, tileId){
 		actionButtonsDiv.appendChild(actionButtonCancel);
 
 		tileEditWindow.appendChild(header);
-		formRowUrl.appendChild(formRowUrlLabel);
-		formRowUrl.appendChild(formRowUrlInput);
+
 		formRowName.appendChild(formRowNameLabel);
 		formRowName.appendChild(formRowNameInput);
-
-		tileEditWindow.appendChild(formRowUrl);
-
+		formRowUrl.appendChild(formRowUrlLabel);
+		formRowUrl.appendChild(formRowUrlInput);
 		tileEditWindow.appendChild(formRowName);
+		tileEditWindow.appendChild(formRowUrl);
 		tileEditWindow.appendChild(iconCustomizationSection);
 		tileEditWindow.appendChild(actionButtonsDiv);
 		document.body.appendChild(tileEditWindow);
@@ -466,18 +457,15 @@ function generateAnchor(href){
 
 
 function addNewTile(){
-
 	let enteredData = getFormData();
 	for(let s = 0; s<userData.sections.length;s++){
 		if(userData.sections[s].sectionId == tempSectionStore.currentSectionId){
 			userData.sections[s].sectionItems.push(enteredData);
 		}
 	}
-	//addUI();
 	//createSectionItem(enteredData);
-	console.log("add");
-	//addBackEnd();
 	updateUI();
+	dismissAddDialog();
 }
 function createSectionItem(enteredData){
 	let targetSectionDiv = document.getElementById(tempSectionStore.currentSectionId);
@@ -496,13 +484,9 @@ function createSectionItem(enteredData){
 	targetSectionDiv.appendChild(linkTileAnchor);
 }
 
-//add new tile
-function addUI(enteredData){
-
-}
 function getFormData(){
 	let fieldUrl = document.getElementById("formInputFieldUrl").value;
-	let fieldName = document.getElementById("formInputFieldName").value;
+	let fieldName = document.getElementById("iconPreviewDiv").innerHTML;
 	let fieldColorBg = document.getElementById("formInputFieldName").value;
 	let fieldColorFg = document.getElementById("formInputFieldName").value;
 	return new SectionItem(fieldUrl, fieldName, fieldColorBg, fieldColorFg);
@@ -516,42 +500,33 @@ function removeTile(sectionId, tileId){
 function autoSetColor(url){
 
 }
+
 function autocomplete(inp, arr) {
-  /*the autocomplete function takes two arguments,
-  the text field element and an array of possible autocompleted values:*/
   var currentFocus;
   /*execute a function when someone writes in the text field:*/
   inp.addEventListener("input", function(e) {
       var a, b, i, val = this.value;
 			var previewIconTextElement = document.getElementById("iconPreviewDiv");
-      /*close any already open lists of autocompleted values*/
+			var formUrlFieldDisabled = document.getElementById("formInputFieldUrl");
       closeAllLists();
       if (!val) { return false;}
       currentFocus = -1;
-      /*create a DIV element that will contain the items (values):*/
       a = document.createElement("DIV");
       a.setAttribute("id", this.id + "autocomplete-list");
       a.setAttribute("class", "autocomplete-items");
-      /*append the DIV element as a child of the autocomplete container:*/
+
       this.parentNode.appendChild(a);
-      /*for each item in the array...*/
       for (webApp in webAppSuggestions) {
-        /*check if the item starts with the same letters as the text field value:*/
         if (webApp.substr(0, val.length).toUpperCase() == val.toUpperCase()) {
           /*create a DIV element for each matching element:*/
           b = document.createElement("div");
-          /*make the matching letters bold:*/
           b.innerHTML = "<strong>" + webApp.substr(0, val.length) + "</strong>";
           b.innerHTML += webApp.substr(val.length);
-          /*insert a input field that will hold the current array item's value:*/
           b.innerHTML += "<input type='hidden' value='" + webAppSuggestions[webApp][0] + "'>";
 					previewIconTextElement.innerHTML = webAppSuggestions[webApp][0];
-          /*execute a function when someone clicks on the item value (DIV element):*/
+					formUrlFieldDisabled.value = webAppSuggestions[webApp][1];
               b.addEventListener("click", function(e) {
-              /*insert the value for the autocomplete text field:*/
               inp.value = this.getElementsByTagName("input")[0].value;
-              /*close the list of autocompleted values,
-              (or any other open lists of autocompleted values:*/
               closeAllLists();
           });
           a.appendChild(b);
