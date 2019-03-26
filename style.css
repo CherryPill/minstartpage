@@ -80,9 +80,23 @@ a:visited:hover{
 .sectionHeaderManagement{
 	display: flex;
 	flex-direction: row;
+	text-align: center;
 }
 .sectionHeaderManagement div{
-	margin-right: 10px;
+	margin-left: 15px;
+}
+div.sectionHeaderManagementEnclosure div.sectionHeaderManagement {
+	visibility: hidden;
+}
+div.sectionHeaderManagementEnclosure:hover div.sectionHeaderManagement{
+	visibility: visible;
+}
+.sectionHeaderManagementEdit img{
+	padding-top: 14px;
+}
+
+.sectionHeaderManagementRem img{
+	padding-top: 12px;
 }
 
 .settingsPane{
@@ -139,7 +153,7 @@ div.addNew::before{
 }
 div.linkTile:hover{
 	background-color: #fff !important;
-	color: #000;
+	color: #000 !important;
 }
 div.linkTile#hurr{
 	background-color: #45688E;
@@ -177,15 +191,17 @@ div.contextMenu ul:hover{
 div.tileEditWindow{
 	position: absolute;
 	border: 1px solid #ccc;
-	font-family: Consolas;
+	font-family: Helvetica;
 	padding: 10px;
+	width: 500px;
+	margin: 0 auto;
+	background-color: #fff;
 }
-div.form-row{
-	margin-bottom: 10px;
+div.tileEditWindow div{
+	text-align: center;
+	margin-bottom: 5px;
 }
-div.tileEditWindow{
-	text-align: right;
-}
+
 div.tileEditWindow input{
 	height: 15px;
 }
@@ -213,4 +229,54 @@ div.iconCustomizationSection input.colorPickerInput{
 }
 div.actionButtons{
 	text-align: center;
+}
+div#overlay{
+		position: fixed;
+		background-color: #ccc;
+		top: 0;
+		opacity: .8;
+		width: 100%;
+		height: 100%;
+		visibility: hidden;
+}
+
+/* Auto complete*/
+.autocomplete-items {
+  position: absolute;
+  border: 1px solid #d4d4d4;
+  border-bottom: none;
+  border-top: none;
+  z-index: 99;
+  /*position the autocomplete items to be the same width as the container:*/
+  top: 100%;
+  left: 0;
+  right: 0;
+}
+.autocomplete-items div {
+  padding: 10px;
+  cursor: pointer;
+  background-color: #fff;
+  border-bottom: 1px solid #d4d4d4;
+}
+.autocomplete-items div:hover {
+  /*when hovering an item:*/
+  background-color: #e9e9e9;
+}
+.autocomplete-active {
+  /*when navigating through the items using the arrow keys:*/
+  background-color: DodgerBlue !important;
+  color: #ffffff;
+}
+div#iconPreviewDiv{
+	font-family: Consolas;
+
+}
+
+div.actionButtons button{
+	margin-left: 10px;
+}
+
+label.form-row-label {
+	text-align: right;
+	padding-right: 10px;
 }
