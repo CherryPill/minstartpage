@@ -153,7 +153,7 @@ div.addNew::before{
 }
 div.linkTile:hover{
 	background-color: #fff !important;
-	color: #000;
+	color: #000 !important;
 }
 div.linkTile#hurr{
 	background-color: #45688E;
@@ -198,7 +198,7 @@ div.tileEditWindow{
 	background-color: #fff;
 }
 div.tileEditWindow div{
-	text-align: center !important;
+	text-align: center;
 	margin-bottom: 5px;
 }
 
@@ -269,4 +269,14 @@ div#overlay{
 }
 div#iconPreviewDiv{
 	font-family: Consolas;
+
+}
+
+div.actionButtons button{
+	margin-left: 10px;
+}
+
+label.form-row-label {
+	text-align: right;
+	padding-right: 10px;
 }
