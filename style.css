@@ -5,15 +5,19 @@
 
 h2, h3 {
 	text-align: center;
+
 }
+
 h2 {
 	font-size: 30px;
 	margin: 0 0;
 	margin-bottom: 0px;
+
 }
 
 h3{
 	padding: 0 0;
+
 }
 
 .main {
@@ -21,6 +25,7 @@ h3{
 	border: 1px solid #ccc;
 	margin: auto auto;
 	margin-top: 5px;
+
 }
 
 div.b {
@@ -28,75 +33,97 @@ div.b {
 	padding: 0px;
 	margin-bottom: 5px;
 	font-family: Consolas;
+
 }
 
 .wrap {
 	padding: 0px;
 	margin: 30px;
+
 }
 
 a {
 	text-decoration: none;
 	padding-right: 0px;
+
 }
 
 a:hover {
 	color: #000;
+
 }
 
 a:visited:hover{
 	color: #000;
+
 }
 
 #time {
 	text-align: center;
 	font-size: 1.5em;
+
 }
 
 .btn-custom{
 	border: 1px solid black;
 	background-color: #fff;
 	color: #000;
+
 }
 
 .sectionHeaderContainer{
 	display: flex;
+
 }
 
 .sectionHeaderRow{
 	display: flex;
 	flex-direction: row;
+
 }
 
 .sectionHeaderName{
 	font-size: 1.9em;
 	font-weight: bold;
+
 }
 
 .sectionHeaderRename{
 	font-size: .8em;
 	visibility: hidden;
+
 }
+
 .sectionHeaderManagement{
 	display: flex;
 	flex-direction: row;
 	text-align: center;
+
 }
+
 .sectionHeaderManagement div{
 	margin-left: 15px;
+
 }
+
 div.sectionHeaderManagementEnclosure div.sectionHeaderManagement {
 	visibility: hidden;
+
 }
+
 div.sectionHeaderManagementEnclosure:hover div.sectionHeaderManagement{
 	visibility: visible;
+
 }
+
 .sectionHeaderManagementEdit img{
 	padding-top: 14px;
+
 }
 
 .sectionHeaderManagementRem img{
 	padding-top: 12px;
+
 }
 
 .settingsPane{
@@ -104,10 +131,12 @@ div.sectionHeaderManagementEnclosure:hover div.sectionHeaderManagement{
 	left: 10px;
 	position: fixed;
 	width: 64px;
+
 }
 
 #searchOptions{
 	margin-bottom: 12px;
+
 }
 
 div#settingsWindow{
@@ -119,16 +148,22 @@ div#settingsWindow{
 	background-color: #fff;
 	color: #000;
 	border: 1px solid #ccc;
+
 }
+
 div.linkTilesSection{
 	display: flex;
 	flex-direction: row;
+
 }
+
 div.iconPreview{
 	display: flex;
 	flex-direction: column;
 	text-align: center;
+
 }
+
 div.linkTile{
 	padding: 10px;
 	border: 1px solid #ccc;
@@ -141,52 +176,73 @@ div.linkTile{
 	font-size: 1.5em;
 	margin-right: 5px;
 	font-family: inherit;
+
 }
+
 div.addNew{
 	background-color: #FFF;
 	color: #000;
 	width: 30px;
 	text-align: center;
+
 }
+
 div.addNew::before{
 	content: "+";
 }
+
 div.linkTile:hover{
 	background-color: #fff !important;
 	color: #000 !important;
+
 }
+
 div.linkTile#hurr{
 	background-color: #45688E;
+
 }
+
 /*context menu style*/
 div.contextMenu{
 	position: absolute;
 	border: 1px solid #ccc;
-	font-family: Consolas;
+	font-family: Helvetica;
+
 }
+
 div.contextMenu ol{
 	padding: 0;
 	margin: 10px;
+
 }
+
 div.contextMenu ul{
 	margin: 0;
 	padding: 0;
 	margin-bottom: 3px;
+
 }
+
 div.contextMenu ul.warning{
 	background-color: red;
 	color: white;
+
 }
+
 div.contextMenu ul.warning:hover{
 	background-color: black;
 	color: red;
 	cursor: default;
+
 }
+
 div.contextMenu ul:hover{
 	background-color: black;
 	color: white;
 	cursor: default;
+
 }
+
 /*tile edit window style*/
 div.tileEditWindow{
 	position: absolute;
@@ -196,20 +252,26 @@ div.tileEditWindow{
 	width: 500px;
 	margin: 0 auto;
 	background-color: #fff;
+
 }
+
 div.tileEditWindow div{
 	text-align: center;
 	margin-bottom: 5px;
+
 }
 
 div.tileEditWindow input{
 	height: 15px;
+
 }
 
 div.tileEditWindow label{
 	display: inline-block;
 	width: 200px;
+
 }
+
 div.linkTile.editMode{
 	width: 60px;
 	height: 60px;
@@ -217,56 +279,71 @@ div.linkTile.editMode{
 	text-align: center;
 	vertical-align:baseline;
 	padding: 10px;
+
 }
+
 div.iconCustomizationSection{
 	display: flex;
 	flex-direction: row;
 	border: 1px solid #ccc;
 	padding: 5px;
+
 }
+
 div.iconCustomizationSection input.colorPickerInput{
 	height: 30px !important;
+
 }
+
 div.actionButtons{
 	text-align: center;
+
 }
 div#overlay{
-		position: fixed;
-		background-color: #ccc;
-		top: 0;
-		opacity: .8;
-		width: 100%;
-		height: 100%;
-		visibility: hidden;
+	position: fixed;
+	background-color: #ccc;
+	top: 0;
+	opacity: .8;
+	width: 100%;
+	height: 100%;
+	visibility: hidden;
+
 }
 
 /* Auto complete*/
 .autocomplete-items {
-  position: absolute;
-  border: 1px solid #d4d4d4;
-  border-bottom: none;
-  border-top: none;
-  z-index: 99;
+	position: absolute;
+	border: 1px solid #d4d4d4;
+	border-bottom: none;
+  	border-top: none;
+  	z-index: 99;
   /*position the autocomplete items to be the same width as the container:*/
-  top: 100%;
-  left: 0;
-  right: 0;
+  	top: 100%;
+  	left: 0;
+  	right: 0;
+
 }
 .autocomplete-items div {
-  padding: 10px;
-  cursor: pointer;
-  background-color: #fff;
-  border-bottom: 1px solid #d4d4d4;
+  	padding: 10px;
+  	cursor: pointer;
+  	background-color: #fff;
+  	border-bottom: 1px solid #d4d4d4;
+
 }
+
 .autocomplete-items div:hover {
-  /*when hovering an item:*/
-  background-color: #e9e9e9;
+  	/*when hovering an item:*/
+  	background-color: #e9e9e9;
+
 }
+
 .autocomplete-active {
-  /*when navigating through the items using the arrow keys:*/
-  background-color: DodgerBlue !important;
-  color: #ffffff;
+  	/*when navigating through the items using the arrow keys:*/
+  	background-color: DodgerBlue !important;
+  	color: #ffffff;
+
 }
+
 div#iconPreviewDiv{
 	font-family: Consolas;
 
@@ -274,9 +351,11 @@ div#iconPreviewDiv{
 
 div.actionButtons button{
 	margin-left: 10px;
+
 }
 
 label.form-row-label {
 	text-align: right;
 	padding-right: 10px;
+
 }
