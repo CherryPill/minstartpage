@@ -95,8 +95,8 @@ function setSearchLink(){
 function initStartPage(){
 	generateSearchEngineOptions();
 	initTimeScript();
-	//addTileContextMenuTest();
 	updateUI();
+	addTileContextMenuTest();
 	addEventListeners();
 }
 
@@ -122,17 +122,19 @@ function createSettingsContents(parent){
 	parent.appendChild(settingsWindowTitle);
 
 }
-/*
+
 function addTileContextMenuTest(){
-	let vkTile = document.getElementById("hurr");
-	vkTile.addEventListener("contextmenu", function(e){
+	let allCurrentTiles = document.getElementsByClassName("linkTile");
+	console.log(allCurrentTiles);
+	for(var i=0; i < allCurrentTiles.length; i++){
+		allCurrentTiles[i].addEventListener("contextmenu", function(e){
 		e.preventDefault();
-		generateContextMenu(vkTile.id);
-		alert("context menu here");
-		return false;
-	}, false);
+		generateContextMenu(this.getAttribute("tileid"), e.clientX, e.clientY);
+		//generateContextMenu.bind(this, this.getAttribute("tileid"));
+		console.log("click");
+		return false;}, false);
+	}
 }
-*/
 
 //mock user data
 var userData = {
@@ -140,36 +142,34 @@ var userData = {
 		{sectionName: "NEWS",
 		sectionId: 3,
 		sectionItems: [{sectionItemName: "stackoverflow",
-									sectionItemNameShort: "so",
-									sectionItemUrl: "stackoverflow.com",
-								  sectionItemColors: ["#FF8C00", "#000"]},{
-										sectionItemName: "myanimelist",
-																	sectionItemNameShort: "ma",
-																	sectionItemUrl: "myanimelist.net",
-																	sectionItemColors: ["blue","white"]
-									}]},
-									{sectionName: "WORK",
-									sectionId: 2,
-									sectionItems: [{sectionItemName: "stackoverflow",
-																sectionItemNameShort: "so",
-																sectionItemUrl: "stackoverflow.com",
-															 sectionItemColors: ["#000", "#fff"] },{
-																	sectionItemName: "tutby",
-																								sectionItemNameShort: "tu",
-																								sectionItemUrl: "tut.by",
-																								sectionItemColors: ["#000", "#fff"]
-																}]},
-																{sectionName: "SOCIAL",
-																sectionId: 11,
-																sectionItems: [{sectionItemName: "vkontakte",
-																							sectionItemNameShort: "vk",
-																							sectionItemUrl: "vkontakte.com",
-																						sectionItemColors: ["#000", "#fff"] },{
-																								sectionItemName: "facebook",
-																															sectionItemNameShort: "fb",
-																															sectionItemUrl: "facebook.com",
-																															sectionItemColors: ["#000","#fff"]
-																							}]},
+						sectionItemNameShort: "so",
+						sectionItemUrl: "stackoverflow.com",
+						sectionItemColors: ["#FF8C00", "#000"],
+						sectionItemId: "b202656a-ce7c-4f66-acb2-6b11f5981382"},
+						{sectionItemName: "myanimelist",
+						sectionItemNameShort: "ma",
+						sectionItemUrl: "myanimelist.net",
+						sectionItemColors: ["blue","white"]}]},
+		{sectionName: "WORK",
+		sectionId: 2,
+		sectionItems: [{sectionItemName: "stackoverflow",
+						sectionItemNameShort: "so",
+						sectionItemUrl: "stackoverflow.com",
+						sectionItemColors: ["#000", "#fff"],
+						sectionItemId: "93e4d3e0-0e23-4d02-a76d-02943409d2eb", },
+						{sectionItemName: "tutby",
+						sectionItemNameShort: "tu",
+						sectionItemUrl: "tut.by",
+						sectionItemColors: ["#000", "#fff"],
+						sectionItemId: "4a96aac6-5443-43eb-85fe-78aba85dd325",}]},
+		{sectionName: "SOCIAL",
+		sectionId: 11,
+		sectionItems: [{sectionItemName: "vkontakte",
+						sectionItemNameShort: "vk",
+						sectionItemUrl: "vkontakte.com",
+						sectionItemColors: ["#000", "#fff"],
+						sectionItemId: "55b4f740-2f34-45d8-b426-51e40d0c44ef" },
+						]},
 		],
 };
 
@@ -290,10 +290,6 @@ function dismissAddDialog(){
 	state.toggleOverLay(false);
 	let tileEditWindow = document.getElementsByClassName("tileEditWindow");
 	document.body.removeChild(tileEditWindow[0]);
-}
-
-function generateContextMenu(id){
-
 }
 
 function generateAddEditTileWindow(sectionId, tileId){
@@ -427,6 +423,10 @@ function generateAddEditTileWindow(sectionId, tileId){
 	}
 }
 
+function generateDeleteTileWindow(){
+	console.log("engage tile deletion");
+}
+
 
 function generateTile(sectionItem){
 	let linkTileAnchor = document.createElement("a");
@@ -519,15 +519,45 @@ function getFormData(){
 	return new SectionItem(fieldUrl, fieldName, fieldNameShort, fieldColorBg, fieldColorFg);
 }
 
+function generateContextMenu(tileId, coordX, coordY){
+	let clickedCoords = getMouseCoords();
+	let contextMenuDiv = document.createElement("div");
+	contextMenuDiv.className = "contextMenu";
+	let strArr = ["Edit tile", "Delete"];
+	let olElement = document.createElement("ol");
+	for(let i = 0;i<strArr.length;i++){
+		ulElement = document.createElement("ul");
+		ulElement.innerHTML = strArr[i];
+		if(!i){
+			ulElement.addEventListener("click", generateAddEditTileWindow, false);
+		}
+		else{
+			ulElement.addEventListener("click", generateDeleteTileWindow, false);
+			ulElement.className = "warning";
+		}
+		olElement.appendChild(ulElement);
+	}
+	contextMenuDiv.appendChild(olElement);
+	document.body.appendChild(contextMenuDiv);
+	console.log(contextMenuDiv.offsetHeight);
+	contextMenuDiv.style.top = (coordY + contextMenuDiv.offsetHeight/2) + "px";
+	contextMenuDiv.style.left = coordX + "px";
+}
+
 function removeTile(sectionId, tileId){
 
 }
+
 
 
 function autoSetColor(url){
 
 }
 
+
+function getMouseCoords(){
+
+}
 function autocomplete(inp, arr) {
   var currentFocus;
   /*execute a function when someone writes in the text field:*/
@@ -637,4 +667,17 @@ function detectAndApplyColors(formFieldBg, formFieldFg, url, iconPreviewDiv){
 			}
 		}
 	}
+}
+
+function getUUID(){
+	var d = new Date().getTime();
+    if(Date.now){
+        d = Date.now(); //high-precision timer
+    }
+    var uuid = 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = (d + Math.random()*16)%16 | 0;
+        d = Math.floor(d/16);
+        return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+    });
+    return uuid;
 }
