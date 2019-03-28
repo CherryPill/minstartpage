@@ -96,7 +96,6 @@ function initStartPage(){
 	generateSearchEngineOptions();
 	initTimeScript();
 	updateUI();
-	addTileContextMenuTest();
 	addEventListeners();
 }
 
@@ -123,19 +122,6 @@ function createSettingsContents(parent){
 
 }
 
-function addTileContextMenuTest(){
-	let allCurrentTiles = document.getElementsByClassName("linkTile");
-	console.log(allCurrentTiles);
-	for(var i=0; i < allCurrentTiles.length; i++){
-		allCurrentTiles[i].addEventListener("contextmenu", function(e){
-		e.preventDefault();
-		generateContextMenu(this.getAttribute("tileid"), e.clientX, e.clientY);
-		//generateContextMenu.bind(this, this.getAttribute("tileid"));
-		console.log("click");
-		return false;}, false);
-	}
-}
-
 //mock user data
 var userData = {
 	sections: [
@@ -149,7 +135,8 @@ var userData = {
 						{sectionItemName: "myanimelist",
 						sectionItemNameShort: "ma",
 						sectionItemUrl: "myanimelist.net",
-						sectionItemColors: ["blue","white"]}]},
+						sectionItemColors: ["blue","white"],
+						sectionItemId: "a202656a-ce7c-4f66-a2b2-6b11f4981382",}]},
 		{sectionName: "WORK",
 		sectionId: 2,
 		sectionItems: [{sectionItemName: "stackoverflow",
@@ -222,7 +209,7 @@ function createSection(sectionItemObj){
 		linkTileAnchorInnerDiv.className = "linkTile";
 		linkTileAnchorInnerDiv.innerHTML = sectionItem.sectionItemNameShort;
 		linkTileAnchorInnerDiv.setAttribute("sectionId", sectionItemObj.sectionId);
-		linkTileAnchorInnerDiv.setAttribute("tileId", 100);
+		linkTileAnchorInnerDiv.id = sectionItem.sectionItemId;
 		linkTileAnchor.appendChild(linkTileAnchorInnerDiv);
 		linkTilesSection.appendChild(linkTileAnchor);
 	}
@@ -231,7 +218,7 @@ function createSection(sectionItemObj){
 	let linkTileAnchorAddNewInnerDiv = document.createElement("div");
 	linkTileAnchorAddNewInnerDiv.className = "linkTile addNew";
 	linkTileAnchorAddNewInnerDiv.setAttribute("sectionId", sectionItemObj.sectionId);
-	linkTileAnchorAddNewInnerDiv.setAttribute("tileId", null);
+	linkTileAnchorAddNewInnerDiv.id = null;
 
 	linkTileAnchorAddNewInnerDiv.style.color = "black";
 	linkTileAnchorAddNewInnerDiv.style.backgroundColor = "white";
@@ -272,11 +259,35 @@ function addEventListenersDynamic(){
 	let a = document.getElementsByClassName("addNew");
 	for(var i=0; i < a.length; i++){
 		a[i].addEventListener("click", generateAddEditTileWindow.bind(this, a[i].getAttribute("sectionid"),
-	a[i].getAttribute("tileid")), false);
+	a[i].id, false));
+	}
+	let allCurrentTiles = document.getElementsByClassName("linkTile");
+	console.log(allCurrentTiles);
+	for(var i=0; i < allCurrentTiles.length; i++){
+		allCurrentTiles[i].addEventListener("contextmenu", function(e){
+		e.preventDefault();
+		generateContextMenu(this.id, e.clientX, e.clientY);
+		//generateContextMenu.bind(this, this.getAttribute("tileid"));
+		console.log("click");
+		return false;}, false);
 	}
 }
 
 function addEventListeners(){
+	//global even listener for contextmenu
+	document.body.addEventListener("click", function(e){
+		let a = document.getElementsByClassName("contextMenu");
+		if(!(a[0] == undefined)){
+			if(e.target.id == "contextMenuEdit"){
+				//edit a[0].id
+			}
+			else if(e.target.id == "contextMenuDelete"){
+				removeTile(a[0].id);
+			}
+			a[0].parentNode.removeChild(a[0]);
+		}
+	});
+
 	state.overlayElement.addEventListener("click", dismissAddDialog);
 	document.addEventListener("keydown", function(k){
 		if(k.keyCode == 27 && state.overlayElement){
@@ -520,44 +531,55 @@ function getFormData(){
 }
 
 function generateContextMenu(tileId, coordX, coordY){
-	let clickedCoords = getMouseCoords();
-	let contextMenuDiv = document.createElement("div");
-	contextMenuDiv.className = "contextMenu";
-	let strArr = ["Edit tile", "Delete"];
-	let olElement = document.createElement("ol");
-	for(let i = 0;i<strArr.length;i++){
-		ulElement = document.createElement("ul");
-		ulElement.innerHTML = strArr[i];
-		if(!i){
-			ulElement.addEventListener("click", generateAddEditTileWindow, false);
+	if(tileId != "null"){
+		let contextMenuDiv = document.createElement("div");
+		contextMenuDiv.className = "contextMenu";
+		contextMenuDiv.id = tileId;
+		let strArr = ["Edit tile", "Delete"];
+		let olElement = document.createElement("ol");
+		for(let i = 0;i<strArr.length;i++){
+			ulElement = document.createElement("ul");
+			ulElement.innerHTML = strArr[i];
+			ulElement.className = "contextMenuSelection";
+			if(!i){
+				ulElement.addEventListener("click", generateAddEditTileWindow, false);
+				ulElement.id = "contextMenuEdit";
+			}
+			else{
+				ulElement.addEventListener("click", generateDeleteTileWindow, false);
+				ulElement.className = "warning";
+				ulElement.id = "contextMenuDelete";
+			}
+			olElement.appendChild(ulElement);
 		}
-		else{
-			ulElement.addEventListener("click", generateDeleteTileWindow, false);
-			ulElement.className = "warning";
-		}
-		olElement.appendChild(ulElement);
+		contextMenuDiv.appendChild(olElement);
+		document.body.appendChild(contextMenuDiv);
+		console.log(contextMenuDiv.offsetHeight);
+		contextMenuDiv.style.top = (coordY + contextMenuDiv.offsetHeight/2) + "px";
+		contextMenuDiv.style.left = coordX + "px";
 	}
-	contextMenuDiv.appendChild(olElement);
-	document.body.appendChild(contextMenuDiv);
-	console.log(contextMenuDiv.offsetHeight);
-	contextMenuDiv.style.top = (coordY + contextMenuDiv.offsetHeight/2) + "px";
-	contextMenuDiv.style.left = coordX + "px";
 }
 
-function removeTile(sectionId, tileId){
-
+function removeTile(tileId){
+	for(let s = 0; s<userData.sections.length;s++){
+		for(let sectionItem = 0;sectionItem<userData.sections[s].sectionItems.length;sectionItem++){
+			if(userData.sections[s].sectionItems[sectionItem].sectionItemId == tileId){
+				console.log(userData.sections[s].sectionItems[sectionItem]);
+				userData.sections[s].sectionItems.splice(s, 1);
+			}
+		}
+	}
+	let tileForDeletion = document.getElementById(tileId);
+	tileForDeletion.parentNode.removeChild(tileForDeletion);
+	updateUI();
+	console.log(userData);
 }
-
 
 
 function autoSetColor(url){
 
 }
 
-
-function getMouseCoords(){
-
-}
 function autocomplete(inp, arr) {
   var currentFocus;
   /*execute a function when someone writes in the text field:*/

@@ -207,7 +207,8 @@ div.contextMenu{
 	position: absolute;
 	border: 1px solid #ccc;
 	font-family: Helvetica;
-
+	background-color: #fff !important;
+	
 }
 
 div.contextMenu ol{
