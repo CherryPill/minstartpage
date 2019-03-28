@@ -6,26 +6,40 @@ var state = {
 	modalOverlayOn: false,
 	toggleOverLay: function(val){
 		this.overlayElement.style.visibility = val ? "visible":"hidden";
-		console.log(this.overlayElement.style.visibility);
+		//console.log(this.overlayElement.style.visibility);
 		this.modalOverlayOn = !this.modalOverlayOn;
 	}
 };
 
-var addEditWindowState = {
-	currentBgColor: "#45688E",
-	currentFgColor: "#000000",
-	currentUrl: "",
-	currentName: "",
-	currentIconPreviewText: "AB",
-};
+/*var addEditWindowState = new SectionItem("","");
+	this.currentBgColor: "#45688E",
+	this.currentFgColor: "#000000",
+	this.currentUrl: "",
+	this.currentName: "",
+	this.currentIconPreviewText: "AB",
+};*/
 
-function SectionItem(_sectionItemUrl, _sectionItemName, _sectionItemNameShort, _sectionItemColorsBg, _sectionItemColorsFg){
-	this.sectionItemColors = new Array(2);
-	this.sectionItemName = _sectionItemName;
-	this.sectionItemNameShort = _sectionItemNameShort;
-	this.sectionItemUrl = _sectionItemUrl;
-	this.sectionItemColors[0] = _sectionItemColorsBg;
-	this.sectionItemColors[1] = _sectionItemColorsFg;
+function SectionItem(
+	_sectionItemUrl,
+	_sectionItemName,
+	_sectionItemNameShort,
+	_sectionItemColorsBg,
+	_sectionItemColorsFg){
+		this.sectionItemColors = new Array(2);
+	if(arguments.length == 0){
+		this.sectionItemName = "";
+		this.sectionItemNameShort = "";
+		this.sectionItemUrl = "";
+		this.sectionItemColors[0] = "#45688E";
+		this.sectionItemColors[1] = "000000";
+	}
+	else{
+		this.sectionItemName = _sectionItemName;
+		this.sectionItemNameShort = _sectionItemNameShort;
+		this.sectionItemUrl = _sectionItemUrl;
+		this.sectionItemColors[0] = _sectionItemColorsBg;
+		this.sectionItemColors[1] = _sectionItemColorsFg;
+	}
 }
 
 var tempSectionStore = {
@@ -134,8 +148,8 @@ var userData = {
 						sectionItemId: "b202656a-ce7c-4f66-acb2-6b11f5981382"},
 						{sectionItemName: "myanimelist",
 						sectionItemNameShort: "ma",
-						sectionItemUrl: "myanimelist.net",
-						sectionItemColors: ["blue","white"],
+						sectionItemUrl: "http://myanimelist.net/",
+						sectionItemColors: ["#0000ff","#ffffff"],
 						sectionItemId: "a202656a-ce7c-4f66-a2b2-6b11f4981382",}]},
 		{sectionName: "WORK",
 		sectionId: 2,
@@ -239,7 +253,6 @@ function createSection(sectionItemObj){
 function toggleColorLock(_state_){
 	let colorInputs = document.getElementsByClassName("colorPickerInput");
 	let colorInputLabels = document.getElementsByClassName("colorPickerInputLabel");
-	console.log(colorInputLabels);
 	let labelColor, reqOpacity;
 	if(_state_){
 		reqOpacity = 1.0;
@@ -262,11 +275,11 @@ function addEventListenersDynamic(){
 	a[i].id, false));
 	}
 	let allCurrentTiles = document.getElementsByClassName("linkTile");
-	console.log(allCurrentTiles);
+	//console.log(allCurrentTiles);
 	for(var i=0; i < allCurrentTiles.length; i++){
 		allCurrentTiles[i].addEventListener("contextmenu", function(e){
 		e.preventDefault();
-		generateContextMenu(this.id, e.clientX, e.clientY);
+		generateContextMenu(this.id, e.clientX, e.clientY, this.getAttribute("sectionId"));
 		//generateContextMenu.bind(this, this.getAttribute("tileid"));
 		console.log("click");
 		return false;}, false);
@@ -279,7 +292,7 @@ function addEventListeners(){
 		let a = document.getElementsByClassName("contextMenu");
 		if(!(a[0] == undefined)){
 			if(e.target.id == "contextMenuEdit"){
-				//edit a[0].id
+				generateAddEditTileWindow(a[0].getAttribute("sectionid"), a[0].id);
 			}
 			else if(e.target.id == "contextMenuDelete"){
 				removeTile(a[0].id);
@@ -303,134 +316,157 @@ function dismissAddDialog(){
 	document.body.removeChild(tileEditWindow[0]);
 }
 
+
+function createWindowControls(sectionId, sItem){
+	console.log(sItem);
+	let tileEditWindow = document.createElement("div");
+	tileEditWindow.className = "tileEditWindow";
+	let header = document.createElement("div");
+	header.innerHTML = "Add new tile";
+	let formRowUrl = document.createElement("div");
+	formRowUrl.className = "form-row";
+	let formRowUrlLabel = document.createElement("label");
+	formRowUrlLabel.className = "form-row-label";
+	formRowUrlLabel.innerHTML = "url:"
+	let formRowUrlInput = document.createElement("input");
+	formRowUrlInput.setAttribute("type", "text");
+	formRowUrlInput.setAttribute("name", "url");
+	formRowUrlInput.setAttribute("value", sItem.sectionItemUrl);
+	formRowUrlInput.disabled = true;
+
+	formRowUrlInput.id = "formInputFieldUrl";
+	let formRowName = document.createElement("div");
+	formRowName.className = "form-row";
+	let formRowNameLabel = document.createElement("label");
+	formRowNameLabel.innerHTML = "name:"
+	formRowNameLabel.className = "form-row-label";
+	let formRowNameInput = document.createElement("input");
+	formRowNameInput.setAttribute("type", "text");
+	formRowNameInput.setAttribute("name", "name");
+	formRowNameInput.id = "formInputFieldName";
+	formRowNameInput.setAttribute("value", sItem.sectionItemName);
+
+
+	let iconCustomizationSection = document.createElement("div");
+	iconCustomizationSection.className = "iconCustomizationSection";
+	let linkTilesSectionIconPreview = document.createElement("div");
+	linkTilesSectionIconPreview.className = "linkTilesSection iconPreview";
+	let linkTilesSectionIconPreviewInnerDiv = document.createElement("div");
+	linkTilesSectionIconPreviewInnerDiv.innerHTML = "Preview";
+	let fullTitleAnchor = generateAnchor("https://vk.com/feed");
+	let linkTileEditMode = generateDiv("linkTile editMode", "", "iconPreviewDiv");
+	linkTileEditMode.innerHTML = sItem.sectionItemNameShort;
+	linkTileEditMode.style.backgroundColor =  sItem.sectionItemColors[0];
+	linkTileEditMode.style.color =  sItem.sectionItemColors[1];
+
+	let colorPickerSection = generateDiv("colorPickerSection","","");
+	let colorAutodetect = generateDiv("color-autodetect", "", "")
+	let colorAutodetectLabel = document.createElement("label");
+	colorAutodetectLabel.className = "form-row-label";
+	colorAutodetectLabel.setAttribute("for","colorAutoID");
+	colorAutodetectLabel.innerHTML = "autodetect color:";
+	let colorAutodetectInput = document.createElement("input");
+	colorAutodetectInput.id = "colorAutoID";
+	colorAutodetectInput.setAttribute("type", "checkbox");
+	colorAutodetectInput.setAttribute("name", "colorAuto");
+	colorAutodetectInput.style.width = "20px";
+	colorAutodetectInput.style.height = "20px";
+
+	let colorPicker = generateDiv("color-form", "", "");
+	let colorPickerLabel = generateLabel("colorPickerInput", "colorPickerInputLabel form-row-label", "background:");
+	let colorPickerInput = generateInput("color", "colorBg", sItem.sectionItemColors[0], "colorPickerInput", "formInputFieldColorBg");
+
+	let colorPicker_1 = generateDiv("color-form", "", "");
+	let colorPickerLabel_1 = generateLabel("colorPickerInput", "colorPickerInputLabel form-row-label", "foreground:");
+	let colorPickerInput_1 = generateInput("color", "colorFg", sItem.sectionItemColors[1], "colorPickerInput", "formInputFieldColorFg");
+
+	colorPickerInput_1.addEventListener("input",function(){
+		linkTileEditMode.style.color = this.value;
+	}, false);
+
+	colorPickerInput.addEventListener("input",function(){
+		linkTileEditMode.style.backgroundColor = this.value;
+	}, false);
+
+	colorAutodetectInput.addEventListener("click", function(){
+				toggleColorLock(state.colorAutoDetectOn)
+		state.colorAutoDetectOn = !state.colorAutoDetectOn;
+		if(state.colorAutoDetectOn){
+			detectAndApplyColors(colorPickerInput, colorPickerInput_1, formRowUrlInput, linkTileEditMode);
+		}
+	});
+
+	let actionButtonsDiv = document.createElement("div");
+	actionButtonsDiv.className = "actionButtons";
+
+	let actionButtonOk = generateButton("OK");
+	actionButtonOk.addEventListener("click", addNewTile);
+	let actionButtonCancel = generateButton("Cancel");
+
+	fullTitleAnchor.appendChild(linkTileEditMode);
+	linkTilesSectionIconPreview.appendChild(linkTilesSectionIconPreviewInnerDiv);
+	linkTilesSectionIconPreview.appendChild(fullTitleAnchor);
+
+	colorAutodetect.appendChild(colorAutodetectLabel);
+	colorAutodetect.appendChild(colorAutodetectInput);
+	colorPicker.appendChild(colorPickerLabel);
+	colorPicker.appendChild(colorPickerInput);
+	colorPicker_1.appendChild(colorPickerLabel_1);
+	colorPicker_1.appendChild(colorPickerInput_1);
+	colorPickerSection.appendChild(colorAutodetect);
+	colorPickerSection.appendChild(colorPicker);
+	colorPickerSection.appendChild(colorPicker_1);
+	iconCustomizationSection.appendChild(linkTilesSectionIconPreview);
+	iconCustomizationSection.appendChild(colorPickerSection);
+
+	actionButtonsDiv.appendChild(actionButtonOk);
+	actionButtonsDiv.appendChild(actionButtonCancel);
+
+	tileEditWindow.appendChild(header);
+
+	formRowName.appendChild(formRowNameLabel);
+	formRowName.appendChild(formRowNameInput);
+	formRowUrl.appendChild(formRowUrlLabel);
+	formRowUrl.appendChild(formRowUrlInput);
+	tileEditWindow.appendChild(formRowName);
+	tileEditWindow.appendChild(formRowUrl);
+	tileEditWindow.appendChild(iconCustomizationSection);
+	tileEditWindow.appendChild(actionButtonsDiv);
+	document.body.appendChild(tileEditWindow);
+	state.toggleOverLay(true);
+	state.overlayElement.style.zIndex = 0;
+	tileEditWindow.style.zIndex = 5;
+	let windowTopOffset = _sysVars.getViewPortHeight()/2 - 247/2 + "px";
+	tileEditWindow.style.top = windowTopOffset;
+	let windowLeftOffset = _sysVars.getViewPortWidth()/2 - 522/2 +"px";
+	tileEditWindow.style.left = windowLeftOffset;
+	tempSectionStore.currentSectionId = sectionId;
+	autocomplete(document.getElementById("formInputFieldName"), webAppSuggestions);
+}
+
+
 function generateAddEditTileWindow(sectionId, tileId){
-	console.log("in add tile window "+sectionId);
+	var itemForForm;
 	if(tileId == "null"){
-		let tileEditWindow = document.createElement("div");
-		tileEditWindow.className = "tileEditWindow";
-		let header = document.createElement("div");
-		header.innerHTML = "Add new tile";
-		let formRowUrl = document.createElement("div");
-		formRowUrl.className = "form-row";
-		let formRowUrlLabel = document.createElement("label");
-		formRowUrlLabel.className = "form-row-label";
-		formRowUrlLabel.innerHTML = "url:"
-		let formRowUrlInput = document.createElement("input");
-		formRowUrlInput.setAttribute("type", "text");
-		formRowUrlInput.setAttribute("name", "url");
-		formRowUrlInput.disabled = true;
-
-		formRowUrlInput.id = "formInputFieldUrl";
-		let formRowName = document.createElement("div");
-		formRowName.className = "form-row";
-		let formRowNameLabel = document.createElement("label");
-		formRowNameLabel.innerHTML = "name:"
-		formRowNameLabel.className = "form-row-label";
-		let formRowNameInput = document.createElement("input");
-		formRowNameInput.setAttribute("type", "text");
-		formRowNameInput.setAttribute("name", "name");
-		formRowNameInput.id = "formInputFieldName";
-
-
-		let iconCustomizationSection = document.createElement("div");
-		iconCustomizationSection.className = "iconCustomizationSection";
-		let linkTilesSectionIconPreview = document.createElement("div");
-		linkTilesSectionIconPreview.className = "linkTilesSection iconPreview";
-		let linkTilesSectionIconPreviewInnerDiv = document.createElement("div");
-		linkTilesSectionIconPreviewInnerDiv.innerHTML = "Preview";
-		let fullTitleAnchor = generateAnchor("https://vk.com/feed");
-		let linkTileEditMode = generateDiv("linkTile editMode", "", "iconPreviewDiv");
-		linkTileEditMode.innerHTML = addEditWindowState.currentIconPreviewText;
-		linkTileEditMode.style.backgroundColor = addEditWindowState.currentBgColor;
-		linkTileEditMode.style.color = addEditWindowState.currentFgColor;
-
-		let colorPickerSection = generateDiv("colorPickerSection","","");
-		let colorAutodetect = generateDiv("color-autodetect", "", "")
-		let colorAutodetectLabel = document.createElement("label");
-		colorAutodetectLabel.className = "form-row-label";
-		colorAutodetectLabel.setAttribute("for","colorAutoID");
-		colorAutodetectLabel.innerHTML = "autodetect color:";
-		let colorAutodetectInput = document.createElement("input");
-		colorAutodetectInput.id = "colorAutoID";
-		colorAutodetectInput.setAttribute("type", "checkbox");
-		colorAutodetectInput.setAttribute("name", "colorAuto");
-		colorAutodetectInput.style.width = "20px";
-		colorAutodetectInput.style.height = "20px";
-
-		let colorPicker = generateDiv("color-form", "", "");
-		let colorPickerLabel = generateLabel("colorPickerInput", "colorPickerInputLabel form-row-label", "background:");
-		let colorPickerInput = generateInput("color", "colorBg", addEditWindowState.currentBgColor, "colorPickerInput", "formInputFieldColorBg");
-
-		let colorPicker_1 = generateDiv("color-form", "", "");
-		let colorPickerLabel_1 = generateLabel("colorPickerInput", "colorPickerInputLabel form-row-label", "foreground:");
-		let colorPickerInput_1 = generateInput("color", "colorFg", addEditWindowState.currentFgColor, "colorPickerInput", "formInputFieldColorFg");
-
-		colorPickerInput_1.addEventListener("input",function(){
-			linkTileEditMode.style.color = this.value;
-		}, false);
-
-		colorPickerInput.addEventListener("input",function(){
-			linkTileEditMode.style.backgroundColor = this.value;
-		}, false);
-
-
-		colorAutodetectInput.addEventListener("click", function(){
-					toggleColorLock(state.colorAutoDetectOn)
-			state.colorAutoDetectOn = !state.colorAutoDetectOn;
-			if(state.colorAutoDetectOn){
-				detectAndApplyColors(colorPickerInput, colorPickerInput_1, formRowUrlInput, linkTileEditMode);
-			}
-		});
-
-		let actionButtonsDiv = document.createElement("div");
-		actionButtonsDiv.className = "actionButtons";
-
-		let actionButtonOk = generateButton("OK");
-		actionButtonOk.addEventListener("click", addNewTile);
-		let actionButtonCancel = generateButton("Cancel");
-
-		fullTitleAnchor.appendChild(linkTileEditMode);
-		linkTilesSectionIconPreview.appendChild(linkTilesSectionIconPreviewInnerDiv);
-		linkTilesSectionIconPreview.appendChild(fullTitleAnchor);
-
-		colorAutodetect.appendChild(colorAutodetectLabel);
-		colorAutodetect.appendChild(colorAutodetectInput);
-		colorPicker.appendChild(colorPickerLabel);
-		colorPicker.appendChild(colorPickerInput);
-		colorPicker_1.appendChild(colorPickerLabel_1);
-		colorPicker_1.appendChild(colorPickerInput_1);
-		colorPickerSection.appendChild(colorAutodetect);
-		colorPickerSection.appendChild(colorPicker);
-		colorPickerSection.appendChild(colorPicker_1);
-		iconCustomizationSection.appendChild(linkTilesSectionIconPreview);
-		iconCustomizationSection.appendChild(colorPickerSection);
-
-		actionButtonsDiv.appendChild(actionButtonOk);
-		actionButtonsDiv.appendChild(actionButtonCancel);
-
-		tileEditWindow.appendChild(header);
-
-		formRowName.appendChild(formRowNameLabel);
-		formRowName.appendChild(formRowNameInput);
-		formRowUrl.appendChild(formRowUrlLabel);
-		formRowUrl.appendChild(formRowUrlInput);
-		tileEditWindow.appendChild(formRowName);
-		tileEditWindow.appendChild(formRowUrl);
-		tileEditWindow.appendChild(iconCustomizationSection);
-		tileEditWindow.appendChild(actionButtonsDiv);
-		document.body.appendChild(tileEditWindow);
-		state.toggleOverLay(true);
-		state.overlayElement.style.zIndex = 0;
-		tileEditWindow.style.zIndex = 5;
-		let windowTopOffset = _sysVars.getViewPortHeight()/2 - 247/2 + "px";
-		tileEditWindow.style.top = windowTopOffset;
-		let windowLeftOffset = _sysVars.getViewPortWidth()/2 - 522/2 +"px";
-		tileEditWindow.style.left = windowLeftOffset;
-		tempSectionStore.currentSectionId = sectionId;
-		autocomplete(document.getElementById("formInputFieldName"), webAppSuggestions);
+		itemForForm = new SectionItem();
 	}
 	else{
-
+		//find tile id in userdata and fill the ui form accordingly
+		for(let s = 0; s<userData.sections.length;s++){
+			for(let sectionItem = 0;sectionItem<userData.sections[s].sectionItems.length;sectionItem++){
+				if(userData.sections[s].sectionItems[sectionItem].sectionItemId == tileId){
+					userData.sections[s].sectionItems[sectionItem];
+					itemForForm = new SectionItem(userData.sections[s].sectionItems[sectionItem].sectionItemUrl,
+					userData.sections[s].sectionItems[sectionItem].sectionItemName,
+				userData.sections[s].sectionItems[sectionItem].sectionItemNameShort,
+			userData.sections[s].sectionItems[sectionItem].sectionItemColors[0],
+			userData.sections[s].sectionItems[sectionItem].sectionItemColors[1]
+		);
+				}
+			}
+		}
+		console.log(itemForForm);
+		createWindowControls(sectionId, itemForForm);
 	}
 }
 
@@ -506,7 +542,7 @@ function addNewTile(){
 }
 function createSectionItem(enteredData){
 	let targetSectionDiv = document.getElementById(tempSectionStore.currentSectionId);
-	console.log(tempSectionStore.currentSectionId);
+	//console.log(tempSectionStore.currentSectionId);
 	let linkTileAnchor = document.createElement("a");
 	linkTileAnchor.setAttribute("href", enteredData.sectionItemUrl);
 	linkTileAnchor.setAttribute("target", "_blank");
@@ -530,11 +566,12 @@ function getFormData(){
 	return new SectionItem(fieldUrl, fieldName, fieldNameShort, fieldColorBg, fieldColorFg);
 }
 
-function generateContextMenu(tileId, coordX, coordY){
+function generateContextMenu(tileId, coordX, coordY, sectionId){
 	if(tileId != "null"){
 		let contextMenuDiv = document.createElement("div");
 		contextMenuDiv.className = "contextMenu";
 		contextMenuDiv.id = tileId;
+		contextMenuDiv.setAttribute("sectionid", sectionId);
 		let strArr = ["Edit tile", "Delete"];
 		let olElement = document.createElement("ol");
 		for(let i = 0;i<strArr.length;i++){
@@ -542,11 +579,11 @@ function generateContextMenu(tileId, coordX, coordY){
 			ulElement.innerHTML = strArr[i];
 			ulElement.className = "contextMenuSelection";
 			if(!i){
-				ulElement.addEventListener("click", generateAddEditTileWindow, false);
+				//ulElement.addEventListener("click", generateAddEditTileWindow, false);
 				ulElement.id = "contextMenuEdit";
 			}
 			else{
-				ulElement.addEventListener("click", generateDeleteTileWindow, false);
+				//ulElement.addEventListener("click", generateDeleteTileWindow, false);
 				ulElement.className = "warning";
 				ulElement.id = "contextMenuDelete";
 			}
@@ -554,7 +591,6 @@ function generateContextMenu(tileId, coordX, coordY){
 		}
 		contextMenuDiv.appendChild(olElement);
 		document.body.appendChild(contextMenuDiv);
-		console.log(contextMenuDiv.offsetHeight);
 		contextMenuDiv.style.top = (coordY + contextMenuDiv.offsetHeight/2) + "px";
 		contextMenuDiv.style.left = coordX + "px";
 	}
@@ -564,7 +600,23 @@ function removeTile(tileId){
 	for(let s = 0; s<userData.sections.length;s++){
 		for(let sectionItem = 0;sectionItem<userData.sections[s].sectionItems.length;sectionItem++){
 			if(userData.sections[s].sectionItems[sectionItem].sectionItemId == tileId){
-				console.log(userData.sections[s].sectionItems[sectionItem]);
+				userData.sections[s].sectionItems.splice(sectionItem, 1);
+			}
+		}
+	}
+	let tileForDeletion = document.getElementById(tileId);
+	tileForDeletion.parentNode.removeChild(tileForDeletion);
+	updateUI();
+	//console.log(userData);
+}
+
+//delete at index and copy the new object
+function editTile(tileId){
+	let enteredData = getFormData();
+	for(let s = 0; s<userData.sections.length;s++){
+		for(let sectionItem = 0;sectionItem<userData.sections[s].sectionItems.length;sectionItem++){
+			if(userData.sections[s].sectionItems[sectionItem].sectionItemId == tileId){
+				//console.log(userData.sections[s].sectionItems[sectionItem]);
 				userData.sections[s].sectionItems.splice(s, 1);
 			}
 		}
@@ -572,9 +624,8 @@ function removeTile(tileId){
 	let tileForDeletion = document.getElementById(tileId);
 	tileForDeletion.parentNode.removeChild(tileForDeletion);
 	updateUI();
-	console.log(userData);
+	//console.log(userData);
 }
-
 
 function autoSetColor(url){
 
