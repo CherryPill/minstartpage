@@ -6,7 +6,6 @@ var state = {
 	modalOverlayOn: false,
 	toggleOverLay: function(val){
 		this.overlayElement.style.visibility = val ? "visible":"hidden";
-		//console.log(this.overlayElement.style.visibility);
 		this.modalOverlayOn = !this.modalOverlayOn;
 	}
 };
@@ -55,6 +54,7 @@ function SectionItem(
 
 var tempSectionStore = {
 	currentSectionId: 0,
+	currentSectionName: "",
 };
 
 function initSysVars(){
@@ -204,8 +204,10 @@ function createSection(sectionItemObj){
 	let mainArea = document.getElementById("mainArea");
 	let mainAreaRow = document.createElement("div");
 	mainAreaRow.className = "b";
+	mainAreaRow.id = sectionItemObj.sectionId;
 	let sectionHeaderRow = document.createElement("div");
 	sectionHeaderRow.className = "sectionHeaderRow";
+	//sectionHeaderRow.id = sectionItemObj.sectionId;
 	let sectionHeaderName = document.createElement("div");
 	sectionHeaderName.className = "sectionHeaderName";
 	sectionHeaderName.innerHTML = sectionItemObj.sectionName;
@@ -215,10 +217,13 @@ function createSection(sectionItemObj){
 	sectionHeaderManagement.className = "sectionHeaderManagement";
 	let sectionHeaderManagementEdit = document.createElement("div");
 	sectionHeaderManagementEdit.className = "sectionHeaderManagementEdit";
+	sectionHeaderManagementEdit.addEventListener("click", function(){editSection(sectionItemObj.sectionId)});
+
 	let sectionHeaderManagementEditAnchor = document.createElement("img");
 	sectionHeaderManagementEditAnchor.setAttribute("src", "img/edit.png");
 	let sectionHeaderManagementRem = document.createElement("div");
 	sectionHeaderManagementRem.className = "sectionHeaderManagementRem";
+	sectionHeaderManagementRem.addEventListener("click", function(){removeSection(sectionItemObj.sectionId)});
 	let sectionHeaderManagementRemAnchor = document.createElement("img");
 	sectionHeaderManagementRemAnchor.setAttribute("src", "img/delete.png");
 	let linkTilesSection = document.createElement("div");
@@ -489,11 +494,6 @@ function generateAddEditTileWindow(sectionId, tileId){
 	createWindowControls(sectionId, itemForForm, tileId);
 }
 
-function generateDeleteTileWindow(){
-	console.log("engage tile deletion");
-}
-
-
 function generateTile(sectionItem){
 	let linkTileAnchor = document.createElement("a");
 	linkTileAnchor.setAttribute("href", sectionItem.sectionItemUrl);
@@ -682,7 +682,6 @@ function autocomplete(inp, arr) {
 					formUrlFieldDisabled.value = webAppSuggestions[webApp][1];
 
 					//fill out hidden with full name input with webAppName id
-
               b.addEventListener("click", function(e) {
 								formInputFieldName.value = currentWebApp;
 								if(state.colorAutoDetectOn){
@@ -762,4 +761,40 @@ function detectAndApplyColors(formFieldBg, formFieldFg, url, iconPreviewDiv){
 			}
 		}
 	}
+}
+
+function removeSection(sectionId){
+	for(let i = 0;i<userData.sections.length;i++){
+		if(userData.sections[i].sectionId == sectionId){
+			userData.sections.splice(i, 1);
+		}
+	}
+	let sectionForDeletion = document.getElementById(sectionId);
+	sectionForDeletion.parentNode.removeChild(sectionForDeletion);
+	updateUI();
+}
+
+function editSection(sectionId){
+	console.log("editing");
+	let sectionForEditing = document.getElementById(sectionId);
+	let children = sectionForEditing.childNodes;
+	let row = children[0];
+	let actuaChildren = row.childNodes;
+	console.log(actuaChildren);
+	for(c of actuaChildren){
+		if(c.className == "sectionHeaderName"){
+			let requiredInputWidth = c.offsetWidth;
+			console.log(requiredInputWidth)
+			tempSectionStore.currentSectionName = c.innerHTML;
+			c.innerHTML = "";
+			let editInput = generateInput("text", "editName", tempSectionStore.currentSectionName, "editSectionName", "editName");
+			editInput.style.width = requiredInputWidth + "px";
+			c.appendChild(editInput);
+			console.log(requiredInputWidth);
+		}
+	}
+}
+
+function addSection(){
+
 }
