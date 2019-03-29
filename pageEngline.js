@@ -11,21 +11,32 @@ var state = {
 	}
 };
 
-/*var addEditWindowState = new SectionItem("","");
-	this.currentBgColor: "#45688E",
-	this.currentFgColor: "#000000",
-	this.currentUrl: "",
-	this.currentName: "",
-	this.currentIconPreviewText: "AB",
-};*/
+var UUIDGeneration = {
+	GENERATE: 0,
+	NO_GENERATE: 1,
+	getUUID: function getUUID(){
+		var d = new Date().getTime();
+	    if(Date.now){
+	        d = Date.now(); //high-precision timer
+	    }
+	    var uuid = 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+	        var r = (d + Math.random()*16)%16 | 0;
+	        d = Math.floor(d/16);
+	        return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+	    });
+	    return uuid;
+	}
+};
 
 function SectionItem(
 	_sectionItemUrl,
 	_sectionItemName,
 	_sectionItemNameShort,
 	_sectionItemColorsBg,
-	_sectionItemColorsFg){
+	_sectionItemColorsFg,
+	_sectionUUID){
 		this.sectionItemColors = new Array(2);
+		this.sectionItemId = _sectionUUID;
 	if(arguments.length == 0){
 		this.sectionItemName = "";
 		this.sectionItemNameShort = "";
@@ -317,7 +328,7 @@ function dismissAddDialog(){
 }
 
 
-function createWindowControls(sectionId, sItem){
+function createWindowControls(sectionId, sItem, tileId){
 	console.log(sItem);
 	let tileEditWindow = document.createElement("div");
 	tileEditWindow.className = "tileEditWindow";
@@ -400,7 +411,13 @@ function createWindowControls(sectionId, sItem){
 	actionButtonsDiv.className = "actionButtons";
 
 	let actionButtonOk = generateButton("OK");
-	actionButtonOk.addEventListener("click", addNewTile);
+	if(tileId == "null"){
+		actionButtonOk.addEventListener("click", addNewTile);
+	}
+	else{
+		actionButtonOk.addEventListener("click", function(){editTile(tileId)});
+	}
+
 	let actionButtonCancel = generateButton("Cancel");
 
 	fullTitleAnchor.appendChild(linkTileEditMode);
@@ -447,10 +464,12 @@ function createWindowControls(sectionId, sItem){
 
 function generateAddEditTileWindow(sectionId, tileId){
 	var itemForForm;
+	//add new title
 	if(tileId == "null"){
 		itemForForm = new SectionItem();
 	}
 	else{
+		//edit existing tile
 		//find tile id in userdata and fill the ui form accordingly
 		for(let s = 0; s<userData.sections.length;s++){
 			for(let sectionItem = 0;sectionItem<userData.sections[s].sectionItems.length;sectionItem++){
@@ -465,9 +484,9 @@ function generateAddEditTileWindow(sectionId, tileId){
 				}
 			}
 		}
-		console.log(itemForForm);
-		createWindowControls(sectionId, itemForForm);
 	}
+	console.log(itemForForm);
+	createWindowControls(sectionId, itemForForm, tileId);
 }
 
 function generateDeleteTileWindow(){
@@ -531,6 +550,7 @@ function generateAnchor(href){
 
 function addNewTile(){
 	let enteredData = getFormData();
+
 	for(let s = 0; s<userData.sections.length;s++){
 		if(userData.sections[s].sectionId == tempSectionStore.currentSectionId){
 			userData.sections[s].sectionItems.push(enteredData);
@@ -557,13 +577,17 @@ function createSectionItem(enteredData){
 	targetSectionDiv.appendChild(linkTileAnchor);
 }
 
-function getFormData(){
+function getFormData(tileId){
 	let fieldUrl = document.getElementById("formInputFieldUrl").value;
 	let fieldName = document.getElementById("formInputFieldName").value;
 	let fieldNameShort = document.getElementById("iconPreviewDiv").innerHTML;
 	let fieldColorBg = document.getElementById("formInputFieldColorBg").value;
 	let fieldColorFg = document.getElementById("formInputFieldColorFg").value;
-	return new SectionItem(fieldUrl, fieldName, fieldNameShort, fieldColorBg, fieldColorFg);
+	let fieldUUID = null;
+	if(tileId == null)
+		fieldUUID = UUIDGeneration.getUUID();
+	fieldUUID = tileId;
+	return new SectionItem(fieldUrl, fieldName, fieldNameShort, fieldColorBg, fieldColorFg, fieldUUID);
 }
 
 function generateContextMenu(tileId, coordX, coordY, sectionId){
@@ -579,11 +603,9 @@ function generateContextMenu(tileId, coordX, coordY, sectionId){
 			ulElement.innerHTML = strArr[i];
 			ulElement.className = "contextMenuSelection";
 			if(!i){
-				//ulElement.addEventListener("click", generateAddEditTileWindow, false);
 				ulElement.id = "contextMenuEdit";
 			}
 			else{
-				//ulElement.addEventListener("click", generateDeleteTileWindow, false);
 				ulElement.className = "warning";
 				ulElement.id = "contextMenuDelete";
 			}
@@ -612,19 +634,19 @@ function removeTile(tileId){
 
 //delete at index and copy the new object
 function editTile(tileId){
-	let enteredData = getFormData();
+	let enteredData = getFormData(tileId);
 	for(let s = 0; s<userData.sections.length;s++){
 		for(let sectionItem = 0;sectionItem<userData.sections[s].sectionItems.length;sectionItem++){
 			if(userData.sections[s].sectionItems[sectionItem].sectionItemId == tileId){
-				//console.log(userData.sections[s].sectionItems[sectionItem]);
-				userData.sections[s].sectionItems.splice(s, 1);
+				delete userData.sections[s].sectionItems[sectionItem];
+				userData.sections[s].sectionItems[sectionItem] = enteredData;
 			}
 		}
 	}
 	let tileForDeletion = document.getElementById(tileId);
 	tileForDeletion.parentNode.removeChild(tileForDeletion);
 	updateUI();
-	//console.log(userData);
+	dismissAddDialog();
 }
 
 function autoSetColor(url){
@@ -740,17 +762,4 @@ function detectAndApplyColors(formFieldBg, formFieldFg, url, iconPreviewDiv){
 			}
 		}
 	}
-}
-
-function getUUID(){
-	var d = new Date().getTime();
-    if(Date.now){
-        d = Date.now(); //high-precision timer
-    }
-    var uuid = 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = (d + Math.random()*16)%16 | 0;
-        d = Math.floor(d/16);
-        return (c=='x' ? r : (r&0x3|0x8)).toString(16);
-    });
-    return uuid;
 }
