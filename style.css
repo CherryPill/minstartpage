@@ -208,7 +208,7 @@ div.contextMenu{
 	border: 1px solid #ccc;
 	font-family: Helvetica;
 	background-color: #fff !important;
-	
+
 }
 
 div.contextMenu ol{
@@ -347,7 +347,6 @@ div#overlay{
 
 div#iconPreviewDiv{
 	font-family: Consolas;
-
 }
 
 div.actionButtons button{
@@ -359,4 +358,10 @@ label.form-row-label {
 	text-align: right;
 	padding-right: 10px;
 
+}
+
+input.editSectionName{
+	font-family: Consolas;
+	font-weight: bold;
+	font-size: 1em;
 }
