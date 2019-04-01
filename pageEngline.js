@@ -4,6 +4,7 @@ var state = {
 	colorAutoDetectOn: false,
 	overlayElement: document.getElementById("overlay"),
 	modalOverlayOn: false,
+	editSectionOn: false,
 	toggleOverLay: function(val){
 		this.overlayElement.style.visibility = val ? "visible":"hidden";
 		this.modalOverlayOn = !this.modalOverlayOn;
@@ -217,7 +218,10 @@ function createSection(sectionItemObj){
 	sectionHeaderManagement.className = "sectionHeaderManagement";
 	let sectionHeaderManagementEdit = document.createElement("div");
 	sectionHeaderManagementEdit.className = "sectionHeaderManagementEdit";
-	sectionHeaderManagementEdit.addEventListener("click", function(){editSection(sectionItemObj.sectionId)});
+	sectionHeaderManagementEdit.id = "sectionHeaderManagementEdit";
+	sectionHeaderManagementEdit.addEventListener("click", function(e){editSection(sectionItemObj.sectionId)
+		e.stopPropagation();
+	});
 
 	let sectionHeaderManagementEditAnchor = document.createElement("img");
 	sectionHeaderManagementEditAnchor.setAttribute("src", "img/edit.png");
@@ -303,9 +307,10 @@ function addEventListenersDynamic(){
 }
 
 function addEventListeners(){
-	//global even listener for contextmenu
+	//global even listener for contextmenu and section editing input
 	document.body.addEventListener("click", function(e){
 		let a = document.getElementsByClassName("contextMenu");
+
 		if(!(a[0] == undefined)){
 			if(e.target.id == "contextMenuEdit"){
 				generateAddEditTileWindow(a[0].getAttribute("sectionid"), a[0].id);
@@ -314,6 +319,15 @@ function addEventListeners(){
 				removeTile(a[0].id);
 			}
 			a[0].parentNode.removeChild(a[0]);
+		}
+		else if(state.editSectionOn){
+			console.log(state.editSectionOn);
+			if(!(e.target.id == "editName")){
+				let b = document.getElementById("editName");
+				changeSectionHeaderName(b.value,b.parentNode.parentNode.parentNode.id);
+				b.parentNode.innerHTML = b.value;
+				state.editSectionOn = false;
+			}
 		}
 	});
 
@@ -776,6 +790,7 @@ function removeSection(sectionId){
 
 function editSection(sectionId){
 	console.log("editing");
+	state.editSectionOn = true;
 	let sectionForEditing = document.getElementById(sectionId);
 	let children = sectionForEditing.childNodes;
 	let row = children[0];
@@ -784,13 +799,22 @@ function editSection(sectionId){
 	for(c of actuaChildren){
 		if(c.className == "sectionHeaderName"){
 			let requiredInputWidth = c.offsetWidth;
+			let requiredInputHeight = c.offsetHeight;
 			console.log(requiredInputWidth)
 			tempSectionStore.currentSectionName = c.innerHTML;
 			c.innerHTML = "";
 			let editInput = generateInput("text", "editName", tempSectionStore.currentSectionName, "editSectionName", "editName");
 			editInput.style.width = requiredInputWidth + "px";
+			editInput.style.height = requiredInputHeight - 15 + "px";
 			c.appendChild(editInput);
-			console.log(requiredInputWidth);
+		}
+	}
+}
+
+function changeSectionHeaderName(v, id){
+	for(section of userData.sections){
+		if(section.sectionId == id){
+			section.sectionName = v;
 		}
 	}
 }
