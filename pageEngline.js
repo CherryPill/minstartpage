@@ -53,6 +53,12 @@ function SectionItem(
 	}
 }
 
+var Section = function(_name){
+	this.sectionName = _name;
+	this.sectionId = UUIDGeneration.getUUID();
+	this.sectionItems = [];
+}
+
 var tempSectionStore = {
 	currentSectionId: 0,
 	currentSectionName: "",
@@ -247,7 +253,7 @@ function createSection(sectionItemObj){
 		linkTileAnchor.appendChild(linkTileAnchorInnerDiv);
 		linkTilesSection.appendChild(linkTileAnchor);
 	}
-
+	//put it into a function
 	let linkTileAnchorAddNew = generateAnchor("#");
 	let linkTileAnchorAddNewInnerDiv = document.createElement("div");
 	linkTileAnchorAddNewInnerDiv.className = "linkTile addNew";
@@ -290,18 +296,19 @@ function toggleColorLock(_state_){
 
 function addEventListenersDynamic(){
 	let a = document.getElementsByClassName("addNew");
-	for(var i=0; i < a.length; i++){
-		a[i].addEventListener("click", generateAddEditTileWindow.bind(this, a[i].getAttribute("sectionid"),
-	a[i].id, false));
-	}
+		for(var i=0; i < a.length; i++){
+			if(!~a[i].className.indexOf("addNewSection")){
+				a[i].addEventListener("click",
+					generateAddEditTileWindow.bind(this, a[i].getAttribute("sectionid"),
+					a[i].id, false));
+				}
+		}
 	let allCurrentTiles = document.getElementsByClassName("linkTile");
-	//console.log(allCurrentTiles);
 	for(var i=0; i < allCurrentTiles.length; i++){
 		allCurrentTiles[i].addEventListener("contextmenu", function(e){
 		e.preventDefault();
 		generateContextMenu(this.id, e.clientX, e.clientY, this.getAttribute("sectionId"));
 		//generateContextMenu.bind(this, this.getAttribute("tileid"));
-		console.log("click");
 		return false;}, false);
 	}
 }
@@ -338,6 +345,9 @@ function addEventListeners(){
 			dismissAddDialog();
 		}
 	});
+
+	let sectionCreationButton = document.getElementsByClassName("addNewSection");
+	sectionCreationButton[0].addEventListener("click", function(e){addNewSection(); e.preventDefault()});
 }
 
 function dismissAddDialog(){
@@ -345,7 +355,6 @@ function dismissAddDialog(){
 	let tileEditWindow = document.getElementsByClassName("tileEditWindow");
 	document.body.removeChild(tileEditWindow[0]);
 }
-
 
 function createWindowControls(sectionId, sItem, tileId){
 	console.log(sItem);
@@ -819,6 +828,11 @@ function changeSectionHeaderName(v, id){
 	}
 }
 
-function addSection(){
 
+function addNewSection(){
+	let sectionCreationForm = document.getElementById("newSectionName");
+	let newSection = new Section(sectionCreationForm.value);
+	createSection(newSection);
+	userData.sections.push(newSection);
+	addEventListenersDynamic();
 }
