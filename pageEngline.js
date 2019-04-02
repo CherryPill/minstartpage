@@ -53,7 +53,7 @@ function SectionItem(
 	}
 }
 
-var Section = function(_name){
+function Section(_name){
 	this.sectionName = _name;
 	this.sectionId = UUIDGeneration.getUUID();
 	this.sectionItems = [];
@@ -239,7 +239,9 @@ function createSection(sectionItemObj){
 	let linkTilesSection = document.createElement("div");
 	linkTilesSection.className = "linkTilesSection";
 	linkTilesSection.id = sectionItemObj.sectionId;
-	for(sectionItem of section.sectionItems){
+
+	for(sectionItem of sectionItemObj.sectionItems){
+
 		let linkTileAnchor = document.createElement("a");
 		linkTileAnchor.setAttribute("href", sectionItem.sectionItemUrl);
 		linkTileAnchor.setAttribute("target", "_blank");
@@ -672,10 +674,6 @@ function editTile(tileId){
 	dismissAddDialog();
 }
 
-function autoSetColor(url){
-
-}
-
 function autocomplete(inp, arr) {
   var currentFocus;
   /*execute a function when someone writes in the text field:*/
@@ -798,7 +796,6 @@ function removeSection(sectionId){
 }
 
 function editSection(sectionId){
-	console.log("editing");
 	state.editSectionOn = true;
 	let sectionForEditing = document.getElementById(sectionId);
 	let children = sectionForEditing.childNodes;
@@ -827,7 +824,6 @@ function changeSectionHeaderName(v, id){
 		}
 	}
 }
-
 
 function addNewSection(){
 	let sectionCreationForm = document.getElementById("newSectionName");
