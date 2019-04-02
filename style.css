@@ -189,26 +189,7 @@ div.addNew{
 
 div.addNew::before{
 	content: "+";
-}
-div.addNewSection {
 
-}
-
-#slide {
-    position: absolute;
-	top: 0px;
-    left: -100px;
-    width: 100px;
-    height: 100px;
-    background: blue;
-    transition: 1s;
-	z-index: 100;
-	overflow: visible !important;
-}
-
-div.addNewSection:hover #slide {
-    transition: 1s;
-    left: 0;
 }
 
 div.linkTile:hover{
