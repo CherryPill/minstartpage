@@ -7,7 +7,7 @@
         <link rel="stylesheet" type="text/css" href="style.css"/>
     </head>
     <body onload="initStartPage()" id="docBody">
-        <div id="time"></div>
+        <div id="clock"></div>
         <div class="main" style="margin-top: 35px;">
             <div class="wrap">
                 <div class="searchBlock">
@@ -15,17 +15,16 @@
                     <form
                         action="https://www.google.by/search"
                         type="get"
-                        id="searchForm">
+                        id="searchForm"
+                        target="blank">
                         <div class="input-group">
                             <input class=""
                                 type="text"
                                 name="q"
                                 size="31"
                                 placeholder="Your query here..."/>
-                            <button
-                                formtarget="_blank"
-                                type="submit">Search
-                            </button>
+                            <div class="regularButton"
+                            onclick="this.parentNode.parentNode.submit()">Search</div>
                         </div>
                     </form>
                 </div>
@@ -37,12 +36,6 @@
                 <div class="newSection">
                     <input type="text" name="newSectionName" id="newSectionName" value="" placeholder="New section name">
                     <a href=""><div class="linkTile addNew addNewSection" id="null"></div></a>
-                </div>
-            </div>
-        </div>
-        <div class="main">
-            <div class="wrap">
-                <div id="demo" onload="loadDoc()">
                 </div>
             </div>
         </div>
@@ -58,8 +51,6 @@
         <div id="overlay"></div>
         <script type="text/javascript" src="time.js"></script>
         <script type="text/javascript" src="pageEngline.js"></script>
-        <script type="text/javascript" src="network.js"></script>
-
         <div class="settingsWindow"></div>
     </body>
 </html>

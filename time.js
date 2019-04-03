@@ -1,61 +1,59 @@
-var timeStrings ={
-	monthsNames: new Array(
-	"Jan",
-	"Feb",
-	"Mar",
-	"Apr",
-	"May",
-	"Jun",
-	"Jul",
-	"Aug",
-	"Sept",
-	"Oct",
-	"Nov",
-	"Dec"),
-	daysNames: new Array("Sunday",
-	"Monday",
-	"Tuesday",
-	"Wednesday",
-	"Thursday",
-	"Friday",
-	"Saturday")
-};
+//gets from config in local storage
+//year: numeric, 2-digit, month: long short, weekday: long short,
+//date_post_fx: true false, _am_pm: true false, seconds true false
+function TimeOptions(_year, _month, _weekday, _date_post_fx, _am_pm, _seconds){
+	this.year = _year;
+	this.month = _month;
+	this.weekday = _weekday;
+	this.date_post_fx = _date_post_fx;
+	this.am_pm = _am_pm;
+	this.seconds = _seconds;
+}
+
 var timeObj = {
-	htmlE: document.getElementById("time"),
+	htmlClockElement: document.getElementById("clock"),
 	timeNow: null,
 	amPM: null,
-	dateName: null,
-	dayName: null,
-	monthName: null,
+	dateNameNow: null,
+	dayNameNow: null,
+	monthNameNow: null,
 	dayPostFix: null,
-	nowHrs: null,
-	nowMin: null,
-	nowSec: null,
+	hrsNow: null,
+	minNow: null,
+	secNow: null,
 	yearNow: null,
-	getTimeStr: function(){
+	getTimeStr: function(options){
 		this.timeNow = new Date();
-		this.dayName = timeStrings.daysNames[this.timeNow.getDay()];
-		this.monthName = timeStrings.monthsNames[this.timeNow.getMonth()];
-		this.dateName = this.timeNow.getDate();
-		this.yearNow = this.timeNow.getFullYear();
-		this.getDayPostFix();
-		this.nowSec = this.timeNow.getSeconds();
-		this.nowMin = this.timeNow.getMinutes();
-		this.nowHrs = this.timeNow.getHours(2);
-		this.nowMin = this.digitCorrection(this.nowMin);
-		this.nowSec = this.digitCorrection(this.nowSec);
-		this.resolveAmPm();
+		this.yearNow = this.timeNow.toLocaleString("en-us", {year: options.year});
+		this.dayNameNow = this.timeNow.toLocaleString("en-us", {weekday: options.weekday});
+		this.monthNameNow = this.timeNow.toLocaleString("en-us", {month: options.month});
+		this.dateNameNow = this.timeNow.getDate();
+		this.secNow = this.timeNow.getSeconds();
+		this.minNow = this.timeNow.getMinutes();
+		this.hrsNow = this.timeNow.getHours(2);
+		this.minNow = this.digitCorrection(this.minNow);
+		if(options.year == "2-digit"){
+			let t = this.yearNow.split("");
+			t.unshift("'");
+			this.yearNow = t.join("");
+		}
+		if(options.date_post_fx)
+			this.getDayPostFix();
+		if(options.seconds)
+			this.secNow = this.digitCorrection(this.secNow);
+		if(options.am_pm)
+			this.resolveAmPm();
 		return this.formString();
 	},
 	formString: function(){
-		return this.dayName+ ", " + this.monthName+" "+
-			this.dateName+this.dayPostFix+", "+
+		return this.dayNameNow+ ", " + this.monthNameNow+" "+
+			this.dateNameNow+this.dayPostFix+", "+
 			this.yearNow+" | "+
-			this.nowHrs+":"+this.nowMin+":"+this.nowSec+this.amPM+"<br />";
+			this.hrsNow+":"+this.minNow+":"+this.secNow+this.amPM+"<br />";
 	},
 	getDayPostFix: function(){
-		if(this.dateName < 4){
-			switch(this.dateName){
+		if(this.dateNameNow < 4){
+			switch(this.dateNameNow){
 				case 1:
 					this.dayPostFix = "st";
 					break;
@@ -67,12 +65,12 @@ var timeObj = {
 					break;
 				}
 		}
-		else if(this.dateName>20){
-			if(!(this.dateName%11))
+		else if(this.dateNameNow>20){
+			if(!(this.dateNameNow%11))
 				this.dayPostFix = "nd";
-			else if(this.dateName == 23 || this.dateName == 33)
+			else if(this.dateNameNow == 23 || this.dateNameNow == 33)
 				this.dayPostFix = "rd";
-			else if(this.dateName == 21 || this.dateName == 31)
+			else if(this.dateNameNow == 21 || this.dateNameNow == 31)
 				this.dayPostFix = "st";
 			else
 				this.dayPostFix = "th";
@@ -88,23 +86,25 @@ var timeObj = {
 		return c;
 	},
 	resolveAmPm: function(){
-		if(this.nowHrs == 0){
-			this.nowHrs=12;
+		if(this.hrsNow == 0){
+			this.hrsNow=12;
 			this.amPM = "AM";
 		}
-		else if(this.nowHrs < 12){
+		else if(this.hrsNow < 12){
 			this.amPM = "AM";
 		}
-		else if(this.nowHrs == 12){
+		else if(this.hrsNow == 12){
 			this.amPM = "PM";
-			}
+		}
 		else {
-			this.nowHrs-=12;
+			this.hrsNow-=12;
 			this.amPM = "PM";
 		}
 	}
 };
+
 function initTimeScript(){
-	timeObj.htmlE.innerHTML = "Today is " + timeObj.getTimeStr(); //str;
+	let dummyOptions = new TimeOptions("numeric", "long", "long", true, true, true);
+	timeObj.htmlClockElement.innerHTML = "Today is " + timeObj.getTimeStr(dummyOptions); //str;
 	var t = setTimeout(function(){initTimeScript()}, 500);
 }
