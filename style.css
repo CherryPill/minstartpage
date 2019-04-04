@@ -20,6 +20,11 @@ h3{
 
 }
 
+input {
+	text-indent: 5px;
+
+}
+
 .main {
 	width: 50%;
 	border: 1px solid #ccc;
@@ -58,7 +63,7 @@ a:visited:hover{
 
 }
 
-#time {
+div#clock {
 	text-align: center;
 	font-size: 1.5em;
 
@@ -348,6 +353,7 @@ div#overlay{
 
 div#iconPreviewDiv{
 	font-family: Consolas;
+
 }
 
 div.actionButtons button{
@@ -365,17 +371,20 @@ input.editSectionName{
 	font-family: Consolas;
 	font-weight: bold;
 	font-size: 1em;
+
 }
 
 div.newSection {
 	display: flex;
 	flex-direction: row;
+
 }
 
 div.addNewSection{
 	position: relative;
     width: 30px;
     height: 30px;
+
 }
 
 div.newSection > input {
@@ -383,6 +392,59 @@ div.newSection > input {
 	margin-right: 5px;
 	border-radius: 10px;
 	border: 1px solid #ccc;
-	text-indent: 5px;
 
+}
+div.input-group{
+	display: flex;
+	flex-direction: row;
+
+}
+
+div.regularButton{
+	border: 1px solid #ccc;
+	margin-left: 5px;
+	padding: 10px;
+	cursor: default;
+
+}
+
+div.regularButton:hover{
+	background-color: #ccc;
+	color: #fff;
+
+}
+
+.tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+/* Style the buttons that are used to open the tab content */
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
 }

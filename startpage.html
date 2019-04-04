@@ -7,7 +7,7 @@
         <link rel="stylesheet" type="text/css" href="style.css"/>
     </head>
     <body onload="initStartPage()" id="docBody">
-        <div id="time"></div>
+        <div id="clock"></div>
         <div class="main" style="margin-top: 35px;">
             <div class="wrap">
                 <div class="searchBlock">
@@ -15,17 +15,16 @@
                     <form
                         action="https://www.google.by/search"
                         type="get"
-                        id="searchForm">
+                        id="searchForm"
+                        target="blank">
                         <div class="input-group">
                             <input class=""
                                 type="text"
                                 name="q"
                                 size="31"
                                 placeholder="Your query here..."/>
-                            <button
-                                formtarget="_blank"
-                                type="submit">Search
-                            </button>
+                            <div class="regularButton"
+                            onclick="this.parentNode.parentNode.submit()">Search</div>
                         </div>
                     </form>
                 </div>
@@ -35,7 +34,7 @@
         <div class="main">
             <div class="wrap">
                 <div class="newSection">
-                    <input type="text" name="newSectionName" id="newSectionName" value="" placeholder="Add new section">
+                    <input type="text" name="newSectionName" id="newSectionName" value="" placeholder="New section name">
                     <a href=""><div class="linkTile addNew addNewSection" id="null"></div></a>
                 </div>
             </div>
@@ -50,8 +49,35 @@
             </div>
         </div>
         <div id="overlay"></div>
+
         <script type="text/javascript" src="time.js"></script>
         <script type="text/javascript" src="pageEngline.js"></script>
-        <div class="settingsWindow"></div>
+        <div class="settingsWindow">
+            <div class="tab">
+      <button class="tablinks" onclick="openSettingsTab(event, 'London')" id="defaultOpen">London</button>
+      <button class="tablinks" onclick="openSettingsTab(event, 'Paris')">Paris</button>
+      <button class="tablinks" onclick="openSettingsTab(event, 'Tokyo')">Tokyo</button>
+    </div>
+
+    <!-- Tab content -->
+    <div id="London" class="tabcontent">
+        <div class="tabContentWrapper">
+
+        </div>
+      <h3>London</h3>
+      <p>London is the capital city of England.</p>
+    </div>
+
+    <div id="Paris" class="tabcontent">
+      <h3>Paris</h3>
+      <p>Paris is the capital of France.</p>
+    </div>
+
+    <div id="Tokyo" class="tabcontent">
+      <h3>Tokyo</h3>
+      <p>Tokyo is the capital of Japan.</p>
+    </div>
+        </div>
+
     </body>
 </html>

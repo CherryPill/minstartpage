@@ -11,6 +11,11 @@ var state = {
 	}
 };
 
+var controlTypes = {
+	REGULAR_INPUT: "input",
+	DROP_DOWN_LIST: "select",
+};
+
 var UUIDGeneration = {
 	GENERATE: 0,
 	NO_GENERATE: 1,
@@ -26,6 +31,10 @@ var UUIDGeneration = {
 	    });
 	    return uuid;
 	}
+};
+
+var utilStrings = {
+	settingsWindowTabNames: ["General", "Clock", "About"],
 };
 
 function SectionItem(
@@ -150,6 +159,25 @@ function createSettingsContents(parent){
 	let settingsWindowTitle = document.createElement("h3");
 	settingsWindowTitle.id = "settingsWindowTitle";
 	settingsWindowTitle.innerHTML = "Settings";
+	let settingsTab = document.createElement("div");
+	settingsTab.className = "tab";
+	for(tabHeader of utilStrings.settingsWindowTabNames){
+		let tabLink = document.createElement("button");
+		let actualTab = document.createElement("div");
+		actualTab.id = tabHeader;
+		actualTab.className = "tabContent";
+		let actualTabContentWrapper = document.createElement("div");
+		actualTabContentWrapper.className = "tabContentWrapper";
+		actualTab.appendChild(actualTabContentWrapper);
+		tabLink.className = tabHeader;
+		tabLink.onclick = function(e){openSettingsTab(e, tabLink.className)};
+		settingsTab.appendChild(tabLink);
+		let actualTabContent = document.createElement("div");
+		/*switch(){
+
+		}*/
+	}
+	//for()
 	parent.appendChild(settingsWindowTitle);
 
 }
@@ -364,29 +392,20 @@ function createWindowControls(sectionId, sItem, tileId){
 	tileEditWindow.className = "tileEditWindow";
 	let header = document.createElement("div");
 	header.innerHTML = "Add new tile";
-	let formRowUrl = document.createElement("div");
-	formRowUrl.className = "form-row";
-	let formRowUrlLabel = document.createElement("label");
-	formRowUrlLabel.className = "form-row-label";
-	formRowUrlLabel.innerHTML = "url:"
-	let formRowUrlInput = document.createElement("input");
-	formRowUrlInput.setAttribute("type", "text");
-	formRowUrlInput.setAttribute("name", "url");
-	formRowUrlInput.setAttribute("value", sItem.sectionItemUrl);
-	formRowUrlInput.disabled = true;
+	let formRowUrl = createFormRow("url",
+		controlTypes.REGULAR_INPUT,
+		{"id": "formInputFieldUrl",
+		"type":"text",
+		"name":"url",
+		"value": sItem.sectionItemUrl,
+		"disabled": ""});
 
-	formRowUrlInput.id = "formInputFieldUrl";
-	let formRowName = document.createElement("div");
-	formRowName.className = "form-row";
-	let formRowNameLabel = document.createElement("label");
-	formRowNameLabel.innerHTML = "name:"
-	formRowNameLabel.className = "form-row-label";
-	let formRowNameInput = document.createElement("input");
-	formRowNameInput.setAttribute("type", "text");
-	formRowNameInput.setAttribute("name", "name");
-	formRowNameInput.id = "formInputFieldName";
-	formRowNameInput.setAttribute("value", sItem.sectionItemName);
-
+	let formRowName = createFormRow("name",
+		controlTypes.REGULAR_INPUT,
+		{"id": "formInputFieldName",
+		"type":"text",
+		"name":"name",
+		"value": sItem.sectionItemName});
 
 	let iconCustomizationSection = document.createElement("div");
 	iconCustomizationSection.className = "iconCustomizationSection";
@@ -401,45 +420,48 @@ function createWindowControls(sectionId, sItem, tileId){
 	linkTileEditMode.style.color =  sItem.sectionItemColors[1];
 
 	let colorPickerSection = generateDiv("colorPickerSection","","");
-	let colorAutodetect = generateDiv("color-autodetect", "", "")
-	let colorAutodetectLabel = document.createElement("label");
-	colorAutodetectLabel.className = "form-row-label";
-	colorAutodetectLabel.setAttribute("for","colorAutoID");
-	colorAutodetectLabel.innerHTML = "autodetect color:";
-	let colorAutodetectInput = document.createElement("input");
-	colorAutodetectInput.id = "colorAutoID";
-	colorAutodetectInput.setAttribute("type", "checkbox");
-	colorAutodetectInput.setAttribute("name", "colorAuto");
-	colorAutodetectInput.style.width = "20px";
-	colorAutodetectInput.style.height = "20px";
+	let colorAutodetect = generateDiv("color-autodetect", "", "");
 
-	let colorPicker = generateDiv("color-form", "", "");
-	let colorPickerLabel = generateLabel("colorPickerInput", "colorPickerInputLabel form-row-label", "background:");
-	let colorPickerInput = generateInput("color", "colorBg", sItem.sectionItemColors[0], "colorPickerInput", "formInputFieldColorBg");
+	let formColorPickerBg = createFormRow("background",
+		controlTypes.REGULAR_INPUT,
+		{"type": "color", "name": "colorBg",
+		"value":sItem.sectionItemColors[0],
+		"id":"formInputFieldColorBg",
+		"class":"colorPickerInput"},
+		"input",
+		() => {
+			linkTileEditMode.style.backgroundColor = this.value;
+		});
 
-	let colorPicker_1 = generateDiv("color-form", "", "");
-	let colorPickerLabel_1 = generateLabel("colorPickerInput", "colorPickerInputLabel form-row-label", "foreground:");
-	let colorPickerInput_1 = generateInput("color", "colorFg", sItem.sectionItemColors[1], "colorPickerInput", "formInputFieldColorFg");
-
-	colorPickerInput_1.addEventListener("input",function(){
-		linkTileEditMode.style.color = this.value;
-	}, false);
-
-	colorPickerInput.addEventListener("input",function(){
-		linkTileEditMode.style.backgroundColor = this.value;
-	}, false);
-
-	colorAutodetectInput.addEventListener("click", function(){
-				toggleColorLock(state.colorAutoDetectOn)
-		state.colorAutoDetectOn = !state.colorAutoDetectOn;
-		if(state.colorAutoDetectOn){
-			detectAndApplyColors(colorPickerInput, colorPickerInput_1, formRowUrlInput, linkTileEditMode);
-		}
-	});
-
+	let formColorPickerFg = createFormRow("foreground",
+		controlTypes.REGULAR_INPUT,
+		{"type": "color", "name": "colorFg",
+		"value":sItem.sectionItemColors[1],
+		"id":"formInputFieldColorFg",
+		"class":"colorPickerInput"},
+		"input",
+		() => {
+			linkTileEditMode.style.color = this.value;
+		});
+	let formRowColorAutoDetect = createFormRow("autodetect color:",
+		controlTypes.REGULAR_INPUT,
+		{"id": "colorAutoID",
+		"type":"checkbox",
+		"name":"colorAuto",
+		"value": sItem.sectionItemName,
+		"style":"width: 20px; height: 20px;"}, "click",
+		() => {
+			toggleColorLock(state.colorAutoDetectOn)
+			state.colorAutoDetectOn = !state.colorAutoDetectOn;
+			if(state.colorAutoDetectOn){
+				detectAndApplyColors(formColorPickerBg.input,
+					formColorPickerFg.input,
+					formRowUrl.input,
+					linkTileEditMode);
+			}
+		});
 	let actionButtonsDiv = document.createElement("div");
 	actionButtonsDiv.className = "actionButtons";
-
 	let actionButtonOk = generateButton("OK");
 	if(tileId == "null"){
 		actionButtonOk.addEventListener("click", addNewTile);
@@ -454,15 +476,12 @@ function createWindowControls(sectionId, sItem, tileId){
 	linkTilesSectionIconPreview.appendChild(linkTilesSectionIconPreviewInnerDiv);
 	linkTilesSectionIconPreview.appendChild(fullTitleAnchor);
 
-	colorAutodetect.appendChild(colorAutodetectLabel);
-	colorAutodetect.appendChild(colorAutodetectInput);
-	colorPicker.appendChild(colorPickerLabel);
-	colorPicker.appendChild(colorPickerInput);
-	colorPicker_1.appendChild(colorPickerLabel_1);
-	colorPicker_1.appendChild(colorPickerInput_1);
+	colorAutodetect.appendChild(formRowColorAutoDetect.mainDiv)
+
 	colorPickerSection.appendChild(colorAutodetect);
-	colorPickerSection.appendChild(colorPicker);
-	colorPickerSection.appendChild(colorPicker_1);
+	colorPickerSection.appendChild(formColorPickerBg.mainDiv);
+
+	colorPickerSection.appendChild(formColorPickerFg.mainDiv);
 	iconCustomizationSection.appendChild(linkTilesSectionIconPreview);
 	iconCustomizationSection.appendChild(colorPickerSection);
 
@@ -471,12 +490,8 @@ function createWindowControls(sectionId, sItem, tileId){
 
 	tileEditWindow.appendChild(header);
 
-	formRowName.appendChild(formRowNameLabel);
-	formRowName.appendChild(formRowNameInput);
-	formRowUrl.appendChild(formRowUrlLabel);
-	formRowUrl.appendChild(formRowUrlInput);
-	tileEditWindow.appendChild(formRowName);
-	tileEditWindow.appendChild(formRowUrl);
+	tileEditWindow.appendChild(formRowName.mainDiv);
+	tileEditWindow.appendChild(formRowUrl.mainDiv);
 	tileEditWindow.appendChild(iconCustomizationSection);
 	tileEditWindow.appendChild(actionButtonsDiv);
 	document.body.appendChild(tileEditWindow);
@@ -771,11 +786,11 @@ document.addEventListener("click", function (e) {
 });
 }
 
-function detectAndApplyColors(formFieldBg, formFieldFg, url, iconPreviewDiv){
+function detectAndApplyColors(formFieldBg, formFieldFg, formFieldUrl, iconPreviewDiv){
 	//get link and get icon elements
-	if(url.value != ""){
+	if(formFieldUrl.value != ""){
 		for(let link in webAppColors){
-			if(link === url.value){
+			if(link === formFieldUrl.value){
 				webappDetected = true;
 				iconPreviewDiv.style.backgroundColor = webAppColors[link][0];
 				iconPreviewDiv.style.color = webAppColors[link][1];
@@ -832,3 +847,47 @@ function addNewSection(){
 	userData.sections.push(newSection);
 	addEventListenersDynamic();
 }
+
+
+function openSettingsTab(evt, cityName) {
+  // Declare all variables
+  var i, tabcontent, tablinks;
+
+  // Get all elements with class="tabcontent" and hide them
+  tabcontent = document.getElementsByClassName("tabcontent");
+  for (i = 0; i < tabcontent.length; i++) {
+    tabcontent[i].style.display = "none";
+  }
+
+  // Get all elements with class="tablinks" and remove the class "active"
+  tablinks = document.getElementsByClassName("tablinks");
+  for (i = 0; i < tablinks.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" active", "");
+  }
+
+  // Show the current tab, and add an "active" class to the button that opened the tab
+  document.getElementById(cityName).style.display = "block";
+  evt.currentTarget.className += " active";
+}
+
+function createFormRow(labelString, controlType, controlParams, eventType, eventHandler){
+	let mainDivElement = document.createElement("div");
+	mainDivElement.className = "form-row";
+	let formLabel = document.createElement("label");
+	formLabel.className = "form-row-label";
+	formLabel.innerHTML = labelString;
+	let formInput = document.createElement(controlType);
+	for(param in controlParams){
+		formInput.setAttribute(param, controlParams[param]);
+	}
+	mainDivElement.appendChild(formLabel);
+	mainDivElement.appendChild(formInput);
+	if(eventType != ""){
+		formInput.addEventListener(eventType, eventHandler);
+	}
+	return {mainDiv: mainDivElement,
+			label: formLabel,
+			input: formInput};
+}
+
+document.getElementById("defaultOpen").click();
