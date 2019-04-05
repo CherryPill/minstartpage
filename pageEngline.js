@@ -392,6 +392,7 @@ function createWindowControls(sectionId, sItem, tileId){
 	tileEditWindow.className = "tileEditWindow";
 	let header = document.createElement("div");
 	header.innerHTML = "Add new tile";
+	let formRowsEnclosure = generateDiv("", "", "formRowsEnclosure");
 	let formRowUrl = createFormRow("url",
 		controlTypes.REGULAR_INPUT,
 		{"id": "formInputFieldUrl",
@@ -407,8 +408,11 @@ function createWindowControls(sectionId, sItem, tileId){
 		"name":"name",
 		"value": sItem.sectionItemName});
 
-	let iconCustomizationSection = document.createElement("div");
-	iconCustomizationSection.className = "iconCustomizationSection";
+	let addWindowContentWrapper = document.createElement("div");
+	addWindowContentWrapper.className = "wrap";
+	addWindowContentWrapper.setAttribute("style","display: flex; flex-direction: row;")
+	let iconPreviewSection = document.createElement("div");
+	iconPreviewSection.className = "iconPreviewSection";
 	let linkTilesSectionIconPreview = document.createElement("div");
 	linkTilesSectionIconPreview.className = "linkTilesSection iconPreview";
 	let linkTilesSectionIconPreviewInnerDiv = document.createElement("div");
@@ -417,7 +421,7 @@ function createWindowControls(sectionId, sItem, tileId){
 	let linkTileEditMode = generateDiv("linkTile editMode", "", "iconPreviewDiv");
 	linkTileEditMode.innerHTML = sItem.sectionItemNameShort;
 	linkTileEditMode.style.backgroundColor =  sItem.sectionItemColors[0];
-	linkTileEditMode.style.color =  sItem.sectionItemColors[1];
+	linkTileEditMode.style.color = sItem.sectionItemColors[1];
 
 	let colorPickerSection = generateDiv("colorPickerSection","","");
 	let colorAutodetect = generateDiv("color-autodetect", "", "");
@@ -482,17 +486,25 @@ function createWindowControls(sectionId, sItem, tileId){
 	colorPickerSection.appendChild(formColorPickerBg.mainDiv);
 
 	colorPickerSection.appendChild(formColorPickerFg.mainDiv);
-	iconCustomizationSection.appendChild(linkTilesSectionIconPreview);
-	iconCustomizationSection.appendChild(colorPickerSection);
+	iconPreviewSection.appendChild(linkTilesSectionIconPreview);
+	iconPreviewSection.appendChild(colorPickerSection);
 
 	actionButtonsDiv.appendChild(actionButtonOk);
 	actionButtonsDiv.appendChild(actionButtonCancel);
 
 	tileEditWindow.appendChild(header);
 
-	tileEditWindow.appendChild(formRowName.mainDiv);
-	tileEditWindow.appendChild(formRowUrl.mainDiv);
-	tileEditWindow.appendChild(iconCustomizationSection);
+	formRowsEnclosure.appendChild(formRowName.mainDiv);
+	formRowsEnclosure.appendChild(formRowUrl.mainDiv);
+	formRowsEnclosure.appendChild(colorPickerSection);
+	iconPreviewSection.appendChild(linkTilesSectionIconPreview);
+	addWindowContentWrapper.appendChild(iconPreviewSection);
+	addWindowContentWrapper.appendChild(formRowsEnclosure);
+	tileEditWindow.appendChild(addWindowContentWrapper);
+
+	//tileEditWindow.appendChild(formRowName.mainDiv);
+	//tileEditWindow.appendChild(formRowUrl.mainDiv);
+	//tileEditWindow.appendChild(iconCustomizationSection);
 	tileEditWindow.appendChild(actionButtonsDiv);
 	document.body.appendChild(tileEditWindow);
 	state.toggleOverLay(true);
