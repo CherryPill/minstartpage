@@ -701,6 +701,22 @@ function editTile(tileId){
 	dismissAddDialog();
 }
 
+function getOffset(el) {
+	const rect = el.getBoundingClientRect();
+	return {
+		left: rect.left + window.scrollX,
+		top: rect.top + window.scrollY
+	};
+}
+
+function alignAutocomplete(autocompleteElement){
+	let formInputFieldName = document.getElementById("formInputFieldName");
+	let formInputFieldNameOffsets = getOffset(formInputFieldName);
+	autocompleteElement.style.left = formInputFieldNameOffsets.left + "px";
+	autocompleteElement.style.top = formInputFieldNameOffsets.top+30+"px";
+	return autocompleteElement;
+}
+
 function autocomplete(inp, arr) {
   var currentFocus;
   /*execute a function when someone writes in the text field:*/
@@ -710,9 +726,10 @@ function autocomplete(inp, arr) {
 			var formUrlFieldDisabled = document.getElementById("formInputFieldUrl");
 			var formInputFieldName = document.getElementById("formInputFieldName");
       closeAllLists();
+      var formInputFieldToAttachTo = document.getElementById("formInputFieldName");
       if (!val) { return false;}
       currentFocus = -1;
-      a = document.createElement("DIV");
+      a = document.createElement("div");
       a.setAttribute("id", this.id + "autocomplete-list");
       a.setAttribute("class", "autocomplete-items");
 
@@ -723,6 +740,7 @@ function autocomplete(inp, arr) {
 					currentWebApp = webApp;
           /*create a DIV element for each matching element:*/
           b = document.createElement("div");
+          b.id = "autoCompleteDiv";
           b.innerHTML = "<strong>" + webApp.substr(0, val.length) + "</strong>";
           b.innerHTML += webApp.substr(val.length);
           b.innerHTML += "<input type='hidden' value='" + webAppSuggestions[webApp][0] + "'>";
@@ -738,6 +756,8 @@ function autocomplete(inp, arr) {
               closeAllLists();
           });
           a.appendChild(b);
+          a = alignAutocomplete(a);
+          document.body.appendChild(a);
         }
       }
   });
@@ -889,6 +909,7 @@ function createFormRow(labelString, controlType, controlParams, eventType, event
 	formLabel.className = "form-row-label";
 	formLabel.innerHTML = labelString;
 	let formInput = document.createElement(controlType);
+	formInput.className = "form-row-input";
 	for(param in controlParams){
 		formInput.setAttribute(param, controlParams[param]);
 	}
