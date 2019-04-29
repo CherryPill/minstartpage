@@ -392,6 +392,7 @@ function createWindowControls(sectionId, sItem, tileId){
 	tileEditWindow.className = "tileEditWindow";
 	let header = document.createElement("div");
 	header.innerHTML = "Add new tile";
+	let formRowsEnclosure = generateDiv("", "", "formRowsEnclosure");
 	let formRowUrl = createFormRow("url",
 		controlTypes.REGULAR_INPUT,
 		{"id": "formInputFieldUrl",
@@ -407,8 +408,11 @@ function createWindowControls(sectionId, sItem, tileId){
 		"name":"name",
 		"value": sItem.sectionItemName});
 
-	let iconCustomizationSection = document.createElement("div");
-	iconCustomizationSection.className = "iconCustomizationSection";
+	let addWindowContentWrapper = document.createElement("div");
+	addWindowContentWrapper.className = "wrap";
+	addWindowContentWrapper.setAttribute("style","display: flex; flex-direction: row;")
+	let iconPreviewSection = document.createElement("div");
+	iconPreviewSection.className = "iconPreviewSection";
 	let linkTilesSectionIconPreview = document.createElement("div");
 	linkTilesSectionIconPreview.className = "linkTilesSection iconPreview";
 	let linkTilesSectionIconPreviewInnerDiv = document.createElement("div");
@@ -417,7 +421,7 @@ function createWindowControls(sectionId, sItem, tileId){
 	let linkTileEditMode = generateDiv("linkTile editMode", "", "iconPreviewDiv");
 	linkTileEditMode.innerHTML = sItem.sectionItemNameShort;
 	linkTileEditMode.style.backgroundColor =  sItem.sectionItemColors[0];
-	linkTileEditMode.style.color =  sItem.sectionItemColors[1];
+	linkTileEditMode.style.color = sItem.sectionItemColors[1];
 
 	let colorPickerSection = generateDiv("colorPickerSection","","");
 	let colorAutodetect = generateDiv("color-autodetect", "", "");
@@ -482,17 +486,25 @@ function createWindowControls(sectionId, sItem, tileId){
 	colorPickerSection.appendChild(formColorPickerBg.mainDiv);
 
 	colorPickerSection.appendChild(formColorPickerFg.mainDiv);
-	iconCustomizationSection.appendChild(linkTilesSectionIconPreview);
-	iconCustomizationSection.appendChild(colorPickerSection);
+	iconPreviewSection.appendChild(linkTilesSectionIconPreview);
+	iconPreviewSection.appendChild(colorPickerSection);
 
 	actionButtonsDiv.appendChild(actionButtonOk);
 	actionButtonsDiv.appendChild(actionButtonCancel);
 
 	tileEditWindow.appendChild(header);
 
-	tileEditWindow.appendChild(formRowName.mainDiv);
-	tileEditWindow.appendChild(formRowUrl.mainDiv);
-	tileEditWindow.appendChild(iconCustomizationSection);
+	formRowsEnclosure.appendChild(formRowName.mainDiv);
+	formRowsEnclosure.appendChild(formRowUrl.mainDiv);
+	formRowsEnclosure.appendChild(colorPickerSection);
+	iconPreviewSection.appendChild(linkTilesSectionIconPreview);
+	addWindowContentWrapper.appendChild(iconPreviewSection);
+	addWindowContentWrapper.appendChild(formRowsEnclosure);
+	tileEditWindow.appendChild(addWindowContentWrapper);
+
+	//tileEditWindow.appendChild(formRowName.mainDiv);
+	//tileEditWindow.appendChild(formRowUrl.mainDiv);
+	//tileEditWindow.appendChild(iconCustomizationSection);
 	tileEditWindow.appendChild(actionButtonsDiv);
 	document.body.appendChild(tileEditWindow);
 	state.toggleOverLay(true);
@@ -689,6 +701,22 @@ function editTile(tileId){
 	dismissAddDialog();
 }
 
+function getOffset(el) {
+	const rect = el.getBoundingClientRect();
+	return {
+		left: rect.left + window.scrollX,
+		top: rect.top + window.scrollY
+	};
+}
+
+function alignAutocomplete(autocompleteElement){
+	let formInputFieldName = document.getElementById("formInputFieldName");
+	let formInputFieldNameOffsets = getOffset(formInputFieldName);
+	autocompleteElement.style.left = formInputFieldNameOffsets.left + "px";
+	autocompleteElement.style.top = formInputFieldNameOffsets.top+30+"px";
+	return autocompleteElement;
+}
+
 function autocomplete(inp, arr) {
   var currentFocus;
   /*execute a function when someone writes in the text field:*/
@@ -698,9 +726,10 @@ function autocomplete(inp, arr) {
 			var formUrlFieldDisabled = document.getElementById("formInputFieldUrl");
 			var formInputFieldName = document.getElementById("formInputFieldName");
       closeAllLists();
+      var formInputFieldToAttachTo = document.getElementById("formInputFieldName");
       if (!val) { return false;}
       currentFocus = -1;
-      a = document.createElement("DIV");
+      a = document.createElement("div");
       a.setAttribute("id", this.id + "autocomplete-list");
       a.setAttribute("class", "autocomplete-items");
 
@@ -711,6 +740,7 @@ function autocomplete(inp, arr) {
 					currentWebApp = webApp;
           /*create a DIV element for each matching element:*/
           b = document.createElement("div");
+          b.id = "autoCompleteDiv";
           b.innerHTML = "<strong>" + webApp.substr(0, val.length) + "</strong>";
           b.innerHTML += webApp.substr(val.length);
           b.innerHTML += "<input type='hidden' value='" + webAppSuggestions[webApp][0] + "'>";
@@ -726,6 +756,8 @@ function autocomplete(inp, arr) {
               closeAllLists();
           });
           a.appendChild(b);
+          a = alignAutocomplete(a);
+          document.body.appendChild(a);
         }
       }
   });
@@ -877,6 +909,7 @@ function createFormRow(labelString, controlType, controlParams, eventType, event
 	formLabel.className = "form-row-label";
 	formLabel.innerHTML = labelString;
 	let formInput = document.createElement(controlType);
+	formInput.className = "form-row-input";
 	for(param in controlParams){
 		formInput.setAttribute(param, controlParams[param]);
 	}

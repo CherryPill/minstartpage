@@ -256,26 +256,18 @@ div.tileEditWindow{
 	border: 1px solid #ccc;
 	font-family: Helvetica;
 	padding: 10px;
-	width: 500px;
+	width: 600px;
 	margin: 0 auto;
 	background-color: #fff;
 
 }
 
 div.tileEditWindow div{
-	text-align: center;
-	margin-bottom: 5px;
 
 }
 
-div.tileEditWindow input{
-	height: 15px;
-
-}
 
 div.tileEditWindow label{
-	display: inline-block;
-	width: 200px;
 
 }
 
@@ -289,7 +281,7 @@ div.linkTile.editMode{
 
 }
 
-div.iconCustomizationSection{
+div.iconPreviewSection{
 	display: flex;
 	flex-direction: row;
 	border: 1px solid #ccc;
@@ -297,7 +289,7 @@ div.iconCustomizationSection{
 
 }
 
-div.iconCustomizationSection input.colorPickerInput{
+div.iconPreviewSection input.colorPickerInput{
 	height: 30px !important;
 
 }
@@ -306,6 +298,7 @@ div.actionButtons{
 	text-align: center;
 
 }
+
 div#overlay{
 	position: fixed;
 	background-color: #ccc;
@@ -319,13 +312,13 @@ div#overlay{
 
 /* Auto complete*/
 .autocomplete-items {
-	position: absolute;
+    position: absolute;
 	border: 1px solid #d4d4d4;
 	border-bottom: none;
   	border-top: none;
   	z-index: 99;
   /*position the autocomplete items to be the same width as the container:*/
-  	top: 100%;
+  	width: 250px;
   	left: 0;
   	right: 0;
 
@@ -358,12 +351,6 @@ div#iconPreviewDiv{
 
 div.actionButtons button{
 	margin-left: 10px;
-
-}
-
-label.form-row-label {
-	text-align: right;
-	padding-right: 10px;
 
 }
 
@@ -447,4 +434,19 @@ div.regularButton:hover{
   padding: 6px 12px;
   border: 1px solid #ccc;
   border-top: none;
+}
+
+label.form-row-label{
+    display: inline-block;
+    text-align: right;
+    width: 150px;
+    padding: 10px;
+}
+
+div.form-row-input{
+    height: 100px;
+}
+
+div.autoCompleteDiv{
+    width: 100px;
 }
