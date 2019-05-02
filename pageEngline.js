@@ -419,10 +419,11 @@ function createWindowControls(sectionId, sItem, tileId){
 	linkTilesSectionIconPreviewInnerDiv.innerHTML = "Preview";
 	let fullTitleAnchor = generateAnchor("https://vk.com/feed");
 	let linkTileEditMode = generateDiv("linkTile editMode", "", "iconPreviewDiv");
-	linkTileEditMode.innerHTML = sItem.sectionItemNameShort;
+	linkTileEditMode.innerHTML = "AA"//sItem.sectionItemNameShort"";
 	linkTileEditMode.style.backgroundColor =  sItem.sectionItemColors[0];
 	linkTileEditMode.style.color = sItem.sectionItemColors[1];
-
+	//linkTileEditMode.style.width = 200+"px";
+	//linkTileEditMode.style.height = 200+"px";
 	let colorPickerSection = generateDiv("colorPickerSection","","");
 	let colorAutodetect = generateDiv("color-autodetect", "", "");
 
@@ -751,7 +752,10 @@ function autocomplete(inp, arr) {
               b.addEventListener("click", function(e) {
 								formInputFieldName.value = currentWebApp;
 								if(state.colorAutoDetectOn){
-									detectAndApplyColors(formUrlFieldDisabled, previewIconTextElement);
+									detectAndApplyColors(document.getElementById("formInputFieldColorBg"),
+										document.getElementById("formInputFieldColorFg"),
+										formUrlFieldDisabled,
+										document.getElementById("iconPreviewDiv"));
 								}
               closeAllLists();
           });
@@ -820,12 +824,18 @@ document.addEventListener("click", function (e) {
 
 function detectAndApplyColors(formFieldBg, formFieldFg, formFieldUrl, iconPreviewDiv){
 	//get link and get icon elements
+	webappDetected = false;
 	if(formFieldUrl.value != ""){
 		for(let link in webAppColors){
-			if(link === formFieldUrl.value){
-				webappDetected = true;
-				iconPreviewDiv.style.backgroundColor = webAppColors[link][0];
-				iconPreviewDiv.style.color = webAppColors[link][1];
+			if(!webappDetected){
+				if(link === formFieldUrl.value){
+					webappDetected = true;
+					iconPreviewDiv.style.backgroundColor = webAppColors[link][0];
+					iconPreviewDiv.style.color = webAppColors[link][1];
+				}
+			}
+			else{
+				break;
 			}
 		}
 	}
