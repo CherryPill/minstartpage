@@ -255,15 +255,14 @@ div.tileEditWindow{
 	position: absolute;
 	border: 1px solid #ccc;
 	font-family: Helvetica;
-	padding: 10px;
-	width: 600px;
+	padding: 30px;
+	width: 700px;
 	margin: 0 auto;
 	background-color: #fff;
-
 }
 
 div.tileEditWindow div{
-
+	text-align: center;
 }
 
 
@@ -272,11 +271,11 @@ div.tileEditWindow label{
 }
 
 div.linkTile.editMode{
-	width: 60px;
-	height: 60px;
-	font-size: 2.1em;
+	width: 200px;
+	height: 200px;
+	font-size: 8em;
 	text-align: center;
-	vertical-align:baseline;
+	vertical-align: baseline;
 	padding: 10px;
 
 }
@@ -284,7 +283,6 @@ div.linkTile.editMode{
 div.iconPreviewSection{
 	display: flex;
 	flex-direction: row;
-	border: 1px solid #ccc;
 	padding: 5px;
 
 }
@@ -439,7 +437,7 @@ div.regularButton:hover{
 label.form-row-label{
     display: inline-block;
     text-align: right;
-    width: 150px;
+    width: 50px;
     padding: 10px;
 }
 
@@ -449,4 +447,15 @@ div.form-row-input{
 
 div.autoCompleteDiv{
     width: 100px;
+}
+
+button{
+	border: 1px solid #ccc;
+    padding: 5px 20px;
+    min-width: 50px;
+    width: 100px;
+}
+
+div.color-autodetect form-row-label{
+    width: 150px !important;
 }
