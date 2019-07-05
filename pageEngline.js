@@ -146,7 +146,8 @@ function toggleSettingsMenu() {
     } else {
         let settingsWindow = document.createElement("div");
         settingsWindow.id = "settingsWindow";
-        var settingsWindowContents = createSettingsContents(settingsWindow);
+        let settingsWindowContents = createSettingsContents(settingsWindow);
+
         parent.appendChild(settingsWindow);
     }
     state.settingsWindowOpen = !state.settingsWindowOpen;
@@ -158,27 +159,53 @@ function createSettingsContents(parent) {
     settingsWindowTitle.innerHTML = "Settings";
     let settingsTab = document.createElement("div");
     settingsTab.className = "tab";
-    for (tabHeader of utilStrings.settingsWindowTabNames) {
-        let tabLink = document.createElement("button");
-        let actualTab = document.createElement("div");
-        actualTab.id = tabHeader;
-        actualTab.className = "tabContent";
-        let actualTabContentWrapper = document.createElement("div");
-        actualTabContentWrapper.className = "tabContentWrapper";
-        actualTab.appendChild(actualTabContentWrapper);
-        tabLink.className = tabHeader;
-        tabLink.onclick = function (e) {
-            openSettingsTab(e, tabLink.className)
-        };
-        settingsTab.appendChild(tabLink);
-        let actualTabContent = document.createElement("div");
-        /*switch(){
 
-        }*/
+    for (let tabHeader of utilStrings.settingsWindowTabNames) {
+        let tabLink = document.createElement("button");
+        tabLink.className = tabHeader;
+        tabLink.id = tabHeader;
+        tabLink.onclick = function (e) {
+            console.log("Opening " + tabLink.id);
+            openSettingsTab(e, tabLink.id);
+
+        };
+
+        settingsTab.appendChild(tabLink);
+        tabLink.innerHTML = tabHeader;
+        let actualTabContent = document.createElement("div");
+        actualTabContent.id = tabHeader;
+        actualTabContent.className = "tabcontent";
+        let generatedTabContent = generateSettingsTabForms(tabHeader);
+        actualTabContent.appendChild(generatedTabContent);
+        parent.appendChild(actualTabContent);
     }
-    //for()
+    settingsWindowTitle.appendChild(settingsTab);
     parent.appendChild(settingsWindowTitle);
 
+}
+
+function generateSettingsTabForms(tabType) {
+    let actualTabContentWrapper = document.createElement("div");
+    switch (tabType) {
+        case "General": {
+            actualTabContentWrapper.appendChild(createFormRow(
+                "id",
+                controlTypes.REGULAR_INPUT,
+                {
+                    "id": "generalInput",
+                    "type": "text",
+                    "name": "input"
+                }).mainDiv);
+            break;
+        }
+        case "Clock": {
+            break;
+        }
+        case "About": {
+            break;
+        }
+    }
+    return actualTabContentWrapper;
 }
 
 //mock user data
@@ -366,16 +393,16 @@ function addEventListeners() {
     document.body.addEventListener("click", function (e) {
         let a = document.getElementsByClassName("contextMenu");
 
-        if (!(a[0] == undefined)) {
-            if (e.target.id == "contextMenuEdit") {
+        if (!(a[0] === undefined)) {
+            if (e.target.id === "contextMenuEdit") {
                 generateAddEditTileWindow(a[0].getAttribute("sectionid"), a[0].id);
-            } else if (e.target.id == "contextMenuDelete") {
+            } else if (e.target.id === "contextMenuDelete") {
                 removeTile(a[0].id);
             }
             a[0].parentNode.removeChild(a[0]);
         } else if (state.editSectionOn) {
             console.log(state.editSectionOn);
-            if (!(e.target.id == "editName")) {
+            if (!(e.target.id === "editName")) {
                 let b = document.getElementById("editName");
                 changeSectionHeaderName(b.value, b.parentNode.parentNode.parentNode.id);
                 b.parentNode.innerHTML = b.value;
@@ -497,7 +524,7 @@ function createWindowControls(sectionId, sItem, tileId) {
     let actionButtonsDiv = document.createElement("div");
     actionButtonsDiv.className = "actionButtons";
     let actionButtonOk = generateButton("OK");
-    if (tileId == "null") {
+    if (tileId === "null") {
         actionButtonOk.addEventListener("click", addNewTile);
     } else {
         actionButtonOk.addEventListener("click", function () {
@@ -541,19 +568,17 @@ function createWindowControls(sectionId, sItem, tileId) {
     state.toggleOverLay(true);
     state.overlayElement.style.zIndex = 0;
     tileEditWindow.style.zIndex = 5;
-    let windowTopOffset = _sysVars.getViewPortHeight() / 2 - 247 / 2 + "px";
-    tileEditWindow.style.top = windowTopOffset;
-    let windowLeftOffset = _sysVars.getViewPortWidth() / 2 - 522 / 2 + "px";
-    tileEditWindow.style.left = windowLeftOffset;
+    //let windowTopOffset = _sysVars.getViewPortHeight() / 2 - 247 / 2 + "px";
+    tileEditWindow.style.top = _sysVars.getViewPortHeight() / 2 - 247 / 2 + "px";;
+    tileEditWindow.style.left = _sysVars.getViewPortWidth() / 2 - 522 / 2 + "px";;
     tempSectionStore.currentSectionId = sectionId;
     autocomplete(document.getElementById("formInputFieldName"), webAppSuggestions);
 }
 
-
 function generateAddEditTileWindow(sectionId, tileId) {
     var itemForForm;
     //add new title
-    if (tileId == "null") {
+    if (tileId === "null") {
         itemForForm = new SectionItem();
     } else {
         //edit existing tile
@@ -634,7 +659,7 @@ function addNewTile() {
     let enteredData = getFormData();
 
     for (let s = 0; s < userData.sections.length; s++) {
-        if (userData.sections[s].sectionId == tempSectionStore.currentSectionId) {
+        if (userData.sections[s].sectionId === tempSectionStore.currentSectionId) {
             userData.sections[s].sectionItems.push(enteredData);
         }
     }
@@ -860,7 +885,7 @@ function autocomplete(inp, arr) {
 
 function detectAndApplyColors(formFieldBg, formFieldFg, formFieldUrl, iconPreviewDiv) {
     //get link and get icon elements
-    webappDetected = false;
+    let webappDetected = false;
     if (formFieldUrl.value !== "") {
         for (let link in webAppColors) {
             if (!webappDetected) {
@@ -892,9 +917,9 @@ function editSection(sectionId) {
     let sectionForEditing = document.getElementById(sectionId);
     let children = sectionForEditing.childNodes;
     let row = children[0];
-    let actuaChildren = row.childNodes;
-    console.log(actuaChildren);
-    for (c of actuaChildren) {
+    let actualChildren = row.childNodes;
+    console.log(actualChildren);
+    for (let c of actualChildren) {
         if (c.className === "sectionHeaderName") {
             let requiredInputWidth = c.offsetWidth;
             let requiredInputHeight = c.offsetHeight;
@@ -910,7 +935,7 @@ function editSection(sectionId) {
 }
 
 function changeSectionHeaderName(v, id) {
-    for (section of userData.sections) {
+    for (let section of userData.sections) {
         if (section.sectionId === id) {
             section.sectionName = v;
         }
@@ -926,9 +951,9 @@ function addNewSection() {
 }
 
 
-function openSettingsTab(evt, cityName) {
+function openSettingsTab(evt, tabName) {
     // Declare all variables
-    var i, tabcontent, tablinks;
+    let i, tabcontent, tablinks;
 
     // Get all elements with class="tabcontent" and hide them
     tabcontent = document.getElementsByClassName("tabcontent");
@@ -943,11 +968,15 @@ function openSettingsTab(evt, cityName) {
     }
 
     // Show the current tab, and add an "active" class to the button that opened the tab
-    document.getElementById(cityName).style.display = "block";
+    document.getElementById(tabName).style.display = "block";
     evt.currentTarget.className += " active";
 }
 
-function createFormRow(labelString, controlType, controlParams, eventType, eventHandler) {
+function createFormRow(labelString,
+                       controlType,
+                       controlParams,
+                       eventType,
+                       eventHandler) {
     let mainDivElement = document.createElement("div");
     mainDivElement.className = "form-row";
     let formLabel = document.createElement("label");
@@ -970,4 +999,3 @@ function createFormRow(labelString, controlType, controlParams, eventType, event
     };
 }
 
-document.getElementById("defaultOpen").click();
