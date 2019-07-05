@@ -10,7 +10,7 @@ function TimeOptions(_year, _month, _weekday, _date_post_fx, _am_pm, _seconds) {
     this.seconds = _seconds;
 }
 
-var timeObj = {
+let timeObj = {
     htmlClockElement: document.getElementById("clock"),
     timeNow: null,
     amPM: null,

@@ -566,14 +566,16 @@ function createWindowControls(sectionId, sItem, tileId) {
     tileEditWindow.appendChild(actionButtonsDiv);
     document.body.appendChild(tileEditWindow);
     state.toggleOverLay(true);
-    state.overlayElement.style.zIndex = 0;
-    tileEditWindow.style.zIndex = 5;
-    //let windowTopOffset = _sysVars.getViewPortHeight() / 2 - 247 / 2 + "px";
-    tileEditWindow.style.top = _sysVars.getViewPortHeight() / 2 - 247 / 2 + "px";;
-    tileEditWindow.style.left = _sysVars.getViewPortWidth() / 2 - 522 / 2 + "px";;
+    state.overlayElement.style.zIndex = "0";
+    tileEditWindow.style.zIndex = "5";
+    tileEditWindow.style.top = _sysVars.getViewPortHeight() / 2 - 247 / 2 + "px";
+    ;
+    tileEditWindow.style.left = _sysVars.getViewPortWidth() / 2 - 522 / 2 + "px";
+    ;
     tempSectionStore.currentSectionId = sectionId;
     autocomplete(document.getElementById("formInputFieldName"), webAppSuggestions);
 }
+
 
 function generateAddEditTileWindow(sectionId, tileId) {
     var itemForForm;
@@ -659,7 +661,7 @@ function addNewTile() {
     let enteredData = getFormData();
 
     for (let s = 0; s < userData.sections.length; s++) {
-        if (userData.sections[s].sectionId === tempSectionStore.currentSectionId) {
+        if (userData.sections[s].sectionId == tempSectionStore.currentSectionId) {
             userData.sections[s].sectionItems.push(enteredData);
         }
     }
