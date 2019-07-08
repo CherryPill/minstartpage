@@ -151,37 +151,45 @@ function toggleSettingsMenu() {
         parent.appendChild(settingsWindow);
     }
     state.settingsWindowOpen = !state.settingsWindowOpen;
+    document.getElementById("defaultOpen").click();
 }
 
 function createSettingsContents(parent) {
     let settingsWindowTitle = document.createElement("h3");
-    settingsWindowTitle.id = "settingsWindowTitle";
     settingsWindowTitle.innerHTML = "Settings";
-    let settingsTab = document.createElement("div");
-    settingsTab.className = "tab";
+
+    let settingsWindowNavBar = document.createElement("div");
+    settingsWindowNavBar.className = "tab";
+
+    let settingsWindowMainContent = document.createElement("div");
+    settingsWindowMainContent.className = "all_tabs";
 
     for (let tabHeader of utilStrings.settingsWindowTabNames) {
+
         let tabLink = document.createElement("button");
-        tabLink.className = tabHeader;
+        tabLink.className = "tablinks";
         tabLink.id = tabHeader;
+
         tabLink.onclick = function (e) {
             console.log("Opening " + tabLink.id);
             openSettingsTab(e, tabLink.id);
 
         };
-
-        settingsTab.appendChild(tabLink);
+        settingsWindowNavBar.appendChild(tabLink);
         tabLink.innerHTML = tabHeader;
         let actualTabContent = document.createElement("div");
         actualTabContent.id = tabHeader;
         actualTabContent.className = "tabcontent";
         let generatedTabContent = generateSettingsTabForms(tabHeader);
         actualTabContent.appendChild(generatedTabContent);
-        parent.appendChild(actualTabContent);
-    }
-    settingsWindowTitle.appendChild(settingsTab);
-    parent.appendChild(settingsWindowTitle);
+        settingsWindowMainContent.appendChild(actualTabContent);
 
+    }
+
+    parent.appendChild(settingsWindowTitle);
+    parent.appendChild(settingsWindowNavBar);
+    parent.appendChild(settingsWindowMainContent);
+    //TO DO: use something other than the ID for the tab for buttons to identify them (another param maybe)
 }
 
 function generateSettingsTabForms(tabType) {
@@ -954,6 +962,7 @@ function addNewSection() {
 
 
 function openSettingsTab(evt, tabName) {
+    console.log(`tabname: ${tabName}`);
     // Declare all variables
     let i, tabcontent, tablinks;
 
