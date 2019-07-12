@@ -10,7 +10,7 @@ h2, h3 {
 
 h2 {
 	font-size: 30px;
-	margin: 0 0;
+	margin: 0;
 	margin-bottom: 0px;
 
 }
@@ -149,7 +149,6 @@ div#settingsWindow{
 	top: 100px;
 	left: 25%;
 	width: 50%;
-	height: 50%;
 	background-color: #fff;
 	color: #000;
 	border: 1px solid #ccc;
@@ -437,7 +436,7 @@ div.regularButton:hover{
 label.form-row-label{
     display: inline-block;
     text-align: right;
-    width: 50px;
+
     padding: 10px;
 }
 

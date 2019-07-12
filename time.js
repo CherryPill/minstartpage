@@ -1,6 +1,11 @@
 //gets from config in local storage
 //year: numeric, 2-digit, month: long short, weekday: long short,
 //date_post_fx: true false, _am_pm: true false, seconds true false
+
+let testTimePattern = "%A, %B %dd, %Y | %H:%M:%S" ;
+
+function parseTimePattern(){}
+//%dd means [01-31]+th
 function TimeOptions(_year, _month, _weekday, _date_post_fx, _am_pm, _seconds) {
     this.year = _year;
     this.month = _month;

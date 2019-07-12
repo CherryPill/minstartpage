@@ -151,7 +151,7 @@ function toggleSettingsMenu() {
         parent.appendChild(settingsWindow);
     }
     state.settingsWindowOpen = !state.settingsWindowOpen;
-    document.getElementById("defaultOpen").click();
+    //document.getElementById("defaultOpen").click();
 }
 
 function createSettingsContents(parent) {
@@ -162,7 +162,7 @@ function createSettingsContents(parent) {
     settingsWindowNavBar.className = "tab";
 
     let settingsWindowMainContent = document.createElement("div");
-    settingsWindowMainContent.className = "all_tabs";
+    settingsWindowMainContent.id = "all_tabs";
 
     for (let tabHeader of utilStrings.settingsWindowTabNames) {
 
@@ -178,18 +178,16 @@ function createSettingsContents(parent) {
         settingsWindowNavBar.appendChild(tabLink);
         tabLink.innerHTML = tabHeader;
         let actualTabContent = document.createElement("div");
-        actualTabContent.id = tabHeader;
+        actualTabContent.setAttribute("tab_type", tabHeader);
         actualTabContent.className = "tabcontent";
         let generatedTabContent = generateSettingsTabForms(tabHeader);
         actualTabContent.appendChild(generatedTabContent);
         settingsWindowMainContent.appendChild(actualTabContent);
 
     }
-
     parent.appendChild(settingsWindowTitle);
     parent.appendChild(settingsWindowNavBar);
     parent.appendChild(settingsWindowMainContent);
-    //TO DO: use something other than the ID for the tab for buttons to identify them (another param maybe)
 }
 
 function generateSettingsTabForms(tabType) {
@@ -207,9 +205,27 @@ function generateSettingsTabForms(tabType) {
             break;
         }
         case "Clock": {
+            actualTabContentWrapper.appendChild(
+                createFormRow("Clock enabled: ",
+                    controlTypes.REGULAR_INPUT, {
+                    "type":"checkbox",
+                        "name":"clockEnabled",
+                    "checked":"checked"}).mainDiv
+            );
+            actualTabContentWrapper.appendChild(
+                createFormRow("Date format: ",
+                    controlTypes.REGULAR_INPUT,
+                    {"type":"text",
+                    "name":"input"}).mainDiv);
             break;
         }
         case "About": {
+            actualTabContentWrapper.appendChild(
+                createElement("div",
+                    `Currently running within ${navigator.userAgent}
+            on ${navigator.platform}<br /> 
+            You are currently${navigator.onLine ? ' online' : ' offline'}`)
+            );
             break;
         }
     }
@@ -272,7 +288,7 @@ var userData = {
 
 function removeSections() {
     let targetSectionDiv = document.getElementsByClassName("b");
-    for (d of targetSectionDiv) {
+    for (let d of targetSectionDiv) {
         d.innerHTML = "";
     }
 }
@@ -568,9 +584,6 @@ function createWindowControls(sectionId, sItem, tileId) {
     addWindowContentWrapper.appendChild(formRowsEnclosure);
     tileEditWindow.appendChild(addWindowContentWrapper);
 
-    //tileEditWindow.appendChild(formRowName.mainDiv);
-    //tileEditWindow.appendChild(formRowUrl.mainDiv);
-    //tileEditWindow.appendChild(iconCustomizationSection);
     tileEditWindow.appendChild(actionButtonsDiv);
     document.body.appendChild(tileEditWindow);
     state.toggleOverLay(true);
@@ -933,7 +946,6 @@ function editSection(sectionId) {
         if (c.className === "sectionHeaderName") {
             let requiredInputWidth = c.offsetWidth;
             let requiredInputHeight = c.offsetHeight;
-            console.log(requiredInputWidth)
             tempSectionStore.currentSectionName = c.innerHTML;
             c.innerHTML = "";
             let editInput = generateInput("text", "editName", tempSectionStore.currentSectionName, "editSectionName", "editName");
@@ -960,26 +972,23 @@ function addNewSection() {
     addEventListenersDynamic();
 }
 
-
 function openSettingsTab(evt, tabName) {
     console.log(`tabname: ${tabName}`);
-    // Declare all variables
     let i, tabcontent, tablinks;
 
-    // Get all elements with class="tabcontent" and hide them
     tabcontent = document.getElementsByClassName("tabcontent");
     for (i = 0; i < tabcontent.length; i++) {
         tabcontent[i].style.display = "none";
     }
-
     // Get all elements with class="tablinks" and remove the class "active"
     tablinks = document.getElementsByClassName("tablinks");
     for (i = 0; i < tablinks.length; i++) {
         tablinks[i].className = tablinks[i].className.replace(" active", "");
     }
 
-    // Show the current tab, and add an "active" class to the button that opened the tab
-    document.getElementById(tabName).style.display = "block";
+    let selectedTab = document.querySelector(`div#all_tabs div[tab_type=${tabName}`);
+    // Show the current tab
+    selectedTab.style.display = "block";
     evt.currentTarget.className += " active";
 }
 
@@ -1008,5 +1017,19 @@ function createFormRow(labelString,
         label: formLabel,
         input: formInput
     };
+}
+
+function createElement(elementType, elementText, params, handler) {
+    let newElement = document.createElement(elementType);
+    if (elementText != null) {
+        newElement.innerHTML = elementText;
+    }
+    for (let param in params) {
+        newElement.setAttribute(param, params[param]);
+    }
+    if (handler != null) {
+        newElement.addEventListener(handler[0], handler[1]);
+    }
+    return newElement;
 }
 
