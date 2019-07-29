@@ -51,7 +51,7 @@ function SectionItem(
         this.sectionItemNameShort = "";
         this.sectionItemUrl = "";
         this.sectionItemColors[0] = "#45688E";
-        this.sectionItemColors[1] = "000000";
+        this.sectionItemColors[1] = "#FFFFFF";
     } else {
         this.sectionItemName = _sectionItemName;
         this.sectionItemNameShort = _sectionItemNameShort;
@@ -195,6 +195,7 @@ function generateSettingsTabForms(tabType) {
     switch (tabType) {
         case "General": {
             actualTabContentWrapper.appendChild(createFormRow(
+                "",
                 "id",
                 controlTypes.REGULAR_INPUT,
                 {
@@ -206,17 +207,20 @@ function generateSettingsTabForms(tabType) {
         }
         case "Clock": {
             actualTabContentWrapper.appendChild(
-                createFormRow("Clock enabled: ",
+                createFormRow("", "Clock enabled: ",
                     controlTypes.REGULAR_INPUT, {
-                    "type":"checkbox",
-                        "name":"clockEnabled",
-                    "checked":"checked"}).mainDiv
+                        "type": "checkbox",
+                        "name": "clockEnabled",
+                        "checked": "checked"
+                    }).mainDiv
             );
             actualTabContentWrapper.appendChild(
-                createFormRow("Date format: ",
+                createFormRow("", "Date format: ",
                     controlTypes.REGULAR_INPUT,
-                    {"type":"text",
-                    "name":"input"}).mainDiv);
+                    {
+                        "type": "text",
+                        "name": "input"
+                    }).mainDiv);
             break;
         }
         case "About": {
@@ -384,10 +388,10 @@ function toggleColorLock(_state_) {
     } else {
         reqOpacity = 0.5;
     }
-    for (cil of colorInputLabels) {
+    for (let cil of colorInputLabels) {
         cil.style.opacity = reqOpacity;
     }
-    for (ci of colorInputs) {
+    for (let ci of colorInputs) {
         ci.disabled = !_state_;
     }
 }
@@ -463,7 +467,7 @@ function createWindowControls(sectionId, sItem, tileId) {
     let header = document.createElement("div");
     header.innerHTML = "Add new tile";
     let formRowsEnclosure = generateDiv("", "", "formRowsEnclosure");
-    let formRowUrl = createFormRow("url",
+    let formRowUrl = createFormRow("", "url:",
         controlTypes.REGULAR_INPUT,
         {
             "id": "formInputFieldUrl",
@@ -473,7 +477,7 @@ function createWindowControls(sectionId, sItem, tileId) {
             "disabled": ""
         });
 
-    let formRowName = createFormRow("name",
+    let formRowName = createFormRow("", "name:",
         controlTypes.REGULAR_INPUT,
         {
             "id": "formInputFieldName",
@@ -493,15 +497,15 @@ function createWindowControls(sectionId, sItem, tileId) {
     linkTilesSectionIconPreviewInnerDiv.innerHTML = "Preview";
     let fullTitleAnchor = generateAnchor("https://vk.com/feed");
     let linkTileEditMode = generateDiv("linkTile editMode", "", "iconPreviewDiv");
-    linkTileEditMode.innerHTML = "AA"//sItem.sectionItemNameShort"";
+    linkTileEditMode.innerHTML = "AA";
     linkTileEditMode.style.backgroundColor = sItem.sectionItemColors[0];
     linkTileEditMode.style.color = sItem.sectionItemColors[1];
-    //linkTileEditMode.style.width = 200+"px";
-    //linkTileEditMode.style.height = 200+"px";
     let colorPickerSection = generateDiv("colorPickerSection", "", "");
     let colorAutodetect = generateDiv("color-autodetect", "", "");
 
-    let formColorPickerBg = createFormRow("background",
+    let formColorPickerBg = createFormRow(
+        "colorPickerInputLabel",
+        "background:",
         controlTypes.REGULAR_INPUT,
         {
             "type": "color", "name": "colorBg",
@@ -514,7 +518,8 @@ function createWindowControls(sectionId, sItem, tileId) {
             linkTileEditMode.style.backgroundColor = this.value;
         });
 
-    let formColorPickerFg = createFormRow("foreground",
+    let formColorPickerFg = createFormRow("colorPickerInputLabel",
+        "foreground:",
         controlTypes.REGULAR_INPUT,
         {
             "type": "color", "name": "colorFg",
@@ -526,7 +531,8 @@ function createWindowControls(sectionId, sItem, tileId) {
         () => {
             linkTileEditMode.style.color = this.value;
         });
-    let formRowColorAutoDetect = createFormRow("autodetect color:",
+    let formRowColorAutoDetect = createFormRow("",
+        "autodetect color:",
         controlTypes.REGULAR_INPUT,
         {
             "id": "colorAutoID",
@@ -589,9 +595,14 @@ function createWindowControls(sectionId, sItem, tileId) {
     state.toggleOverLay(true);
     state.overlayElement.style.zIndex = "0";
     tileEditWindow.style.zIndex = "5";
-    tileEditWindow.style.top = _sysVars.getViewPortHeight() / 2 - 247 / 2 + "px";
+    tileEditWindow.style.top =
+        _sysVars.getViewPortHeight() / 2 -
+        tileEditWindow.getBoundingClientRect().height
+        / 2 + "px";
     ;
-    tileEditWindow.style.left = _sysVars.getViewPortWidth() / 2 - 522 / 2 + "px";
+    tileEditWindow.style.left = _sysVars.getViewPortWidth() / 2 -
+        tileEditWindow.getBoundingClientRect().width
+        / 2 + "px";
     ;
     tempSectionStore.currentSectionId = sectionId;
     autocomplete(document.getElementById("formInputFieldName"), webAppSuggestions);
@@ -992,7 +1003,8 @@ function openSettingsTab(evt, tabName) {
     evt.currentTarget.className += " active";
 }
 
-function createFormRow(labelString,
+function createFormRow(labelClassName,
+                       labelString,
                        controlType,
                        controlParams,
                        eventType,
@@ -1000,12 +1012,18 @@ function createFormRow(labelString,
     let mainDivElement = document.createElement("div");
     mainDivElement.className = "form-row";
     let formLabel = document.createElement("label");
-    formLabel.className = "form-row-label";
+    formLabel.className = "form-row-label " + labelClassName;
     formLabel.innerHTML = labelString;
     let formInput = document.createElement(controlType);
     formInput.className = "form-row-input";
     for (let param in controlParams) {
         formInput.setAttribute(param, controlParams[param]);
+    }
+    if (controlParams.type === "text") {
+        formLabel.style.width = "50px";
+    }
+    if (controlParams.type === "color") {
+        formLabel.style.width = "110px";
     }
     mainDivElement.appendChild(formLabel);
     mainDivElement.appendChild(formInput);
