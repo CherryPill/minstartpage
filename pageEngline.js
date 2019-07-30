@@ -11,12 +11,19 @@ var state = {
     }
 };
 
-var controlTypes = {
+const scriptStartModes = {
+    PROD: 1,
+    DEV: 0,
+};
+
+var userData;
+
+const controlTypes = {
     REGULAR_INPUT: "input",
     DROP_DOWN_LIST: "select",
 };
 
-var UUIDGeneration = {
+const UUIDGeneration = {
     GENERATE: 0,
     NO_GENERATE: 1,
     getUUID: function getUUID() {
@@ -33,9 +40,13 @@ var UUIDGeneration = {
     }
 };
 
-var utilStrings = {
+const utilStrings = {
     settingsWindowTabNames: ["General", "Clock", "About"],
 };
+
+function UserData() {
+    this.sections = [];
+}
 
 function SectionItem(
     _sectionItemUrl,
@@ -87,15 +98,22 @@ function initSysVars() {
 
 const _sysVars = initSysVars();
 
-var searchEngines = {
-    engineOptions: ["Google", "Bing", "Yahoo"],
+const searchEngines = {
+    engineOptionsEnum: {
+        Google: 0,
+        Bing: 1,
+        Yahoo: 2,
+        Yandex: 3,
+    },
+    engineOptions: ["Google", "Bing", "Yahoo", "Yandex"],
     engineLinks: ["https://www.google.by/search",
         "https://www.bing.com/search",
-        "https://search.yahoo.com/search"]
+        "https://search.yahoo.com/search",
+        "https://yandex.ru/search"]
 };
 
 //url: [bg, fg]
-var webAppColors = {
+const webAppColors = {
     "https://vk.com/": ["#45688E", "#FFFFFF"],
     "https://facebook.com/": ["#3C5A99", "#FFFFFF"],
     "https://instagram.com/": ["#E1306C", "#FFFFFF"],
@@ -104,7 +122,7 @@ var webAppColors = {
 };
 
 //name: [short, url]
-var webAppSuggestions = {
+const webAppSuggestions = {
     "vkontakte": ["vk", "https://vk.com/"],
     "facebook": ["fb", "https://facebook.com/"],
     "instagram": ["ig", "https://instagram.com/"],
@@ -117,7 +135,7 @@ var webAppSuggestions = {
 
 function generateSearchEngineOptions() {
     let htmlElement = document.getElementById("searchOptions");
-    for (i = 0; i < searchEngines.engineOptions.length; i++) {
+    for (let i = 0; i < searchEngines.engineOptions.length; i++) {
         htmlElement.options[htmlElement.options.length] = new Option(
             searchEngines.engineOptions[i] + " Search", searchEngines.engineOptions[i]);
     }
@@ -128,12 +146,27 @@ function generateSearchEngineOptions() {
 function setSearchLink() {
     let htmlElementOptions = document.getElementById("searchOptions");
     let htmlElementFormLink = document.getElementById("searchForm");
-    htmlElementFormLink.setAttribute("action", searchEngines.engineLinks[htmlElementOptions.options.selectedIndex]);
+    let htmlElementSearchField = document.getElementById("searchInputField");
+    if (htmlElementOptions.options.selectedIndex === searchEngines.engineOptionsEnum.Yandex) {
+        htmlElementSearchField.setAttribute("name", "text");
+    }
+    htmlElementFormLink.setAttribute("action",
+        searchEngines.engineLinks[htmlElementOptions.options.selectedIndex]);
 }
 
-function initStartPage() {
+function initStartPage(mode) {
     generateSearchEngineOptions();
     initTimeScript();
+    switch (mode) {
+        case scriptStartModes.DEV: {
+            fillMockUserData();
+            break;
+        }
+        case scriptStartModes.PROD: {
+            fillLocalStorageUserData();
+            break;
+        }
+    }
     updateUI();
     addEventListeners();
 }
@@ -236,59 +269,70 @@ function generateSettingsTabForms(tabType) {
     return actualTabContentWrapper;
 }
 
-//mock user data
-var userData = {
-    sections: [
-        {
-            sectionName: "NEWS",
-            sectionId: 3,
-            sectionItems: [{
-                sectionItemName: "stackoverflow",
-                sectionItemNameShort: "so",
-                sectionItemUrl: "stackoverflow.com",
-                sectionItemColors: ["#FF8C00", "#000"],
-                sectionItemId: "b202656a-ce7c-4f66-acb2-6b11f5981382"
+function fillMockUserData() {
+    //mock user data
+    userData = {
+        sections: [
+            {
+                sectionName: "NEWS",
+                sectionId: 3,
+                sectionItems: [{
+                    sectionItemName: "stackoverflow",
+                    sectionItemNameShort: "so",
+                    sectionItemUrl: "stackoverflow.com",
+                    sectionItemColors: ["#FF8C00", "#000"],
+                    sectionItemId: "b202656a-ce7c-4f66-acb2-6b11f5981382"
+                },
+                    {
+                        sectionItemName: "myanimelist",
+                        sectionItemNameShort: "ma",
+                        sectionItemUrl: "http://myanimelist.net/",
+                        sectionItemColors: ["#0000ff", "#ffffff"],
+                        sectionItemId: "a202656a-ce7c-4f66-a2b2-6b11f4981382",
+                    }]
             },
-                {
-                    sectionItemName: "myanimelist",
-                    sectionItemNameShort: "ma",
-                    sectionItemUrl: "http://myanimelist.net/",
-                    sectionItemColors: ["#0000ff", "#ffffff"],
-                    sectionItemId: "a202656a-ce7c-4f66-a2b2-6b11f4981382",
-                }]
-        },
-        {
-            sectionName: "WORK",
-            sectionId: 2,
-            sectionItems: [{
-                sectionItemName: "stackoverflow",
-                sectionItemNameShort: "so",
-                sectionItemUrl: "stackoverflow.com",
-                sectionItemColors: ["#000", "#fff"],
-                sectionItemId: "93e4d3e0-0e23-4d02-a76d-02943409d2eb",
-            },
-                {
-                    sectionItemName: "tutby",
-                    sectionItemNameShort: "tu",
-                    sectionItemUrl: "tut.by",
+            {
+                sectionName: "WORK",
+                sectionId: 2,
+                sectionItems: [{
+                    sectionItemName: "stackoverflow",
+                    sectionItemNameShort: "so",
+                    sectionItemUrl: "stackoverflow.com",
                     sectionItemColors: ["#000", "#fff"],
-                    sectionItemId: "4a96aac6-5443-43eb-85fe-78aba85dd325",
-                }]
-        },
-        {
-            sectionName: "SOCIAL",
-            sectionId: 11,
-            sectionItems: [{
-                sectionItemName: "vkontakte",
-                sectionItemNameShort: "vk",
-                sectionItemUrl: "vkontakte.com",
-                sectionItemColors: ["#000", "#fff"],
-                sectionItemId: "55b4f740-2f34-45d8-b426-51e40d0c44ef"
+                    sectionItemId: "93e4d3e0-0e23-4d02-a76d-02943409d2eb",
+                },
+                    {
+                        sectionItemName: "tutby",
+                        sectionItemNameShort: "tu",
+                        sectionItemUrl: "tut.by",
+                        sectionItemColors: ["#000", "#fff"],
+                        sectionItemId: "4a96aac6-5443-43eb-85fe-78aba85dd325",
+                    }]
             },
-            ]
-        },
-    ],
-};
+            {
+                sectionName: "SOCIAL",
+                sectionId: 11,
+                sectionItems: [{
+                    sectionItemName: "vkontakte",
+                    sectionItemNameShort: "vk",
+                    sectionItemUrl: "vkontakte.com",
+                    sectionItemColors: ["#000", "#fff"],
+                    sectionItemId: "55b4f740-2f34-45d8-b426-51e40d0c44ef"
+                },
+                ]
+            },
+        ],
+    };
+}
+
+function fillLocalStorageUserData() {
+    let res = JSON.parse(localStorage.getItem("savedUserData"));
+    if (res != null) {
+        userData = res;
+    } else {
+        userData = new UserData();
+    }
+}
 
 function removeSections() {
     let targetSectionDiv = document.getElementsByClassName("b");
@@ -299,7 +343,7 @@ function removeSections() {
 
 function updateUI() {
     removeSections();
-    for (section of userData.sections) {
+    for (let section of userData.sections) {
         createSection(section);
     }
     addEventListenersDynamic();
@@ -452,6 +496,9 @@ function addEventListeners() {
         addNewSection();
         e.preventDefault()
     });
+    window.onunload = window.onbeforeunload = () => {
+        localStorage.setItem("savedUserData", JSON.stringify(userData));
+    };
 }
 
 function dismissAddDialog() {
