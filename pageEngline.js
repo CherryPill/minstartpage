@@ -137,6 +137,28 @@ const webAppSuggestions = {
     "myanimelist": ["ma", "https://myanimelist.net/"],
 };
 
+
+
+var ValidationError = {
+    EmptyString: "String is empty",
+    StringTooLong: "String is too long",
+    InvalidSymbols: "String contains invalid symbols",
+    NoError: "No error",
+}
+
+function validate(inputFieldValue){
+    let allErrors = [];
+    if(inputFieldValue === ""){
+        allErrors.push(ValidationError.EmptyString);
+    }
+    else{
+        if(inputFieldValue.length > 50){
+            allErrors.push(ValidationError.StringTooLong);
+        }
+    }
+    return allErrors;
+}
+
 function generateSearchEngineOptions() {
     let htmlElement = document.getElementById("searchOptions");
     for (let i = 0; i < searchEngines.engineOptions.length; i++) {
@@ -993,12 +1015,21 @@ function changeSectionHeaderName(v, id) {
 }
 
 function addNewSection() {
-    let sectionCreationForm = document.getElementById("newSectionName");
-    state.toggleSectionAreaVisibility(true);
-    let newSection = new Section(sectionCreationForm.value);
-    createSection(newSection);
-    userData.sections.push(newSection);
-    addEventListenersDynamic();
+    let sectionCreationInputField = document.getElementById("newSectionName");
+    let foundErrors = validate(sectionCreationInputField.innerHTML);
+    console.log(foundErrors);
+    if(foundErrors.length > 0){
+        let UIErrorString = "";
+        foundErrors.forEach(item => UIErrorString += item);
+        alert(UIErrorString)
+    }
+    else{
+        state.toggleSectionAreaVisibility(true);
+        let newSection = new Section(sectionCreationInputField.value);
+        createSection(newSection);
+        userData.sections.push(newSection);
+        addEventListenersDynamic();
+    }
 }
 
 function openSettingsTab(evt, tabName) {
