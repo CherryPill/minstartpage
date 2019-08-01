@@ -3,11 +3,15 @@ var state = {
     currentTab: 0,
     colorAutoDetectOn: false,
     overlayElement: document.getElementById("overlay"),
+    sectionAreaElement: document.getElementById("sectionArea"),
     modalOverlayOn: false,
     editSectionOn: false,
     toggleOverLay: function (val) {
         this.overlayElement.style.visibility = val ? "visible" : "hidden";
         this.modalOverlayOn = !this.modalOverlayOn;
+    },
+    toggleSectionAreaVisibility: function (val) {
+        this.sectionAreaElement.style.display = val ? "block" : "none";
     }
 };
 
@@ -133,6 +137,28 @@ const webAppSuggestions = {
     "myanimelist": ["ma", "https://myanimelist.net/"],
 };
 
+
+
+var ValidationError = {
+    EmptyString: "String is empty",
+    StringTooLong: "String is too long",
+    InvalidSymbols: "String contains invalid symbols",
+    NoError: "No error",
+}
+
+function validate(inputFieldValue){
+    let allErrors = [];
+    if(inputFieldValue === ""){
+        allErrors.push(ValidationError.EmptyString);
+    }
+    else{
+        if(inputFieldValue.length > 50){
+            allErrors.push(ValidationError.StringTooLong);
+        }
+    }
+    return allErrors;
+}
+
 function generateSearchEngineOptions() {
     let htmlElement = document.getElementById("searchOptions");
     for (let i = 0; i < searchEngines.engineOptions.length; i++) {
@@ -179,7 +205,7 @@ function toggleSettingsMenu() {
     } else {
         let settingsWindow = document.createElement("div");
         settingsWindow.id = "settingsWindow";
-        let settingsWindowContents = createSettingsContents(settingsWindow);
+        createSettingsContents(settingsWindow);
 
         parent.appendChild(settingsWindow);
     }
@@ -343,8 +369,12 @@ function removeSections() {
 
 function updateUI() {
     removeSections();
-    for (let section of userData.sections) {
-        createSection(section);
+    if (userData.sections.length === 0) {
+        state.toggleSectionAreaVisibility(false);
+    } else {
+        for (let section of userData.sections) {
+            createSection(section);
+        }
     }
     addEventListenersDynamic();
 }
@@ -356,7 +386,6 @@ function createSection(sectionItemObj) {
     mainAreaRow.id = sectionItemObj.sectionId;
     let sectionHeaderRow = document.createElement("div");
     sectionHeaderRow.className = "sectionHeaderRow";
-    //sectionHeaderRow.id = sectionItemObj.sectionId;
     let sectionHeaderName = document.createElement("div");
     sectionHeaderName.className = "sectionHeaderName";
     sectionHeaderName.innerHTML = sectionItemObj.sectionName;
@@ -368,7 +397,7 @@ function createSection(sectionItemObj) {
     sectionHeaderManagementEdit.className = "sectionHeaderManagementEdit";
     sectionHeaderManagementEdit.id = "sectionHeaderManagementEdit";
     sectionHeaderManagementEdit.addEventListener("click", function (e) {
-        editSection(sectionItemObj.sectionId)
+        editSection(sectionItemObj.sectionId);
         e.stopPropagation();
     });
 
@@ -426,12 +455,7 @@ function createSection(sectionItemObj) {
 function toggleColorLock(_state_) {
     let colorInputs = document.getElementsByClassName("colorPickerInput");
     let colorInputLabels = document.getElementsByClassName("colorPickerInputLabel");
-    let labelColor, reqOpacity;
-    if (_state_) {
-        reqOpacity = 1.0;
-    } else {
-        reqOpacity = 0.5;
-    }
+    let reqOpacity = _state_ ? 1.0 : 0.5;
     for (let cil of colorInputLabels) {
         cil.style.opacity = reqOpacity;
     }
@@ -682,22 +706,6 @@ function generateAddEditTileWindow(sectionId, tileId) {
     createWindowControls(sectionId, itemForForm, tileId);
 }
 
-function generateTile(sectionItem) {
-    let linkTileAnchor = document.createElement("a");
-    linkTileAnchor.setAttribute("href", sectionItem.sectionItemUrl);
-    linkTileAnchor.setAttribute("target", "_blank");
-    let linkTileAnchorInnerDiv = document.createElement("div");
-    linkTileAnchorInnerDiv.style.color = sectionItem.sectionItemColors[0];
-    linkTileAnchorInnerDiv.style.backgroundColor = sectionItem.sectionItemColors[1];
-    linkTileAnchorInnerDiv.className = "linkTile";
-    linkTileAnchorInnerDiv.innerHTML = sectionItem.sectionItemNameShort;
-    linkTileAnchorInnerDiv.setAttribute("sectionId", sectionItemObj.sectionId);
-    linkTileAnchorInnerDiv.setAttribute("tileId", 100);
-    linkTileAnchor.appendChild(linkTileAnchorInnerDiv);
-    linkTilesSection.appendChild(linkTileAnchor);
-
-}
-
 function generateButton(_innerHTML) {
     let button = document.createElement("button");
     button.innerHTML = _innerHTML;
@@ -749,22 +757,6 @@ function addNewTile() {
     dismissAddDialog();
 }
 
-function createSectionItem(enteredData) {
-    let targetSectionDiv = document.getElementById(tempSectionStore.currentSectionId);
-    //console.log(tempSectionStore.currentSectionId);
-    let linkTileAnchor = document.createElement("a");
-    linkTileAnchor.setAttribute("href", enteredData.sectionItemUrl);
-    linkTileAnchor.setAttribute("target", "_blank");
-    let linkTileAnchorInnerDiv = document.createElement("div");
-    linkTileAnchorInnerDiv.style.color = sectionItem.sectionItemColors[0];
-    linkTileAnchorInnerDiv.style.backgroundColor = enteredData.sectionItemColors[1];
-    linkTileAnchorInnerDiv.className = "linkTile";
-    linkTileAnchorInnerDiv.innerHTML = enteredData.sectionItemNameShort;
-    linkTileAnchorInnerDiv.setAttribute("sectionId", tempSectionStore.currentSectionId);
-    linkTileAnchorInnerDiv.setAttribute("tileId", 100);
-    linkTileAnchor.appendChild(linkTileAnchorInnerDiv);
-    targetSectionDiv.appendChild(linkTileAnchor);
-}
 
 function getFormData(tileId) {
     let fieldUrl = document.getElementById("formInputFieldUrl").value;
@@ -1023,11 +1015,21 @@ function changeSectionHeaderName(v, id) {
 }
 
 function addNewSection() {
-    let sectionCreationForm = document.getElementById("newSectionName");
-    let newSection = new Section(sectionCreationForm.value);
-    createSection(newSection);
-    userData.sections.push(newSection);
-    addEventListenersDynamic();
+    let sectionCreationInputField = document.getElementById("newSectionName");
+    let foundErrors = validate(sectionCreationInputField.innerHTML);
+    console.log(foundErrors);
+    if(foundErrors.length > 0){
+        let UIErrorString = "";
+        foundErrors.forEach(item => UIErrorString += item);
+        alert(UIErrorString)
+    }
+    else{
+        state.toggleSectionAreaVisibility(true);
+        let newSection = new Section(sectionCreationInputField.value);
+        createSection(newSection);
+        userData.sections.push(newSection);
+        addEventListenersDynamic();
+    }
 }
 
 function openSettingsTab(evt, tabName) {
