@@ -2,9 +2,159 @@
 //year: numeric, 2-digit, month: long short, weekday: long short,
 //date_post_fx: true false, _am_pm: true false, seconds true false
 
-let testTimePattern = "%A, %B %dd, %Y | %H:%M:%S" ;
+let testTimePattern = "%A, %B %dd, %Y | %H:%M:%S"; //current time format
+//supported time format specifiers
+testTimePattern = "%a : %A : %b : %R";
 
-function parseTimePattern(){}
+
+var SavedTimeOptions = {
+    "a": false,
+    "A": false,
+    "b": false,
+    "R": false,
+};
+
+var TimeUtils = {
+    currentTime: new Date(),
+    "A": () => {
+        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
+        return this.currentTime.toLocaleString("en-us",
+            {weekday: "short"});
+    },
+    "a": () => {
+        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
+        return this.currentTime.toLocaleString("en-us",
+            {weekday: "long"});
+    },
+    "b": () => {
+        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
+        return this.currentTime.toLocaleString("en-us",
+            {month: "short"});
+    },
+    "B": () => {
+        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
+        return this.currentTime.toLocaleString("en-us",
+            {month: "long"});
+    },
+    "c": () => {
+        /*this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
+        return this.currentTime.toLocaleString("en-us",
+            {month: "long"});*/
+    },
+    //Year divided by 100 and truncated to integer (00-99)
+    "C": () => {
+        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
+        return parseInt(this.currentTime.getFullYear()/100);
+    },
+    //	Short MM/DD/YY date, equivalent to %m/%d/%y
+    "D": () => {
+        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
+        return `${this.currentTime.getMonth()}/${this.currentTime.getDate()}/${this.getFullYear()}`;
+    },
+    //Day of the month, space-padded ( 1-31)
+    "e": () => {
+
+    },
+    //	Short YYYY-MM-DD date, equivalent to %Y-%m-%d
+    "F": () => {
+
+    },
+    //Week-based year, last two digits (00-99)
+    "g": () => {
+
+    },
+    //Abbreviated month name * (same as %b)
+    "h": () => {
+
+    },
+    //Hour in 24h format (00-23)
+    "H": () => {
+
+    },
+    //Hour in 12h format (01-12)
+    "I": () => {
+
+    },
+    //Day of the year (001-366)
+    "j": () => {
+
+    },
+    //Month as a decimal number (01-12)
+    "m": () => {
+
+    },
+    //Minute (00-59)
+    "M": () => {
+
+    },
+    //New-line character ('\n')
+    "n": () => {
+
+    },
+    //AM or PM designation
+    "p": () => {
+
+    },
+    //12-hour clock time *
+    "r": () => {
+
+    },
+
+    "R": () => {
+        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
+        let minNow = this.currentTime.getMinutes();
+        let hrsNow = this.currentTime.getHours(2);
+        return `${hrsNow}:${minNow}`;
+    },
+    //Second (00-61)
+    "S": () => {
+
+    },
+    //Horizontal-tab character ('\t')
+    "t": () => {
+
+    },
+};
+
+function setRequiredTimeOptionsValue(specifier) {
+    switch (specifier) {
+        case "a": {
+            SavedTimeOptions["a"] = true;
+            break;
+        }
+        case "A": {
+            SavedTimeOptions["A"] = true;
+            break;
+        }
+        case "b": {
+            SavedTimeOptions["b"] = true;
+            break;
+        }
+        case "R": {
+            SavedTimeOptions["R"] = true;
+            break;
+        }
+    }
+}
+
+function parseTimePattern() {
+    let finalTimeString = testTimePattern;
+    for (let c = 0; c < testTimePattern.length - 1; c++)
+        if (testTimePattern[c] === "%" &&
+            (testTimePattern.charCodeAt(c + 1) >= 65 &&
+                testTimePattern.charCodeAt(c + 1) <= 122)) {
+            setRequiredTimeOptionsValue(testTimePattern[c + 1]);
+        }
+    console.log(SavedTimeOptions);
+    for (let setOption in SavedTimeOptions) {
+        if (SavedTimeOptions[setOption] === true) {
+            finalTimeString = finalTimeString.replace("%" + setOption,
+                eval("TimeUtils." + setOption + "()"));
+        }
+    }
+    alert(finalTimeString);
+}
+
 //%dd means [01-31]+th
 function TimeOptions(_year, _month, _weekday, _date_post_fx, _am_pm, _seconds) {
     this.year = _year;
@@ -104,9 +254,10 @@ let timeObj = {
 };
 
 function initTimeScript() {
-    let dummyOptions = new TimeOptions("numeric", "long", "long", true, true, true);
+    parseTimePattern();
+    /*let dummyOptions = new TimeOptions("numeric", "long", "long", true, true, true);
     timeObj.htmlClockElement.innerHTML = "Today is " + timeObj.getTimeStr(dummyOptions); //str;
     let t = setTimeout(function () {
         initTimeScript()
-    }, 500);
+    }, 500);*/
 }
