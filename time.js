@@ -46,6 +46,13 @@ var TimeUtils = {
         this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
         return parseInt(this.currentTime.getFullYear()/100);
     },
+    //Day of the month, zero-padded (01-31)
+    "d": () => {
+        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
+        return this.currentTime.toLocaleString("en-us",
+            {day: "2-digit"});
+
+    },
     //	Short MM/DD/YY date, equivalent to %m/%d/%y
     "D": () => {
         this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
@@ -57,15 +64,27 @@ var TimeUtils = {
     },
     //	Short YYYY-MM-DD date, equivalent to %Y-%m-%d
     "F": () => {
+        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
+        return `${this.currentTime.getFullYear()}-${this.currentTime.getMonth()}-${this.getDate()}`;
 
     },
     //Week-based year, last two digits (00-99)
     "g": () => {
-
+        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
+        return this.currentTime.getFullYear();
     },
+    //	Week-based year
+    "G": () => {
+        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
+        return this.currentTime.toLocaleString("en-us",
+            {day: "2-digit"});
+    },
+
     //Abbreviated month name * (same as %b)
     "h": () => {
-
+        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
+        return this.currentTime.toLocaleString("en-us",
+            {month: "short"});
     },
     //Hour in 24h format (00-23)
     "H": () => {
@@ -81,15 +100,15 @@ var TimeUtils = {
     },
     //Month as a decimal number (01-12)
     "m": () => {
-
+        return this.currentTime.getMonth();
     },
     //Minute (00-59)
     "M": () => {
-
+        this.currentTime.getMinutes();
     },
     //New-line character ('\n')
     "n": () => {
-
+        return "\n";
     },
     //AM or PM designation
     "p": () => {
@@ -108,34 +127,69 @@ var TimeUtils = {
     },
     //Second (00-61)
     "S": () => {
-
+        return this.currentTime.getSeconds();
     },
     //Horizontal-tab character ('\t')
     "t": () => {
+        return "\t";
+    },
+    //ISO 8601 time format (HH:MM:SS), equivalent to %H:%M:%S
+    "T": () => {
+        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
+        let minNow = this.currentTime.getMinutes();
+        let hrsNow = this.currentTime.getHours();
+        let secNow = this.currentTime.getSeconds();
+        return `${hrsNow}:${minNow}:${secNow}`;
+    },
+    //ISO 8601 weekday as number with Monday as 1 (1-7)
+    "u": () => {
+        return this.currentTime.getDay();
+    },
+    //Week number with the first Sunday as the first day of week one (00-53)
+    "U": () => {
 
     },
-};
+    //ISO 8601 week number (01-53)
+    "V": () => {
 
-function setRequiredTimeOptionsValue(specifier) {
-    switch (specifier) {
-        case "a": {
-            SavedTimeOptions["a"] = true;
-            break;
-        }
-        case "A": {
-            SavedTimeOptions["A"] = true;
-            break;
-        }
-        case "b": {
-            SavedTimeOptions["b"] = true;
-            break;
-        }
-        case "R": {
-            SavedTimeOptions["R"] = true;
-            break;
-        }
-    }
-}
+    },
+    //Weekday as a decimal number with Sunday as 0 (0-6)
+    "w": () => {
+
+    },
+    //Week number with the first Monday as the first day of week one (00-53)
+    "W": () => {
+
+    },
+    //Date representation
+    "x": () => {
+
+    },
+    //Time representation
+    "X": () => {
+
+    },
+    //Year, last two digits (00-99)
+    "y": () => {
+
+    },
+    //Year
+    "Y": () => {
+
+    },
+    //ISO 8601 offset from UTC in timezone (1 minute=1, 1 hour=100)
+    // If timezone cannot be determined, no characters
+    "z": () => {
+
+    },
+    //Timezone name or abbreviation *
+    // If timezone cannot be determined, no characters
+    "Z": () => {
+
+    },
+
+
+};
 
 function parseTimePattern() {
     let finalTimeString = testTimePattern;
@@ -143,7 +197,7 @@ function parseTimePattern() {
         if (testTimePattern[c] === "%" &&
             (testTimePattern.charCodeAt(c + 1) >= 65 &&
                 testTimePattern.charCodeAt(c + 1) <= 122)) {
-            setRequiredTimeOptionsValue(testTimePattern[c + 1]);
+            SavedTimeOptions[testTimePattern[c + 1]] = true;
         }
     console.log(SavedTimeOptions);
     for (let setOption in SavedTimeOptions) {
