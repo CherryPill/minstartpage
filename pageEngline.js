@@ -653,7 +653,10 @@ function createWindowControls(sectionId, sItem, tileId) {
     }
 
     let actionButtonCancel = generateButton("Cancel");
-
+    actionButtonCancel.addEventListener("click",
+        () => {
+        dismissAddDialog();
+    });
     fullTitleAnchor.appendChild(linkTileEditMode);
     linkTilesSectionIconPreview.appendChild(linkTilesSectionIconPreviewInnerDiv);
     linkTilesSectionIconPreview.appendChild(fullTitleAnchor);
@@ -780,7 +783,7 @@ function getFormData(tileId) {
     let fieldUrl = document.getElementById("formInputFieldUrl").value;
     let fieldName = document.getElementById("formInputFieldName").value;
     let foundFieldUrlErrors = validate(fieldUrl, "URL");
-    let foundFieldNameErrors = validate(fieldUrl, "Tile name");
+    let foundFieldNameErrors = validate(fieldName, "Tile name");
     let allCurrentFormErrors = foundFieldUrlErrors.concat(foundFieldNameErrors);
     if (allCurrentFormErrors.length > 0) {
         alert(formErrorString(allCurrentFormErrors));
