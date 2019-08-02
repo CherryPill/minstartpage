@@ -2,90 +2,9 @@
 //year: numeric, 2-digit, month: long short, weekday: long short,
 //date_post_fx: true false, _am_pm: true false, seconds true false
 
-let testTimePattern = "%A, %B %dd, %Y | %H:%M:%S"; //current time format
-//supported time format specifiers
-testTimePattern = "%a : %A : %b : %R";
+let testTimePattern = "%A, %B %dd, %Y | %H:%M:%S" ;
 
-var timeFormatSpecifiers = {
-    Abbreviated_weekday_name: "a",
-    Full_weekday_name: "A",
-    Abbreviated_month_name: "b",
-    _24_hour_HH_MM_time_equivalent_to_H_M: "R",
-};
-
-var SavedTimeOptions = {
-    "a": false,
-    "A": false,
-    "b": false,
-    "R": false,
-};
-
-var TimeUtils = {
-    currentTime: undefined,
-    "A": () => {
-        this.currentTime = new Date();
-        return this.currentTime.toLocaleString("en-us",
-            {weekday: "short"});
-    },
-    "a": () => {
-        this.currentTime = new Date();
-        return this.currentTime.toLocaleString("en-us",
-            {weekday: "long"});
-    },
-    "b": () => {
-        this.currentTime = new Date();
-        console.log(this.currentTime.toLocaleString("en-us",
-            {month: "short"}));
-        return this.currentTime.toLocaleString("en-us",
-            {month: "short"});
-    },
-    "R": () => {
-        this.currentTime = new Date();
-        let minNow = this.currentTime.getMinutes();
-        let hrsNow = this.currentTime.getHours(2);
-        return `${hrsNow}:${minNow}`;
-    }
-};
-
-function setRequiredTimeOptionsValue(specifier) {
-    switch (specifier) {
-        case "a": {
-            SavedTimeOptions["a"] = true;
-            break;
-        }
-        case "A": {
-            SavedTimeOptions["A"] = true;
-            break;
-        }
-        case "b": {
-            SavedTimeOptions["b"] = true;
-            break;
-        }
-        case "R": {
-            SavedTimeOptions["R"] = true;
-            break;
-        }
-    }
-}
-
-function parseTimePattern() {
-    let finalTimeString = testTimePattern;
-    for (let c = 0; c < testTimePattern.length - 1; c++)
-        if (testTimePattern[c] === "%" &&
-            (testTimePattern.charCodeAt(c + 1) >= 65 &&
-                testTimePattern.charCodeAt(c + 1) <= 122)) {
-            setRequiredTimeOptionsValue(testTimePattern[c + 1]);
-        }
-    console.log(SavedTimeOptions);
-    for (let setOption in SavedTimeOptions) {
-        if (SavedTimeOptions[setOption] === true) {
-            finalTimeString = finalTimeString.replace("%"+setOption,
-                eval("TimeUtils."+setOption+"()"));
-        }
-    }
-    alert(finalTimeString);
-}
-
+function parseTimePattern(){}
 //%dd means [01-31]+th
 function TimeOptions(_year, _month, _weekday, _date_post_fx, _am_pm, _seconds) {
     this.year = _year;
@@ -185,10 +104,9 @@ let timeObj = {
 };
 
 function initTimeScript() {
-    parseTimePattern();
-    /*let dummyOptions = new TimeOptions("numeric", "long", "long", true, true, true);
+    let dummyOptions = new TimeOptions("numeric", "long", "long", true, true, true);
     timeObj.htmlClockElement.innerHTML = "Today is " + timeObj.getTimeStr(dummyOptions); //str;
     let t = setTimeout(function () {
         initTimeScript()
-    }, 500);*/
+    }, 500);
 }
