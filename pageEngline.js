@@ -12,7 +12,8 @@ var state = {
     },
     toggleSectionAreaVisibility: function (val) {
         this.sectionAreaElement.style.display = val ? "block" : "none";
-    }
+    },
+    errorRaised: false,
 };
 
 const scriptStartModes = {
@@ -138,20 +139,19 @@ const webAppSuggestions = {
 };
 
 
-
 var ValidationError = {
     formError: (errorType, fieldName) => {
         let messagePostFix = "";
-        switch(errorType){
-            case ValidationError.EmptyString:{
+        switch (errorType) {
+            case ValidationError.EmptyString: {
                 messagePostFix = " can't be empty";
                 break;
             }
-            case ValidationError.StringTooLong:{
+            case ValidationError.StringTooLong: {
                 messagePostFix = " is too long";
                 break;
             }
-            case ValidationError.InvalidSymbols:{
+            case ValidationError.InvalidSymbols: {
                 messagePostFix = " contains invalid symbols";
                 break;
             }
@@ -765,36 +765,37 @@ function generateAnchor(href) {
 
 function addNewTile() {
     let enteredData = getFormData();
-
-    for (let s = 0; s < userData.sections.length; s++) {
-        if (userData.sections[s].sectionId == tempSectionStore.currentSectionId) {
-            userData.sections[s].sectionItems.push(enteredData);
+    if (!state.errorRaised) {
+        for (let s = 0; s < userData.sections.length; s++) {
+            if (userData.sections[s].sectionId == tempSectionStore.currentSectionId) {
+                userData.sections[s].sectionItems.push(enteredData);
+            }
         }
+        updateUI();
+        dismissAddDialog();
     }
-    //createSectionItem(enteredData);
-    updateUI();
-    dismissAddDialog();
 }
-
 
 function getFormData(tileId) {
     let fieldUrl = document.getElementById("formInputFieldUrl").value;
     let fieldName = document.getElementById("formInputFieldName").value;
-    /*let foundErrors =
-    if(validate(fieldUrl)){
-
+    let foundFieldUrlErrors = validate(fieldUrl, "URL");
+    let foundFieldNameErrors = validate(fieldUrl, "Tile name");
+    let allCurrentFormErrors = foundFieldUrlErrors.concat(foundFieldNameErrors);
+    if (allCurrentFormErrors.length > 0) {
+        alert(formErrorString(allCurrentFormErrors));
+        state.errorRaised = true;
+    } else {
+        let fieldNameShort = document.getElementById("iconPreviewDiv").innerHTML;
+        let fieldColorBg = document.getElementById("formInputFieldColorBg").value;
+        let fieldColorFg = document.getElementById("formInputFieldColorFg").value;
+        let fieldUUID = null;
+        if (tileId == null)
+            fieldUUID = UUIDGeneration.getUUID();
+        fieldUUID = tileId;
+        state.errorRaised = false;
+        return new SectionItem(fieldUrl, fieldName, fieldNameShort, fieldColorBg, fieldColorFg, fieldUUID);
     }
-    if(validate(fieldName)){
-
-    }*/
-    let fieldNameShort = document.getElementById("iconPreviewDiv").innerHTML;
-    let fieldColorBg = document.getElementById("formInputFieldColorBg").value;
-    let fieldColorFg = document.getElementById("formInputFieldColorFg").value;
-    let fieldUUID = null;
-    if (tileId == null)
-        fieldUUID = UUIDGeneration.getUUID();
-    fieldUUID = tileId;
-    return new SectionItem(fieldUrl, fieldName, fieldNameShort, fieldColorBg, fieldColorFg, fieldUUID);
 }
 
 function generateContextMenu(tileId, coordX, coordY, sectionId) {
@@ -1042,7 +1043,7 @@ function changeSectionHeaderName(v, id) {
 
 function formErrorString(foundErrors) {
     let UIErrorString = "";
-    foundErrors.forEach(item => UIErrorString += item);
+    foundErrors.forEach(item => UIErrorString += item + "\n");
     return UIErrorString;
 }
 
