@@ -140,20 +140,39 @@ const webAppSuggestions = {
 
 
 var ValidationError = {
+    formError: (errorType, fieldName) => {
+        let messagePostFix = "";
+        switch(errorType){
+            case ValidationError.EmptyString:{
+                messagePostFix = " can't be empty";
+                break;
+            }
+            case ValidationError.StringTooLong:{
+                messagePostFix = " is too long";
+                break;
+            }
+            case ValidationError.InvalidSymbols:{
+                messagePostFix = " contains invalid symbols";
+                break;
+            }
+        }
+        return fieldName + messagePostFix;
+    },
     EmptyString: "String is empty",
     StringTooLong: "String is too long",
     InvalidSymbols: "String contains invalid symbols",
     NoError: "No error",
-}
+};
 
-function validate(inputFieldValue){
+function validate(inputFieldValue, inputFieldName) {
     let allErrors = [];
-    if(inputFieldValue === ""){
-        allErrors.push(ValidationError.EmptyString);
-    }
-    else{
-        if(inputFieldValue.length > 50){
-            allErrors.push(ValidationError.StringTooLong);
+    if (inputFieldValue === "") {
+        allErrors.push(ValidationError.formError(ValidationError.EmptyString,
+            inputFieldName));
+    } else {
+        if (inputFieldValue.length > 50) {
+            allErrors.push(ValidationError.formError(ValidationError.StringTooLong,
+                inputFieldName));
         }
     }
     return allErrors;
@@ -761,6 +780,13 @@ function addNewTile() {
 function getFormData(tileId) {
     let fieldUrl = document.getElementById("formInputFieldUrl").value;
     let fieldName = document.getElementById("formInputFieldName").value;
+    /*let foundErrors =
+    if(validate(fieldUrl)){
+
+    }
+    if(validate(fieldName)){
+
+    }*/
     let fieldNameShort = document.getElementById("iconPreviewDiv").innerHTML;
     let fieldColorBg = document.getElementById("formInputFieldColorBg").value;
     let fieldColorFg = document.getElementById("formInputFieldColorFg").value;
@@ -1014,16 +1040,18 @@ function changeSectionHeaderName(v, id) {
     }
 }
 
+function formErrorString(foundErrors) {
+    let UIErrorString = "";
+    foundErrors.forEach(item => UIErrorString += item);
+    return UIErrorString;
+}
+
 function addNewSection() {
     let sectionCreationInputField = document.getElementById("newSectionName");
-    let foundErrors = validate(sectionCreationInputField.innerHTML);
-    console.log(foundErrors);
-    if(foundErrors.length > 0){
-        let UIErrorString = "";
-        foundErrors.forEach(item => UIErrorString += item);
-        alert(UIErrorString)
-    }
-    else{
+    let foundErrors = validate(sectionCreationInputField.value, "Section name");
+    if (foundErrors.length > 0) {
+        alert(formErrorString(foundErrors));
+    } else {
         state.toggleSectionAreaVisibility(true);
         let newSection = new Section(sectionCreationInputField.value);
         createSection(newSection);
