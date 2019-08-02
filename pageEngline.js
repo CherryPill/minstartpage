@@ -653,7 +653,10 @@ function createWindowControls(sectionId, sItem, tileId) {
     }
 
     let actionButtonCancel = generateButton("Cancel");
-
+    actionButtonCancel.addEventListener("click",
+        () => {
+            dismissAddDialog();
+        });
     fullTitleAnchor.appendChild(linkTileEditMode);
     linkTilesSectionIconPreview.appendChild(linkTilesSectionIconPreviewInnerDiv);
     linkTilesSectionIconPreview.appendChild(fullTitleAnchor);
