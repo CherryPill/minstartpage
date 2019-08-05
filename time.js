@@ -44,7 +44,7 @@ var TimeUtils = {
     //Year divided by 100 and truncated to integer (00-99)
     "C": () => {
         this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
-        return parseInt(this.currentTime.getFullYear()/100);
+        return parseInt(this.currentTime.getFullYear() / 100);
     },
     //Day of the month, zero-padded (01-31)
     "d": () => {
@@ -100,11 +100,11 @@ var TimeUtils = {
     },
     //Hour in 12h format (01-12)
     "I": () => {
-
+        return convertTo12HRFormat(this.currentTime.getHours());
     },
     //Day of the year (001-366)
     "j": () => {
-
+        return this.currentTime.getDate();
     },
     //Month as a decimal number (01-12)
     "m": () => {
@@ -306,19 +306,28 @@ let timeObj = {
         return c;
     },
     resolveAmPm: function () {
+        this.hrsNow = convertTo12HRFormat(this.hrsNow);
         if (this.hrsNow === 0) {
-            this.hrsNow = 12;
             this.amPM = "AM";
         } else if (this.hrsNow < 12) {
             this.amPM = "AM";
         } else if (this.hrsNow === 12) {
             this.amPM = "PM";
         } else {
-            this.hrsNow -= 12;
             this.amPM = "PM";
         }
     }
 };
+
+function convertTo12HRFormat(hrs) {
+    if (hrs === 0) {
+        hrs = 12;
+    } else if (hrs === 12) {
+    } else {
+        hrs -= 12;
+    }
+    return hrs;
+}
 
 function initTimeScript() {
     parseTimePattern();
