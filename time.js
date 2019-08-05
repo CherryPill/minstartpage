@@ -4,7 +4,7 @@
 
 let testTimePattern = "%A, %B %dd, %Y | %H:%M:%S"; //current time format
 //supported time format specifiers
-testTimePattern = "%a : %A : %b : %R";
+testTimePattern = "%a : %A : %b %d %f: %R %p";
 
 
 var SavedTimeOptions = {
@@ -68,6 +68,14 @@ var TimeUtils = {
         return `${this.currentTime.getFullYear()}-${this.currentTime.getMonth()}-${this.getDate()}`;
 
     },
+    //day of the month postfix (th, nd, rd, etc)
+    "f": () => {
+        timeObj.dateNameNow = this.currentTime.getDate();
+        console.log(timeObj.dateNameNow);
+        timeObj.getDayPostFix();
+        return timeObj.dayPostFix;
+
+    },
     //Week-based year, last two digits (00-99)
     "g": () => {
         this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
@@ -88,7 +96,7 @@ var TimeUtils = {
     },
     //Hour in 24h format (00-23)
     "H": () => {
-
+        return this.currentTime.getHours();
     },
     //Hour in 12h format (01-12)
     "I": () => {
@@ -111,8 +119,11 @@ var TimeUtils = {
         return "\n";
     },
     //AM or PM designation
+    //works
     "p": () => {
-
+        timeObj.hrsNow = this.currentTime.getHours();
+        timeObj.resolveAmPm();
+        return timeObj.amPM;
     },
     //12-hour clock time *
     "r": () => {
@@ -175,19 +186,21 @@ var TimeUtils = {
     },
     //Year
     "Y": () => {
+        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
 
+        return this.currentTime.getFullYear();
     },
     //ISO 8601 offset from UTC in timezone (1 minute=1, 1 hour=100)
     // If timezone cannot be determined, no characters
     "z": () => {
-
+        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
+        return this.currentTime.getTimezoneOffset()
     },
     //Timezone name or abbreviation *
     // If timezone cannot be determined, no characters
     "Z": () => {
-
+        return Intl.DateTimeFormat().resolvedOptions().timeZone;
     },
-
 
 };
 
