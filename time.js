@@ -4,7 +4,20 @@
 
 let testTimePattern = "%A, %B %dd, %Y | %H:%M:%S"; //current time format
 //supported time format specifiers
-testTimePattern = "%a : %A : %b %d %f: %R %p";
+testTimePattern = "%a : %A : %b %d %f: %R %p %r %x";
+
+
+const timeMeridianModes = {
+    AM_PM_UPPERCASE: 0,
+    AM_PM_LOWERCASE: 1,
+};
+
+const constStrings = {
+    AM_UPPERCASE: "AM",
+    AM_LOWERCASE: "am",
+    PM_UPPERCASE: "PM",
+    PM_LOWERCASE: "pm",
+};
 
 
 var SavedTimeOptions = {
@@ -56,7 +69,7 @@ var TimeUtils = {
     //	Short MM/DD/YY date, equivalent to %m/%d/%y
     "D": () => {
         this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
-        return `${this.currentTime.getMonth()}/${this.currentTime.getDate()}/${this.getFullYear()}`;
+        return `${this.currentTime.getMonth()}/${this.currentTime.getDate()}/${this.currentTime.getFullYear()}`;
     },
     //Day of the month, space-padded ( 1-31)
     "e": () => {
@@ -121,13 +134,11 @@ var TimeUtils = {
     //AM or PM designation
     //works
     "p": () => {
-        timeObj.hrsNow = this.currentTime.getHours();
-        timeObj.resolveAmPm();
-        return timeObj.amPM;
+        return resolveAmPmNew(this.currentTime.getHours(), timeMeridianModes.AM_PM_UPPERCASE);
     },
     //12-hour clock time *
     "r": () => {
-
+        return `${this.currentTime.getHours()}:${this.currentTime.getMinutes()}:${this.currentTime.getSeconds()} ${resolveAmPmNew(this.currentTime.getHours(), timeMeridianModes.AM_PM_LOWERCASE)}`
     },
 
     "R": () => {
@@ -174,20 +185,19 @@ var TimeUtils = {
     },
     //Date representation
     "x": () => {
-
+        return window["TimeUtils"]["D"]();
     },
     //Time representation
     "X": () => {
-
+        return `${this.currentTime.getMinutes()}:${this.currentTime.getHours()}:${this.getSeconds()}`;
     },
     //Year, last two digits (00-99)
     "y": () => {
-
+        return this.currentTime.toLocaleString("en-us", {"year": "2-digit"});
     },
     //Year
     "Y": () => {
         this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
-
         return this.currentTime.getFullYear();
     },
     //ISO 8601 offset from UTC in timezone (1 minute=1, 1 hour=100)
@@ -305,7 +315,7 @@ let timeObj = {
         }
         return c;
     },
-    resolveAmPm: function () {
+    resolveAmPm: function (mode) {
         this.hrsNow = convertTo12HRFormat(this.hrsNow);
         if (this.hrsNow === 0) {
             this.amPM = "AM";
@@ -327,6 +337,21 @@ function convertTo12HRFormat(hrs) {
         hrs -= 12;
     }
     return hrs;
+}
+
+function resolveAmPmNew(hrsNow, caseMode) {
+    let amPmString;
+    hrsNow = convertTo12HRFormat(hrsNow);
+    if (hrsNow === 0) {
+        amPmString = timeMeridianModes.AM_PM_UPPERCASE ? constStrings.AM_UPPERCASE : constStrings.AM_LOWERCASE
+    } else if (hrsNow < 12) {
+        amPmString = caseMode === timeMeridianModes.AM_PM_UPPERCASE ? constStrings.AM_UPPERCASE : constStrings.AM_LOWERCASE;
+    } else if (hrsNow === 12) {
+        amPmString = timeMeridianModes.AM_PM_UPPERCASE ? constStrings.PM_UPPERCASE : constStrings.PM_LOWERCASE;
+    } else {
+        amPmString = timeMeridianModes.AM_PM_UPPERCASE ? constStrings.PM_UPPERCASE : constStrings.PM_LOWERCASE;
+    }
+    return amPmString;
 }
 
 function initTimeScript() {
