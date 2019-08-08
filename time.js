@@ -2,10 +2,10 @@
 //year: numeric, 2-digit, month: long short, weekday: long short,
 //date_post_fx: true false, _am_pm: true false, seconds true false
 
-let testTimePattern = "%A, %B %dd, %Y | %H:%M:%S"; //current time format
+let testTimePattern = "%A, %B %Y | %H:%M:%S"; //current time format
 //supported time format specifiers
-testTimePattern = "%a : %A : %b %B %d %f: %R %p %r %x";
-//testTimePattern = "%A";
+//testTimePattern = "%a : %A : %b %B %d %f: %R %p %r %x";
+//testTimePattern = "%M";
 
 const timeMeridianModes = {
     AM_PM_UPPERCASE: 0,
@@ -20,50 +20,45 @@ const constStrings = {
 };
 
 
-var SavedTimeOptions = {
-    "a": false,
-    "A": false,
-    "b": false,
-    "R": false,
-};
+var SavedTimeOptions = {};
 
 var TimeUtils = {
     currentTime: new Date(),
     /**
      * @return {string}
      */
-    A: function() {
+    A: function () {
         return this.currentTime.toLocaleString("en-us",
             {weekday: "short"});
     },
-    a: function() {
+    a: function () {
         return this.currentTime.toLocaleString("en-us",
             {weekday: "long"});
     },
-    b: function() {
+    b: function () {
         return this.currentTime.toLocaleString("en-us",
             {month: "short"});
     },
     /**
      * @return {string}
      */
-    B: function() {
+    B: function () {
         this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
         return this.currentTime.toLocaleString("en-us",
             {month: "long"});
     },
-    c: function() {
+    c: function () {
         return `${window["TimeUtils"]["a"]()} ${window["TimeUtils"]["b"]()} ${window["TimeUtils"]["d"]()} ${window["TimeUtils"]["T"]()} ${window["TimeUtils"]["G"]()}`;
     },
     //Year divided by 100 and truncated to integer (00-99)
     /**
      * @return {number}
      */
-    C: function() {
+    C: function () {
         return parseInt(this.currentTime.getFullYear() / 100);
     },
     //Day of the month, zero-padded (01-31)
-    d: function() {
+    d: function () {
         return this.currentTime.toLocaleString("en-us",
             {day: "2-digit"});
 
@@ -72,31 +67,30 @@ var TimeUtils = {
     /**
      * @return {string}
      */
-    D: function() {
+    D: function () {
         return `${this.currentTime.getMonth()}/${this.currentTime.getDate()}/${this.currentTime.getFullYear()}`;
     },
     //Day of the month, space-padded ( 1-31)
-    e: function() {
+    e: function () {
         return this.currentTime.getDate();
     },
     //	Short YYYY-MM-DD date, equivalent to %Y-%m-%d
     /**
      * @return {string}
      */
-    F: function() {
+    F: function () {
         return `${this.currentTime.getFullYear()}-${this.currentTime.getMonth()}-${this.currentTime.getDate()}`;
 
     },
     //day of the month postfix (th, nd, rd, etc)
-    f: function() {
+    f: function () {
         timeObj.dateNameNow = this.currentTime.getDate();
-        console.log(timeObj.dateNameNow);
         timeObj.getDayPostFix();
         return timeObj.dayPostFix;
 
     },
     //Week-based year, last two digits (00-99)
-    g: function() {
+    g: function () {
         this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
         return this.currentTime.getFullYear();
     },
@@ -104,13 +98,13 @@ var TimeUtils = {
     /**
      * @return {string}
      */
-    G: function() {
+    G: function () {
         return this.currentTime.toLocaleString("en-us",
             {year: "numeric"});
     },
 
     //Abbreviated month name * (same as %b)
-    h: function() {
+    h: function () {
         return this.currentTime.toLocaleString("en-us",
             {month: "short"});
     },
@@ -118,41 +112,44 @@ var TimeUtils = {
     /**
      * @return {number}
      */
-    H: function() {
+    H: function () {
         return this.currentTime.getHours();
     },
     //Hour in 12h format (01-12)
     /**
      * @return {number}
      */
-    I: function() {
+    I: function () {
         return convertTo12HRFormat(this.currentTime.getHours());
     },
     //Day of the year (001-366)
-    j: function() {
+    j: function () {
         return this.currentTime.getDate();
     },
     //Month as a decimal number (01-12)
-    m: function() {
+    m: function () {
         return this.currentTime.getMonth();
     },
     //Minute (00-59)
-    M: function() {
-        this.currentTime.getMinutes();
+    /**
+     * @return {number}
+     */
+    M: function () {
+        return digitCorrectionNew(this.currentTime.getMinutes());
     },
     //AM or PM designation
     //works
-    p: function() {
+    p: function () {
         return resolveAmPmNew(this.currentTime.getHours(), timeMeridianModes.AM_PM_UPPERCASE);
     },
     //12-hour clock time *
-    "r": function() {
+    r: function () {
         return `${this.currentTime.getHours()}:${this.currentTime.getMinutes()}:${this.currentTime.getSeconds()} ${resolveAmPmNew(this.currentTime.getHours(), timeMeridianModes.AM_PM_LOWERCASE)}`
     },
     /**
      * @return {string}
      */
-    R: function() {
+    R: function () {
         let minNow = this.currentTime.getMinutes();
         let hrsNow = this.currentTime.getHours(2);
         return `${hrsNow}:${minNow}`;
@@ -161,68 +158,68 @@ var TimeUtils = {
     /**
      * @return {number}
      */
-    S: function() {
+    S: function () {
         return this.currentTime.getSeconds();
     },
     //Horizontal-tab character ('\t')
-    t: function() {
+    t: function () {
         return "\t";
     },
     //ISO 8601 time format (HH:MM:SS), equivalent to %H:%M:%S
     /**
      * @return {string}
      */
-    T: function() {
+    T: function () {
         let minNow = this.currentTime.getMinutes();
         let hrsNow = this.currentTime.getHours();
         let secNow = this.currentTime.getSeconds();
         return `${hrsNow}:${minNow}:${secNow}`;
     },
     //ISO 8601 weekday as number with Monday as 1 (1-7)
-    u: function() {
+    u: function () {
         return this.currentTime.getDay();
     },
     //Week number with the first Sunday as the first day of week one (00-53)
-    U: function() {
+    U: function () {
         //not implemented
     },
     //ISO 8601 week number (01-53)
-    V: function() {
+    V: function () {
         //not implemented
     },
     //Weekday as a decimal number with Sunday as 0 (0-6)
-    w: function() {
+    w: function () {
         return this.currentTime.getDay();
     },
     //Week number with the first Monday as the first day of week one (00-53)
-    W: function() {
+    W: function () {
         //not implemented
     },
     //Date representation
-    x: function() {
+    x: function () {
         return window["TimeUtils"]["D"]();
     },
     //Time representation
     /**
      * @return {string}
      */
-    X: function() {
+    X: function () {
         return `${this.currentTime.getMinutes()}:${this.currentTime.getHours()}:${this.getSeconds()}`;
     },
     //Year, last two digits (00-99)
-    y: function() {
+    y: function () {
         return this.currentTime.toLocaleString("en-us", {"year": "2-digit"});
     },
     //Year
     /**
      * @return {number}
      */
-    Y: function() {
+    Y: function () {
         return this.currentTime.getFullYear();
     },
     //ISO 8601 offset from UTC in timezone (1 minute=1, 1 hour=100)
     // If timezone cannot be determined, no characters
-    z: function() {
+    z: function () {
         return this.currentTime.getTimezoneOffset()
     },
     //Timezone name or abbreviation *
@@ -230,7 +227,7 @@ var TimeUtils = {
     /**
      * @return {string}
      */
-    Z: function() {
+    Z: function () {
         return Intl.DateTimeFormat().resolvedOptions().timeZone;
     },
 
@@ -245,13 +242,14 @@ function parseTimePattern() {
             SavedTimeOptions[testTimePattern[c + 1]] = true;
         }
     console.log(SavedTimeOptions);
+        TimeUtils.currentTime = new Date();
     for (let setOption in SavedTimeOptions) {
         if (SavedTimeOptions[setOption] === true) {
             finalTimeString = finalTimeString.replace("%" + setOption,
                 TimeUtils[setOption]());
         }
     }
-    alert(finalTimeString);
+    return finalTimeString;
 }
 
 //%dd means [01-31]+th
@@ -376,11 +374,13 @@ function resolveAmPmNew(hrsNow, caseMode) {
     return amPmString;
 }
 
+function digitCorrectionNew(c) {
+    return c < 10 ? c = "0" + c : c;
+}
+
 function initTimeScript() {
-    parseTimePattern();
-    /*let dummyOptions = new TimeOptions("numeric", "long", "long", true, true, true);
-    timeObj.htmlClockElement.innerHTML = "Today is " + timeObj.getTimeStr(dummyOptions); //str;
+    timeObj.htmlClockElement.innerHTML = "Today is " + parseTimePattern();
     let t = setTimeout(function () {
         initTimeScript()
-    }, 500);*/
+    }, 500);
 }
