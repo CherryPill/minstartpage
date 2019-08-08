@@ -4,8 +4,8 @@
 
 let testTimePattern = "%A, %B %dd, %Y | %H:%M:%S"; //current time format
 //supported time format specifiers
-testTimePattern = "%a : %A : %b %d %f: %R %p %r %x";
-
+testTimePattern = "%a : %A : %b %B %d %f: %R %p %r %x";
+//testTimePattern = "%A";
 
 const timeMeridianModes = {
     AM_PM_UPPERCASE: 0,
@@ -29,58 +29,66 @@ var SavedTimeOptions = {
 
 var TimeUtils = {
     currentTime: new Date(),
-    "A": () => {
-        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
+    /**
+     * @return {string}
+     */
+    A: function() {
         return this.currentTime.toLocaleString("en-us",
             {weekday: "short"});
     },
-    "a": () => {
-        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
+    a: function() {
         return this.currentTime.toLocaleString("en-us",
             {weekday: "long"});
     },
-    "b": () => {
-        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
+    b: function() {
         return this.currentTime.toLocaleString("en-us",
             {month: "short"});
     },
-    "B": () => {
+    /**
+     * @return {string}
+     */
+    B: function() {
         this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
         return this.currentTime.toLocaleString("en-us",
             {month: "long"});
     },
-    "c": () => {
-        return `${this.a()} ${this.b()} ${this.d()} ${this.T() ${this.G()}}`;
+    c: function() {
+        return `${window["TimeUtils"]["a"]()} ${window["TimeUtils"]["b"]()} ${window["TimeUtils"]["d"]()} ${window["TimeUtils"]["T"]()} ${window["TimeUtils"]["G"]()}`;
     },
     //Year divided by 100 and truncated to integer (00-99)
-    "C": () => {
-        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
+    /**
+     * @return {number}
+     */
+    C: function() {
         return parseInt(this.currentTime.getFullYear() / 100);
     },
     //Day of the month, zero-padded (01-31)
-    "d": () => {
-        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
+    d: function() {
         return this.currentTime.toLocaleString("en-us",
             {day: "2-digit"});
 
     },
     //	Short MM/DD/YY date, equivalent to %m/%d/%y
-    "D": () => {
-        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
+    /**
+     * @return {string}
+     */
+    D: function() {
         return `${this.currentTime.getMonth()}/${this.currentTime.getDate()}/${this.currentTime.getFullYear()}`;
     },
     //Day of the month, space-padded ( 1-31)
-    "e": () => {
+    e: function() {
         return this.currentTime.getDate();
     },
     //	Short YYYY-MM-DD date, equivalent to %Y-%m-%d
-    "F": () => {
-        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
-        return `${this.currentTime.getFullYear()}-${this.currentTime.getMonth()}-${this.getDate()}`;
+    /**
+     * @return {string}
+     */
+    F: function() {
+        return `${this.currentTime.getFullYear()}-${this.currentTime.getMonth()}-${this.currentTime.getDate()}`;
 
     },
     //day of the month postfix (th, nd, rd, etc)
-    "f": () => {
+    f: function() {
         timeObj.dateNameNow = this.currentTime.getDate();
         console.log(timeObj.dateNameNow);
         timeObj.getDayPostFix();
@@ -88,121 +96,141 @@ var TimeUtils = {
 
     },
     //Week-based year, last two digits (00-99)
-    "g": () => {
+    g: function() {
         this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
         return this.currentTime.getFullYear();
     },
     //	Week-based year
-    "G": () => {
-        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
+    /**
+     * @return {string}
+     */
+    G: function() {
         return this.currentTime.toLocaleString("en-us",
-            {day: "2-digit"});
+            {year: "numeric"});
     },
 
     //Abbreviated month name * (same as %b)
-    "h": () => {
-        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
+    h: function() {
         return this.currentTime.toLocaleString("en-us",
             {month: "short"});
     },
     //Hour in 24h format (00-23)
-    "H": () => {
+    /**
+     * @return {number}
+     */
+    H: function() {
         return this.currentTime.getHours();
     },
     //Hour in 12h format (01-12)
-    "I": () => {
+    /**
+     * @return {number}
+     */
+    I: function() {
         return convertTo12HRFormat(this.currentTime.getHours());
     },
     //Day of the year (001-366)
-    "j": () => {
+    j: function() {
         return this.currentTime.getDate();
     },
     //Month as a decimal number (01-12)
-    "m": () => {
+    m: function() {
         return this.currentTime.getMonth();
     },
     //Minute (00-59)
-    "M": () => {
+    M: function() {
         this.currentTime.getMinutes();
     },
     //AM or PM designation
     //works
-    "p": () => {
+    p: function() {
         return resolveAmPmNew(this.currentTime.getHours(), timeMeridianModes.AM_PM_UPPERCASE);
     },
     //12-hour clock time *
-    "r": () => {
+    "r": function() {
         return `${this.currentTime.getHours()}:${this.currentTime.getMinutes()}:${this.currentTime.getSeconds()} ${resolveAmPmNew(this.currentTime.getHours(), timeMeridianModes.AM_PM_LOWERCASE)}`
     },
-
-    "R": () => {
-        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
+    /**
+     * @return {string}
+     */
+    R: function() {
         let minNow = this.currentTime.getMinutes();
         let hrsNow = this.currentTime.getHours(2);
         return `${hrsNow}:${minNow}`;
     },
     //Second (00-61)
-    "S": () => {
+    /**
+     * @return {number}
+     */
+    S: function() {
         return this.currentTime.getSeconds();
     },
     //Horizontal-tab character ('\t')
-    "t": () => {
+    t: function() {
         return "\t";
     },
     //ISO 8601 time format (HH:MM:SS), equivalent to %H:%M:%S
-    "T": () => {
-        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
+    /**
+     * @return {string}
+     */
+    T: function() {
         let minNow = this.currentTime.getMinutes();
         let hrsNow = this.currentTime.getHours();
         let secNow = this.currentTime.getSeconds();
         return `${hrsNow}:${minNow}:${secNow}`;
     },
     //ISO 8601 weekday as number with Monday as 1 (1-7)
-    "u": () => {
+    u: function() {
         return this.currentTime.getDay();
     },
     //Week number with the first Sunday as the first day of week one (00-53)
-    "U": () => {
+    U: function() {
         //not implemented
     },
     //ISO 8601 week number (01-53)
-    "V": () => {
+    V: function() {
         //not implemented
     },
     //Weekday as a decimal number with Sunday as 0 (0-6)
-    "w": () => {
+    w: function() {
         return this.currentTime.getDay();
     },
     //Week number with the first Monday as the first day of week one (00-53)
-    "W": () => {
+    W: function() {
         //not implemented
     },
     //Date representation
-    "x": () => {
+    x: function() {
         return window["TimeUtils"]["D"]();
     },
     //Time representation
-    "X": () => {
+    /**
+     * @return {string}
+     */
+    X: function() {
         return `${this.currentTime.getMinutes()}:${this.currentTime.getHours()}:${this.getSeconds()}`;
     },
     //Year, last two digits (00-99)
-    "y": () => {
+    y: function() {
         return this.currentTime.toLocaleString("en-us", {"year": "2-digit"});
     },
     //Year
-    "Y": () => {
-        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
+    /**
+     * @return {number}
+     */
+    Y: function() {
         return this.currentTime.getFullYear();
     },
     //ISO 8601 offset from UTC in timezone (1 minute=1, 1 hour=100)
     // If timezone cannot be determined, no characters
-    "z": () => {
-        this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
+    z: function() {
         return this.currentTime.getTimezoneOffset()
     },
     //Timezone name or abbreviation *
     // If timezone cannot be determined, no characters
-    "Z": () => {
+    /**
+     * @return {string}
+     */
+    Z: function() {
         return Intl.DateTimeFormat().resolvedOptions().timeZone;
     },
 
