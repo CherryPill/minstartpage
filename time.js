@@ -50,9 +50,7 @@ var TimeUtils = {
             {month: "long"});
     },
     "c": () => {
-        /*this.currentTime === undefined ? this.currentTime = new Date() : this.currentTime;
-        return this.currentTime.toLocaleString("en-us",
-            {month: "long"});*/
+        return `${this.a()} ${this.b()} ${this.d()} ${this.T() ${this.G()}}`;
     },
     //Year divided by 100 and truncated to integer (00-99)
     "C": () => {
@@ -73,7 +71,7 @@ var TimeUtils = {
     },
     //Day of the month, space-padded ( 1-31)
     "e": () => {
-
+        return this.currentTime.getDate();
     },
     //	Short YYYY-MM-DD date, equivalent to %Y-%m-%d
     "F": () => {
@@ -127,10 +125,6 @@ var TimeUtils = {
     "M": () => {
         this.currentTime.getMinutes();
     },
-    //New-line character ('\n')
-    "n": () => {
-        return "\n";
-    },
     //AM or PM designation
     //works
     "p": () => {
@@ -169,19 +163,19 @@ var TimeUtils = {
     },
     //Week number with the first Sunday as the first day of week one (00-53)
     "U": () => {
-
+        //not implemented
     },
     //ISO 8601 week number (01-53)
     "V": () => {
-
+        //not implemented
     },
     //Weekday as a decimal number with Sunday as 0 (0-6)
     "w": () => {
-
+        return this.currentTime.getDay();
     },
     //Week number with the first Monday as the first day of week one (00-53)
     "W": () => {
-
+        //not implemented
     },
     //Date representation
     "x": () => {
@@ -226,7 +220,7 @@ function parseTimePattern() {
     for (let setOption in SavedTimeOptions) {
         if (SavedTimeOptions[setOption] === true) {
             finalTimeString = finalTimeString.replace("%" + setOption,
-                eval("TimeUtils." + setOption + "()"));
+                TimeUtils[setOption]());
         }
     }
     alert(finalTimeString);
