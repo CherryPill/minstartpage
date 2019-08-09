@@ -592,11 +592,9 @@ function dismissAddDialog() {
 
 function createWindowControls(sectionId, sItem, tileId) {
     console.log(sItem);
-    let tileEditWindow = document.createElement("div");
-    tileEditWindow.className = "tileEditWindow";
-    let header = document.createElement("div");
-    header.innerHTML = "Add new tile";
-    let formRowsEnclosure = generateDiv("", "", "formRowsEnclosure");
+    let tileEditWindow = ControlBuilder.build({tag: "div", className: "tileEditWindow"});
+    let header = ControlBuilder.build({tag: "div", innerHTML: "Add new tile"});
+    let formRowsEnclosure = ControlBuilder.build({tag: "div", id: "formRowsEnclosure"});
     let formRowUrl = createFormRow("", "url:",
         controlTypes.REGULAR_INPUT,
         {
@@ -616,22 +614,26 @@ function createWindowControls(sectionId, sItem, tileId) {
             "value": sItem.sectionItemName
         });
 
-    let addWindowContentWrapper = document.createElement("div");
-    addWindowContentWrapper.className = "wrap";
-    addWindowContentWrapper.setAttribute("style", "display: flex; flex-direction: row;")
-    let iconPreviewSection = document.createElement("div");
-    iconPreviewSection.className = "iconPreviewSection";
-    let linkTilesSectionIconPreview = document.createElement("div");
-    linkTilesSectionIconPreview.className = "linkTilesSection iconPreview";
-    let linkTilesSectionIconPreviewInnerDiv = document.createElement("div");
-    linkTilesSectionIconPreviewInnerDiv.innerHTML = "Preview";
-    let fullTitleAnchor = generateAnchor("https://vk.com/feed");
-    let linkTileEditMode = generateDiv("linkTile editMode", "", "iconPreviewDiv");
-    linkTileEditMode.innerHTML = "AA";
+    let addWindowContentWrapper = ControlBuilder.build({
+        tag: "div",
+        className: "wrap",
+        attribs: {
+            style: "display: flex; flex-direction: row;"
+        }
+    });
+    let iconPreviewSection = ControlBuilder.build({tag: "div", className: "iconPreviewSection"});
+    let linkTilesSectionIconPreview = ControlBuilder.build({tag: "div", className: "linkTilesSection iconPreview"});
+    let linkTilesSectionIconPreviewInnerDiv = ControlBuilder.build({tag: "div", className: "Preview"});
+    let fullTitleAnchor = ControlBuilder.build({tag: "a", attribs: {href: "https://vk.com/feed"}});
+    let linkTileEditMode = ControlBuilder.build({
+        tag: "div",
+        innerHTML: "AA", className: "linkTile editMode", id: "iconPreviewDiv"
+    });
     linkTileEditMode.style.backgroundColor = sItem.sectionItemColors[0];
     linkTileEditMode.style.color = sItem.sectionItemColors[1];
-    let colorPickerSection = generateDiv("colorPickerSection", "", "");
-    let colorAutodetect = generateDiv("color-autodetect", "", "");
+
+    let colorPickerSection = ControlBuilder.build({tag: "div", className: "colorPickerSection"});
+    let colorAutodetect = ControlBuilder.build({tag: "div", className: "color-autodetect"});
 
     let formColorPickerBg = createFormRow(
         "colorPickerInputLabel",
@@ -681,22 +683,30 @@ function createWindowControls(sectionId, sItem, tileId) {
                     linkTileEditMode);
             }
         });
-    let actionButtonsDiv = document.createElement("div");
-    actionButtonsDiv.className = "actionButtons";
-    let actionButtonOk = generateButton("OK");
-    if (tileId === "null") {
-        actionButtonOk.addEventListener("click", addNewTile);
-    } else {
-        actionButtonOk.addEventListener("click", function () {
-            editTile(tileId)
-        });
-    }
+    let actionButtonsDiv = ControlBuilder.build({tag: "div", className: "actionButtons"});
+    let actionButtonOk = ControlBuilder.build({
+        tag: "button",
+        innerHTML: "OK",
+        event: {
+            name: "click",
+            handler: tileId === "null" ?
+                addNewTile :
+                function () {
+                    editTile(tileId)
+                }
+        }
+    });
 
-    let actionButtonCancel = generateButton("Cancel");
-    actionButtonCancel.addEventListener("click",
-        () => {
-            dismissAddDialog();
-        });
+    let actionButtonCancel = ControlBuilder.build({
+        tag: "button",
+        innerHTML: "Cancel",
+        event: {
+            name: "click",
+            handler: () => {
+                dismissAddDialog();
+            }
+        }
+    });
     fullTitleAnchor.appendChild(linkTileEditMode);
     linkTilesSectionIconPreview.appendChild(linkTilesSectionIconPreviewInnerDiv);
     linkTilesSectionIconPreview.appendChild(fullTitleAnchor);
@@ -725,6 +735,7 @@ function createWindowControls(sectionId, sItem, tileId) {
 
     tileEditWindow.appendChild(actionButtonsDiv);
     document.body.appendChild(tileEditWindow);
+    console.log(formRowName);
     state.toggleOverLay(true);
     state.overlayElement.style.zIndex = "0";
     tileEditWindow.style.zIndex = "5";
@@ -738,9 +749,9 @@ function createWindowControls(sectionId, sItem, tileId) {
         / 2 + "px";
     ;
     tempSectionStore.currentSectionId = sectionId;
+    console.log(document.getElementById("formInputFieldName"));
     autocomplete(document.getElementById("formInputFieldName"), webAppSuggestions);
 }
-
 
 function generateAddEditTileWindow(sectionId, tileId) {
     var itemForForm;
@@ -766,44 +777,6 @@ function generateAddEditTileWindow(sectionId, tileId) {
     }
     console.log(itemForForm);
     createWindowControls(sectionId, itemForForm, tileId);
-}
-
-function generateButton(_innerHTML) {
-    let button = document.createElement("button");
-    button.innerHTML = _innerHTML;
-    return button;
-}
-
-function generateInput(_type, _name, _value, _className, _id) {
-    let input = document.createElement("input");
-    input.className = _className;
-    input.setAttribute("type", _type);
-    input.setAttribute("name", _name);
-    input.setAttribute("value", _value);
-    input.id = _id;
-    return input;
-}
-
-function generateLabel(_for, _className, _innerHTML) {
-    let label = document.createElement("label");
-    label.className = _className;
-    label.setAttribute("for", _for);
-    label.innerHTML = _innerHTML;
-    return label;
-}
-
-function generateDiv(className, innerHTML, id) {
-    let div = document.createElement("div");
-    div.className = className;
-    div.innerHTML = innerHTML;
-    div.id = id;
-    return div;
-}
-
-function generateAnchor(href) {
-    let linkAnchorTag = document.createElement("a");
-    linkAnchorTag.setAttribute("href", href);
-    return linkAnchorTag;
 }
 
 function addNewTile() {
@@ -843,17 +816,22 @@ function getFormData(tileId) {
 
 function generateContextMenu(tileId, coordX, coordY, sectionId) {
     if (tileId !== "null") {
-        let contextMenuDiv = document.createElement("div");
-        contextMenuDiv.className = "contextMenu";
-        contextMenuDiv.id = tileId;
-        contextMenuDiv.setAttribute("sectionid", sectionId);
+        let contextMenuDiv = ControlBuilder.build({
+            tag: "div",
+            className: "contextMenu", id: tileId,
+            attribs: {
+                sectionId: sectionId
+            }
+        });
         let strArr = ["Edit tile", "Delete"];
-        let olElement = document.createElement("ol");
+        let olElement = ControlBuilder.build({tag: "ol"});
         let ulElement;
         for (let i = 0; i < strArr.length; i++) {
-            ulElement = document.createElement("ul");
-            ulElement.innerHTML = strArr[i];
-            ulElement.className = "contextMenuSelection";
+            ulElement = ControlBuilder.build({
+                tag: "ul",
+                innerHTML: strArr[i],
+                className: "contextMenuSelection"
+            });
             if (!i) {
                 ulElement.id = "contextMenuEdit";
             } else {
@@ -930,35 +908,45 @@ function autocomplete(inp, arr) {
             return false;
         }
         currentFocus = -1;
-        a = document.createElement("div");
-        a.setAttribute("id", this.id + "autocomplete-list");
-        a.setAttribute("class", "autocomplete-items");
+        a = ControlBuilder.build({
+            tag: "div",
+            attribs: {
+                id: this.id + "autocomplete-list",
+                class: "autocomplete-items"
+            }
+        });
 
         this.parentNode.appendChild(a);
         let currentWebApp;
-        for (webApp in webAppSuggestions) {
+        for (let webApp in webAppSuggestions) {
             if (webApp.substr(0, val.length).toUpperCase() === val.toUpperCase()) {
                 currentWebApp = webApp;
+                let webAppText = "<strong>" + webApp.substr(0, val.length) + "</strong>";
+                webAppText += webApp.substr(val.length);
+                webAppText += "<input type='hidden' value='" + webAppSuggestions[webApp][0] + "'>";
+
                 /*create a DIV element for each matching element:*/
-                b = document.createElement("div");
-                b.id = "autoCompleteDiv";
-                b.innerHTML = "<strong>" + webApp.substr(0, val.length) + "</strong>";
-                b.innerHTML += webApp.substr(val.length);
-                b.innerHTML += "<input type='hidden' value='" + webAppSuggestions[webApp][0] + "'>";
+                b = ControlBuilder.build({
+                    tag: "div",
+                    id: "autoCompleteDiv",
+                    innerHTML: webAppText,
+                    event: {
+                        name: "click",
+                        handler: function (e) {
+                            formInputFieldName.value = currentWebApp;
+                            if (state.colorAutoDetectOn) {
+                                detectAndApplyColors(document.getElementById("formInputFieldColorBg"),
+                                    document.getElementById("formInputFieldColorFg"),
+                                    formUrlFieldDisabled,
+                                    document.getElementById("iconPreviewDiv"));
+                            }
+                            closeAllLists();
+                        }
+                    }
+                });
                 previewIconTextElement.innerHTML = webAppSuggestions[webApp][0];
                 formUrlFieldDisabled.value = webAppSuggestions[webApp][1];
-
                 //fill out hidden with full name input with webAppName id
-                b.addEventListener("click", function (e) {
-                    formInputFieldName.value = currentWebApp;
-                    if (state.colorAutoDetectOn) {
-                        detectAndApplyColors(document.getElementById("formInputFieldColorBg"),
-                            document.getElementById("formInputFieldColorFg"),
-                            formUrlFieldDisabled,
-                            document.getElementById("iconPreviewDiv"));
-                    }
-                    closeAllLists();
-                });
                 a.appendChild(b);
                 a = alignAutocomplete(a);
                 document.body.appendChild(a);
@@ -1068,7 +1056,16 @@ function editSection(sectionId) {
             let requiredInputHeight = c.offsetHeight;
             tempSectionStore.currentSectionName = c.innerHTML;
             c.innerHTML = "";
-            let editInput = generateInput("text", "editName", tempSectionStore.currentSectionName, "editSectionName", "editName");
+            let editInput = ControlBuilder.build({
+                tag: "input",
+                className: "editSectionName",
+                id: "editName",
+                attribs: {
+                    type: "text",
+                    name: "editName",
+                    value: tempSectionStore.currentSectionName
+                }
+            });
             editInput.style.width = requiredInputWidth + "px";
             editInput.style.height = requiredInputHeight - 15 + "px";
             c.appendChild(editInput);
@@ -1130,16 +1127,22 @@ function createFormRow(labelClassName,
                        controlParams,
                        eventType,
                        eventHandler) {
-    let mainDivElement = document.createElement("div");
-    mainDivElement.className = "form-row";
-    let formLabel = document.createElement("label");
-    formLabel.className = "form-row-label " + labelClassName;
-    formLabel.innerHTML = labelString;
-    let formInput = document.createElement(controlType);
-    formInput.className = "form-row-input";
+    let mainDivElement = ControlBuilder.build({tag: "div", className: "form-row"});
+    let formLabel = ControlBuilder.build({
+        tag: "label",
+        classname: "form-row-label " + labelClassName,
+        innerHTML: labelString
+    });
+    let formInputOptions = {
+        tag: controlType,
+        className: "form-row-input",
+        attribs: {}, event: {},
+    };
+
     for (let param in controlParams) {
-        formInput.setAttribute(param, controlParams[param]);
+        formInputOptions.attribs[param] = controlParams[param];
     }
+
     if (controlParams.type === "text") {
         formLabel.style.width = "50px";
     }
@@ -1147,29 +1150,18 @@ function createFormRow(labelClassName,
         formLabel.style.width = "110px";
     }
     mainDivElement.appendChild(formLabel);
-    mainDivElement.appendChild(formInput);
+
     if (eventType !== "") {
-        formInput.addEventListener(eventType, eventHandler);
+        formInputOptions.event.name = eventType;
+        formInputOptions.event.handler = eventHandler;
     }
+    let formInput = ControlBuilder.build(formInputOptions);
+    mainDivElement.appendChild(formInput);
     return {
         mainDiv: mainDivElement,
         label: formLabel,
         input: formInput
     };
-}
-
-function createElement(elementType, elementText, params, handler) {
-    let newElement = document.createElement(elementType);
-    if (elementText != null) {
-        newElement.innerHTML = elementText;
-    }
-    for (let param in params) {
-        newElement.setAttribute(param, params[param]);
-    }
-    if (handler != null) {
-        newElement.addEventListener(handler[0], handler[1]);
-    }
-    return newElement;
 }
 
 var ControlBuilder = {

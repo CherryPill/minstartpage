@@ -236,7 +236,7 @@ function parseTimePattern() {
                 testTimePattern.charCodeAt(c + 1) <= 122)) {
             SavedTimeOptions[testTimePattern[c + 1]] = true;
         }
-    console.log(SavedTimeOptions);
+    //console.log(SavedTimeOptions);
     TimeUtils.currentTime = new Date();
     for (let setOption in SavedTimeOptions) {
         if (SavedTimeOptions[setOption] === true) {
