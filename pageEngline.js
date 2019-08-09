@@ -222,10 +222,8 @@ function toggleSettingsMenu() {
         let settingsWindow = document.getElementById("settingsWindow");
         parent.removeChild(settingsWindow);
     } else {
-        let settingsWindow = document.createElement("div");
-        settingsWindow.id = "settingsWindow";
+        let settingsWindow = ControlBuilder.build({tag: "div", id: "settingsWindow"});
         createSettingsContents(settingsWindow);
-
         parent.appendChild(settingsWindow);
     }
     state.settingsWindowOpen = !state.settingsWindowOpen;
@@ -233,35 +231,38 @@ function toggleSettingsMenu() {
 }
 
 function createSettingsContents(parent) {
-    let settingsWindowTitle = document.createElement("h3");
-    settingsWindowTitle.innerHTML = "Settings";
+    let settingsWindowTitle = ControlBuilder.build({tag: "h3", innerHTML: "Settings"});
+    let settingsWindowNavBar = ControlBuilder.build({tag: "div", className: "tab"});
+    let settingsWindowMainContent = ControlBuilder.build({tag: "div", id: "all_tabs"});
 
-    let settingsWindowNavBar = document.createElement("div");
-    settingsWindowNavBar.className = "tab";
-
-    let settingsWindowMainContent = document.createElement("div");
-    settingsWindowMainContent.id = "all_tabs";
+    let settingsWindowControlButtonOK = document.createElement("button");
+    let settingsWindowControlButtonCancel = document.createElement("button");
 
     for (let tabHeader of utilStrings.settingsWindowTabNames) {
-
-        let tabLink = document.createElement("button");
-        tabLink.className = "tablinks";
-        tabLink.id = tabHeader;
-
-        tabLink.onclick = function (e) {
-            console.log("Opening " + tabLink.id);
-            openSettingsTab(e, tabLink.id);
-
-        };
+        let tabLink = ControlBuilder.build(
+            {
+                tag: "button",
+                id: tabHeader,
+                innerHTML: tabHeader,
+                className: "tabLinks",
+                event: {
+                    name: "click",
+                    handler: function (e) {
+                        openSettingsTab(e, tabLink.id);
+                    },
+                    capture: false
+                }
+            }
+        );
         settingsWindowNavBar.appendChild(tabLink);
-        tabLink.innerHTML = tabHeader;
-        let actualTabContent = document.createElement("div");
-        actualTabContent.setAttribute("tab_type", tabHeader);
-        actualTabContent.className = "tabcontent";
+        let actualTabContent = ControlBuilder.build({
+            tag: "div",
+            className: "tabcontent",
+            attribs: {"tab_type": tabHeader}
+        });
         let generatedTabContent = generateSettingsTabForms(tabHeader);
         actualTabContent.appendChild(generatedTabContent);
         settingsWindowMainContent.appendChild(actualTabContent);
-
     }
     parent.appendChild(settingsWindowTitle);
     parent.appendChild(settingsWindowNavBar);
@@ -269,7 +270,7 @@ function createSettingsContents(parent) {
 }
 
 function generateSettingsTabForms(tabType) {
-    let actualTabContentWrapper = document.createElement("div");
+    let actualTabContentWrapper = ControlBuilder.build({tag: "div"});
     switch (tabType) {
         case "General": {
             actualTabContentWrapper.appendChild(createFormRow(
@@ -299,14 +300,17 @@ function generateSettingsTabForms(tabType) {
                         "type": "text",
                         "name": "input"
                     }).mainDiv);
+
             break;
         }
         case "About": {
             actualTabContentWrapper.appendChild(
-                createElement("div",
-                    `Currently running within ${navigator.userAgent}
+                ControlBuilder.build({
+                    tag: "div", innerHTML:
+                        `Currently running within ${navigator.userAgent}
             on ${navigator.platform}<br /> 
-            You are currently${navigator.onLine ? ' online' : ' offline'}`)
+            You are currently${navigator.onLine ? ' online' : ' offline'}`
+                })
             );
             break;
         }
@@ -400,14 +404,13 @@ function updateUI() {
 
 function createSection(sectionItemObj) {
     let mainArea = document.getElementById("mainArea");
-    let mainAreaRow = document.createElement("div");
-    mainAreaRow.className = "b";
-    mainAreaRow.id = sectionItemObj.sectionId;
-    let sectionHeaderRow = document.createElement("div");
-    sectionHeaderRow.className = "sectionHeaderRow";
-    let sectionHeaderName = document.createElement("div");
-    sectionHeaderName.className = "sectionHeaderName";
-    sectionHeaderName.innerHTML = sectionItemObj.sectionName;
+    let mainAreaRow = ControlBuilder.build({tag: "div", className: "b", id: sectionItemObj.sectionId});
+    let sectionHeaderRow = ControlBuilder.build({tag: "div", classname: "sectionHeaderRow"});
+    let sectionHeaderName = ControlBuilder.build({
+        tag: "div",
+        className: "sectionHeaderName",
+        innerHTML: sectionItemObj.sectionName
+    });
     let sectionHeaderManagementEnclosure = document.createElement("div");
     sectionHeaderManagementEnclosure.className = "sectionHeaderManagementEnclosure";
     let sectionHeaderManagement = document.createElement("div");
@@ -1131,4 +1134,27 @@ function createElement(elementType, elementText, params, handler) {
     }
     return newElement;
 }
+
+var ControlBuilder = {
+    build: function (control) {
+        let e = document.createElement(control.tag);
+        control.innerHTML !== undefined ? e.innerHTML = control.innerHTML : "";
+        control.className !== undefined ? e.className = control.className : "";
+        control.id !== undefined ? e.id = control.id : "";
+        if (control.attribs !== undefined) {
+            for (let attrib in control.attribs) {
+                e.setAttribute(attrib, control.attribs[attrib])
+            }
+        }
+        if (control.event !== undefined) {
+            e.addEventListener(control.event.name,
+                control.event.handler,
+                control.event.capture);
+        }
+        return e;
+    }
+};
+
+
+
 
