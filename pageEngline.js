@@ -264,9 +264,7 @@ function createSettingsContents(parent) {
         actualTabContent.appendChild(generatedTabContent);
         settingsWindowMainContent.appendChild(actualTabContent);
     }
-    parent.appendChild(settingsWindowTitle);
-    parent.appendChild(settingsWindowNavBar);
-    parent.appendChild(settingsWindowMainContent);
+    chainAppend(parent, [settingsWindowTitle, settingsWindowNavBar, settingsWindowMainContent])
 }
 
 function generateSettingsTabForms(tabType) {
@@ -501,14 +499,17 @@ function createSection(sectionItemObj) {
     linkTilesSection.appendChild(linkTileAnchorAddNew);
     sectionHeaderManagementEdit.appendChild(sectionHeaderManagementEditAnchor);
     sectionHeaderManagementRem.appendChild(sectionHeaderManagementRemAnchor);
-    sectionHeaderManagement.appendChild(sectionHeaderManagementEdit);
-    sectionHeaderManagement.appendChild(sectionHeaderManagementRem);
+    chainAppend(sectionHeaderManagement, [sectionHeaderManagementEdit, sectionHeaderManagementRem]);
     sectionHeaderManagementEnclosure.appendChild(sectionHeaderManagement);
-    sectionHeaderRow.appendChild(sectionHeaderName);
-    sectionHeaderRow.appendChild(sectionHeaderManagementEnclosure);
-    mainAreaRow.appendChild(sectionHeaderRow);
-    mainAreaRow.appendChild(linkTilesSection);
+    chainAppend(sectionHeaderRow, [sectionHeaderName, sectionHeaderManagementEnclosure]);
+    chainAppend(mainAreaRow, [sectionHeaderRow, linkTilesSection]);
     mainArea.appendChild(mainAreaRow);
+}
+
+function chainAppend(parent, allChildren) {
+    for (let child of allChildren) {
+        parent.appendChild(child);
+    }
 }
 
 function toggleColorLock(_state_) {
@@ -708,32 +709,16 @@ function createWindowControls(sectionId, sItem, tileId) {
         }
     });
     fullTitleAnchor.appendChild(linkTileEditMode);
-    linkTilesSectionIconPreview.appendChild(linkTilesSectionIconPreviewInnerDiv);
-    linkTilesSectionIconPreview.appendChild(fullTitleAnchor);
-
+    chainAppend(linkTilesSectionIconPreview, [linkTilesSectionIconPreviewInnerDiv, fullTitleAnchor]);
     colorAutodetect.appendChild(formRowColorAutoDetect.mainDiv)
-
-    colorPickerSection.appendChild(colorAutodetect);
-    colorPickerSection.appendChild(formColorPickerBg.mainDiv);
-
-    colorPickerSection.appendChild(formColorPickerFg.mainDiv);
-    iconPreviewSection.appendChild(linkTilesSectionIconPreview);
-    iconPreviewSection.appendChild(colorPickerSection);
-
-    actionButtonsDiv.appendChild(actionButtonOk);
-    actionButtonsDiv.appendChild(actionButtonCancel);
-
+    chainAppend(colorPickerSection, [colorAutodetect, formColorPickerBg.mainDiv, formColorPickerFg.mainDiv]);
+    chainAppend(iconPreviewSection, [linkTilesSectionIconPreview, colorPickerSection]);
+    chainAppend(actionButtonsDiv, [actionButtonOk, actionButtonCancel]);
     tileEditWindow.appendChild(header);
-
-    formRowsEnclosure.appendChild(formRowName.mainDiv);
-    formRowsEnclosure.appendChild(formRowUrl.mainDiv);
-    formRowsEnclosure.appendChild(colorPickerSection);
+    chainAppend(formRowsEnclosure, [formRowName.mainDiv, formRowUrl.mainDiv, colorPickerSection]);
     iconPreviewSection.appendChild(linkTilesSectionIconPreview);
-    addWindowContentWrapper.appendChild(iconPreviewSection);
-    addWindowContentWrapper.appendChild(formRowsEnclosure);
-    tileEditWindow.appendChild(addWindowContentWrapper);
-
-    tileEditWindow.appendChild(actionButtonsDiv);
+    chainAppend(addWindowContentWrapper, [iconPreviewSection, formRowsEnclosure]);
+    chainAppend(tileEditWindow, [addWindowContentWrapper, actionButtonsDiv]);
     document.body.appendChild(tileEditWindow);
     console.log(formRowName);
     state.toggleOverLay(true);
@@ -1167,6 +1152,11 @@ function createFormRow(labelClassName,
 var ControlBuilder = {
     build: function (control) {
         let e = document.createElement(control.tag);
+        for (let prop in control) {
+            if (!isObject(control[prop])) {
+                e[prop] = control[prop];
+            }
+        }
         control.innerHTML !== undefined ? e.innerHTML = control.innerHTML : "";
         control.className !== undefined ? e.className = control.className : "";
         control.id !== undefined ? e.id = control.id : "";
@@ -1188,3 +1178,7 @@ var ControlBuilder = {
         return e;
     }
 };
+
+function isObject(o) {
+    return typeof o;
+}
