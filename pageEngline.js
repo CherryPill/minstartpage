@@ -1,5 +1,6 @@
 var state = {
     settingsWindowOpen: false,
+    contextMenuOpen: false,
     currentTab: 0,
     colorAutoDetectOn: false,
     overlayElement: document.getElementById("overlay"),
@@ -221,11 +222,12 @@ function openSettingsMenu() {
     let settingsWindow = ControlBuilder.build({tag: "div", id: "settingsWindow", className: "modalWindow"});
     createSettingsContents(settingsWindow);
     parent.appendChild(settingsWindow);
+    state.toggleOverLay(true);
 //document.getElementById("defaultOpen").click();
 }
 
 function createSettingsContents(parent) {
-    let settingsWindowTitle = ControlBuilder.build({tag: "h3", innerHTML: "Settings"});
+    let settingsWindowTitle = ControlBuilder.build({tag: "div", innerHTML: "Settings", id: "settingsTitle"});
     let settingsWindowNavBar = ControlBuilder.build({tag: "div", className: "tab"});
     let settingsWindowMainContent = ControlBuilder.build({tag: "div", id: "all_tabs"});
 
@@ -397,7 +399,7 @@ function updateUI() {
 function createSection(sectionItemObj) {
     let mainArea = document.getElementById("mainArea");
     let mainAreaRow = ControlBuilder.build({tag: "div", className: "b", id: sectionItemObj.sectionId});
-    let sectionHeaderRow = ControlBuilder.build({tag: "div", classname: "sectionHeaderRow"});
+    let sectionHeaderRow = ControlBuilder.build({tag: "div", className: "sectionHeaderRow"});
     let sectionHeaderName = ControlBuilder.build({
         tag: "div",
         className: "sectionHeaderName",
@@ -529,12 +531,15 @@ function addEventListenersDynamic() {
     }
     let allCurrentTiles = document.getElementsByClassName("linkTile");
     for (var i = 0; i < allCurrentTiles.length; i++) {
-        allCurrentTiles[i].addEventListener("contextmenu", function (e) {
-            e.preventDefault();
-            generateContextMenu(this.id, e.clientX, e.clientY, this.getAttribute("sectionId"));
-            //generateContextMenu.bind(this, this.getAttribute("tileid"));
-            return false;
-        }, false);
+        allCurrentTiles[i].addEventListener("contextmenu",
+            function (e) {
+                e.preventDefault();
+                if (!state.contextMenuOpen) {
+                    state.contextMenuOpen = true;
+                    generateContextMenu(this.id, e.clientX, e.clientY, this.getAttribute("sectionId"));
+                }
+                return false;
+            }, false);
     }
 }
 
@@ -565,7 +570,6 @@ function addEventListeners() {
     document.addEventListener("keydown", function (k) {
         if (k.keyCode == 27 && state.overlayElement) {
             console.log("engaged");
-            //dismissAddDialog();
             dismissModalWindow();
         }
     });
@@ -573,17 +577,12 @@ function addEventListeners() {
     let sectionCreationButton = document.getElementsByClassName("addNewSection");
     sectionCreationButton[0].addEventListener("click", function (e) {
         addNewSection();
-        e.preventDefault()
+        e.preventDefault();
     });
     window.onunload = window.onbeforeunload = () => {
         localStorage.setItem("savedUserData", JSON.stringify(userData));
     };
-}
-
-function dismissAddDialog() {
-    state.toggleOverLay(false);
-    let tileEditWindow = document.getElementsByClassName("tileEditWindow");
-    document.body.removeChild(tileEditWindow[0]);
+    document.body.addEventListener("click", () => state.contextMenuOpen = false, false);
 }
 
 function dismissModalWindow() {
@@ -708,7 +707,6 @@ function createWindowControls(sectionId, sItem, tileId) {
             name: "click",
             handler: () => {
                 dismissModalWindow();
-                //dismissAddDialog();
             }
         }
     });
@@ -776,7 +774,6 @@ function addNewTile() {
             }
         }
         updateUI();
-        //dismissAddDialog();
         dismissModalWindow();
     }
 }
@@ -864,7 +861,6 @@ function editTile(tileId) {
     let tileForDeletion = document.getElementById(tileId);
     tileForDeletion.parentNode.removeChild(tileForDeletion);
     updateUI();
-    //dismissAddDialog();
     dismissModalWindow();
 }
 

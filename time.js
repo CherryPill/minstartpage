@@ -154,7 +154,7 @@ var TimeUtils = {
      * @return {number}
      */
     S: function () {
-        return this.currentTime.getSeconds();
+        return digitCorrectionNew(this.currentTime.getSeconds());
     },
     //Horizontal-tab character ('\t')
     t: function () {
