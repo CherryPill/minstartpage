@@ -154,7 +154,7 @@ var TimeUtils = {
      * @return {number}
      */
     S: function () {
-        return this.currentTime.getSeconds();
+        return digitCorrectionNew(this.currentTime.getSeconds());
     },
     //Horizontal-tab character ('\t')
     t: function () {
@@ -236,7 +236,7 @@ function parseTimePattern() {
                 testTimePattern.charCodeAt(c + 1) <= 122)) {
             SavedTimeOptions[testTimePattern[c + 1]] = true;
         }
-    console.log(SavedTimeOptions);
+    //console.log(SavedTimeOptions);
     TimeUtils.currentTime = new Date();
     for (let setOption in SavedTimeOptions) {
         if (SavedTimeOptions[setOption] === true) {
