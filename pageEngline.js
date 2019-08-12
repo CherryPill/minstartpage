@@ -216,18 +216,12 @@ function initStartPage(mode) {
     addEventListeners();
 }
 
-function toggleSettingsMenu() {
+function openSettingsMenu() {
     let parent = document.getElementById("docBody");
-    if (state.settingsWindowOpen) {
-        let settingsWindow = document.getElementById("settingsWindow");
-        parent.removeChild(settingsWindow);
-    } else {
-        let settingsWindow = ControlBuilder.build({tag: "div", id: "settingsWindow"});
-        createSettingsContents(settingsWindow);
-        parent.appendChild(settingsWindow);
-    }
-    state.settingsWindowOpen = !state.settingsWindowOpen;
-    //document.getElementById("defaultOpen").click();
+    let settingsWindow = ControlBuilder.build({tag: "div", id: "settingsWindow", className: "modalWindow"});
+    createSettingsContents(settingsWindow);
+    parent.appendChild(settingsWindow);
+//document.getElementById("defaultOpen").click();
 }
 
 function createSettingsContents(parent) {
@@ -235,8 +229,8 @@ function createSettingsContents(parent) {
     let settingsWindowNavBar = ControlBuilder.build({tag: "div", className: "tab"});
     let settingsWindowMainContent = ControlBuilder.build({tag: "div", id: "all_tabs"});
 
-    let settingsWindowControlButtonOK = document.createElement("button");
-    let settingsWindowControlButtonCancel = document.createElement("button");
+    let settingsWindowControlButtonOK = ControlBuilder.build({tag: "button"});
+    let settingsWindowControlButtonCancel = ControlBuilder.build({tag: "button"});
 
     for (let tabHeader of utilStrings.settingsWindowTabNames) {
         let tabLink = ControlBuilder.build(
@@ -567,11 +561,12 @@ function addEventListeners() {
         }
     });
 
-    state.overlayElement.addEventListener("click", dismissAddDialog);
+    state.overlayElement.addEventListener("click", dismissModalWindow);
     document.addEventListener("keydown", function (k) {
         if (k.keyCode == 27 && state.overlayElement) {
             console.log("engaged");
-            dismissAddDialog();
+            //dismissAddDialog();
+            dismissModalWindow();
         }
     });
 
@@ -591,9 +586,17 @@ function dismissAddDialog() {
     document.body.removeChild(tileEditWindow[0]);
 }
 
+function dismissModalWindow() {
+    let activeModalWindow = document.getElementsByClassName("modalWindow");
+    if (activeModalWindow != null) {
+        state.toggleOverLay(false);
+        document.body.removeChild(activeModalWindow[0]);
+    }
+}
+
 function createWindowControls(sectionId, sItem, tileId) {
     console.log(sItem);
-    let tileEditWindow = ControlBuilder.build({tag: "div", className: "tileEditWindow"});
+    let tileEditWindow = ControlBuilder.build({tag: "div", className: "tileEditWindow modalWindow"});
     let header = ControlBuilder.build({tag: "div", innerHTML: "Add new tile"});
     let formRowsEnclosure = ControlBuilder.build({tag: "div", id: "formRowsEnclosure"});
     let formRowUrl = createFormRow("", "url:",
@@ -704,7 +707,8 @@ function createWindowControls(sectionId, sItem, tileId) {
         event: {
             name: "click",
             handler: () => {
-                dismissAddDialog();
+                dismissModalWindow();
+                //dismissAddDialog();
             }
         }
     });
@@ -720,7 +724,6 @@ function createWindowControls(sectionId, sItem, tileId) {
     chainAppend(addWindowContentWrapper, [iconPreviewSection, formRowsEnclosure]);
     chainAppend(tileEditWindow, [addWindowContentWrapper, actionButtonsDiv]);
     document.body.appendChild(tileEditWindow);
-    console.log(formRowName);
     state.toggleOverLay(true);
     state.overlayElement.style.zIndex = "0";
     tileEditWindow.style.zIndex = "5";
@@ -773,7 +776,8 @@ function addNewTile() {
             }
         }
         updateUI();
-        dismissAddDialog();
+        //dismissAddDialog();
+        dismissModalWindow();
     }
 }
 
@@ -860,7 +864,8 @@ function editTile(tileId) {
     let tileForDeletion = document.getElementById(tileId);
     tileForDeletion.parentNode.removeChild(tileForDeletion);
     updateUI();
-    dismissAddDialog();
+    //dismissAddDialog();
+    dismissModalWindow();
 }
 
 function getOffset(el) {
