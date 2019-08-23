@@ -180,24 +180,38 @@ function validate(inputFieldValue, inputFieldName) {
 }
 
 function generateSearchEngineOptions() {
-    let htmlElement = document.getElementById("searchOptions");
+    let searchEngineOptionsDrowDownHtml =
+        document.getElementById("searchOptionsDropDown");
     for (let i = 0; i < searchEngines.engineOptions.length; i++) {
-        htmlElement.options[htmlElement.options.length] = new Option(
-            searchEngines.engineOptions[i] + " Search", searchEngines.engineOptions[i]);
+        searchEngineOptionsDrowDownHtml.appendChild(
+            ControlBuilder.build({
+                    tag: "a",
+                    href: "#",
+                    id: i,
+                    innerHTML: searchEngines.engineOptions[i],
+                    event: {
+                        name: "click",
+                        handler: function (e) {
+                            setSearchLink(e);
+                        }
+                    }
+                },
+            )
+        );
     }
-    htmlElement.options.selectedIndex = 0;
-    htmlElement.addEventListener("change", setSearchLink);
 }
 
-function setSearchLink() {
-    let htmlElementOptions = document.getElementById("searchOptions");
+function setSearchLink(e) {
+    let chosenLink = e.target;
+    let html = document.getElementById("searchEngineChooseButton")
+        .innerHTML = chosenLink.innerHTML ;
     let htmlElementFormLink = document.getElementById("searchForm");
     let htmlElementSearchField = document.getElementById("searchInputField");
-    if (htmlElementOptions.options.selectedIndex === searchEngines.engineOptionsEnum.Yandex) {
+    if (chosenLink.id == searchEngines.engineOptionsEnum.Yandex) {
         htmlElementSearchField.setAttribute("name", "text");
     }
     htmlElementFormLink.setAttribute("action",
-        searchEngines.engineLinks[htmlElementOptions.options.selectedIndex]);
+        searchEngines.engineLinks[chosenLink.id]);
 }
 
 function initStartPage(mode) {
@@ -1203,4 +1217,26 @@ var ControlBuilder = {
 
 function isObject(o) {
     return typeof o;
+}
+
+/* When the user clicks on the button,
+toggle between hiding and showing the dropdown content */
+function activateDropDown() {
+    document.getElementById("searchOptionsDropDown")
+        .classList
+        .toggle("show");
+}
+
+// Close the dropdown menu if the user clicks outside of it
+window.onclick = function (event) {
+    if (!event.target.matches('.dropbtn')) {
+        let dropdowns = document.getElementsByClassName("availableDropDownOptions");
+        let i;
+        for (i = 0; i < dropdowns.length; i++) {
+            let openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+            }
+        }
+    }
 }
