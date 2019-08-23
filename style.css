@@ -528,6 +528,17 @@ div.searchBlock {
     font-family: Helvetica;
 }
 
-div#searchOptionsDropDown a{
+div#searchOptionsDropDown a {
     cursor: default;
+}
+
+ul#userSearchHistoryList li {
+    margin-top: 5px;
+    list-style-type: none;
+}
+
+span.userSearchHistoryListTimeStamp {
+    font-family: Helvetica;
+    font-size: .8em;
+    color: #A0A1A7;
 }
