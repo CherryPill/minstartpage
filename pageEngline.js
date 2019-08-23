@@ -202,7 +202,7 @@ function setSearchLink() {
 
 function initStartPage(mode) {
     generateSearchEngineOptions();
-    initTimeScript();
+    initTimeScript(mode);
     switch (mode) {
         case scriptStartModes.DEV: {
             fillMockUserData();
@@ -223,7 +223,7 @@ function openSettingsMenu() {
     createSettingsContents(settingsWindow);
     parent.appendChild(settingsWindow);
     state.toggleOverLay(true);
-//document.getElementById("defaultOpen").click();
+    document.querySelectorAll("button[defaultopen = true]")[0].click();
 }
 
 function createSettingsContents(parent) {
@@ -247,6 +247,9 @@ function createSettingsContents(parent) {
                         openSettingsTab(e, tabLink.id);
                     },
                     capture: false
+                },
+                attribs: {
+                    defaultopen: tabHeader === "General"
                 }
             }
         );
@@ -264,12 +267,24 @@ function createSettingsContents(parent) {
 }
 
 function generateSettingsTabForms(tabType) {
-    let actualTabContentWrapper = ControlBuilder.build({tag: "div"});
+    let actualTabContentWrapper = ControlBuilder.build({
+        tag: "div",
+        className: "innerDiv"
+    });
     switch (tabType) {
         case "General": {
             actualTabContentWrapper.appendChild(createFormRow(
                 "",
-                "id",
+                "Search box enabled: ",
+                controlTypes.REGULAR_INPUT,
+                {
+                    "id": "generalInput",
+                    "type": "checkbox",
+                    "name": "input"
+                }).mainDiv);
+            actualTabContentWrapper.appendChild(createFormRow(
+                "",
+                "Default search engine: ",
                 controlTypes.REGULAR_INPUT,
                 {
                     "id": "generalInput",
@@ -311,6 +326,12 @@ function generateSettingsTabForms(tabType) {
     }
     return actualTabContentWrapper;
 }
+
+
+var userSettings = {
+    clockEnabled: false,
+    clockFormat: "",
+};
 
 function fillMockUserData() {
     //mock user data
@@ -1130,7 +1151,7 @@ function createFormRow(labelClassName,
     }
 
     if (controlParams.type === "text") {
-        formLabel.style.width = "50px";
+        //formLabel.style.width = "50px";
     }
     if (controlParams.type === "color") {
         formLabel.style.width = "110px";
