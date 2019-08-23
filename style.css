@@ -37,7 +37,7 @@ div.b {
     margin: 0px;
     padding: 0px;
     margin-bottom: 5px;
-    font-family: Consolas;
+    font-family: Consolas !important;
 
 }
 
@@ -519,4 +519,15 @@ button {
 
 button#searchEngineChooseButton {
     margin-bottom: 10px;
+    border: 1px solid #ccc;
+    font-weight: bold;
+    cursor: default;
+}
+
+div.searchBlock {
+    font-family: Helvetica;
+}
+
+div#searchOptionsDropDown a{
+    cursor: default;
 }

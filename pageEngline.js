@@ -194,7 +194,7 @@ function generateSearchEngineOptions() {
                         handler: function (e) {
                             setSearchLink(e);
                         }
-                    }
+                    },
                 },
             )
         );
@@ -203,8 +203,8 @@ function generateSearchEngineOptions() {
 
 function setSearchLink(e) {
     let chosenLink = e.target;
-    let html = document.getElementById("searchEngineChooseButton")
-        .innerHTML = chosenLink.innerHTML ;
+    let html = document.getElementById("searchEngineChooseButton");
+    html.innerHTML = chosenLink.innerHTML;
     let htmlElementFormLink = document.getElementById("searchForm");
     let htmlElementSearchField = document.getElementById("searchInputField");
     if (chosenLink.id == searchEngines.engineOptionsEnum.Yandex) {
@@ -212,6 +212,7 @@ function setSearchLink(e) {
     }
     htmlElementFormLink.setAttribute("action",
         searchEngines.engineLinks[chosenLink.id]);
+
 }
 
 function initStartPage(mode) {
@@ -331,8 +332,10 @@ function generateSettingsTabForms(tabType) {
                 ControlBuilder.build({
                     tag: "div", innerHTML:
                         `Currently running within ${navigator.userAgent}
-            on ${navigator.platform}<br /> 
-            You are currently${navigator.onLine ? ' online' : ' offline'}`
+                        on ${navigator.platform}<br />
+                        You are currently${navigator.onLine ? ' online' : ' offline'}`
+
+
                 })
             );
             break;
@@ -345,6 +348,7 @@ function generateSettingsTabForms(tabType) {
 var userSettings = {
     clockEnabled: false,
     clockFormat: "",
+    defaultSearchEngine: "",
 };
 
 function fillMockUserData() {
@@ -1123,7 +1127,9 @@ function addNewSection() {
 }
 
 function openSettingsTab(evt, tabName) {
-    console.log(`tabname: ${tabName}`);
+    console.log(
+        `tabname: ${tabName}`
+    );
     let i, tabcontent, tablinks;
 
     tabcontent = document.getElementsByClassName("tabcontent");
@@ -1136,7 +1142,9 @@ function openSettingsTab(evt, tabName) {
         tablinks[i].className = tablinks[i].className.replace(" active", "");
     }
 
-    let selectedTab = document.querySelector(`div#all_tabs div[tab_type=${tabName}`);
+    let selectedTab = document.querySelector(
+        `div#all_tabs div[tab_type=${tabName}`
+    );
     // Show the current tab
     selectedTab.style.display = "block";
     evt.currentTarget.className += " active";
