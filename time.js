@@ -6,6 +6,11 @@ let testTimePattern = "%A, %B %Y | %H:%M:%S"; //current time format
 //testTimePattern = "%a : %A : %b %B %d %f: %R %p %r %x";
 //testTimePattern = "%M";
 
+var userClockSettings = {
+    clockEnabled: false,
+    clockFormat: "",
+};
+
 const timeMeridianModes = {
     AM_PM_UPPERCASE: 0,
     AM_PM_LOWERCASE: 1,
@@ -305,9 +310,24 @@ function dayPostFixNew(day) {
     return dayPostFix;
 }
 
-function initTimeScript() {
+function initTimeScript(mode) {
+    /*if(mode === 0){
+
+    }
+    else{
+
+    }*/
     timeHtmlElement.innerHTML = "Today is " + parseTimePattern();
     let t = setTimeout(function () {
         initTimeScript()
     }, 500);
 }
+
+/*function fillLocalStorageData(){
+    let res = JSON.parse(localStorage.getItem("savedUserClockSettings"));
+    if (res != null) {
+        userClockSettings = res;
+    } else {
+        userClockSettings = new UserData();
+    }
+}*/

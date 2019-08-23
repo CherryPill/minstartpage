@@ -180,29 +180,44 @@ function validate(inputFieldValue, inputFieldName) {
 }
 
 function generateSearchEngineOptions() {
-    let htmlElement = document.getElementById("searchOptions");
+    let searchEngineOptionsDrowDownHtml =
+        document.getElementById("searchOptionsDropDown");
     for (let i = 0; i < searchEngines.engineOptions.length; i++) {
-        htmlElement.options[htmlElement.options.length] = new Option(
-            searchEngines.engineOptions[i] + " Search", searchEngines.engineOptions[i]);
+        searchEngineOptionsDrowDownHtml.appendChild(
+            ControlBuilder.build({
+                    tag: "a",
+                    href: "#",
+                    id: i,
+                    innerHTML: searchEngines.engineOptions[i],
+                    event: {
+                        name: "click",
+                        handler: function (e) {
+                            setSearchLink(e);
+                        }
+                    },
+                },
+            )
+        );
     }
-    htmlElement.options.selectedIndex = 0;
-    htmlElement.addEventListener("change", setSearchLink);
 }
 
-function setSearchLink() {
-    let htmlElementOptions = document.getElementById("searchOptions");
+function setSearchLink(e) {
+    let chosenLink = e.target;
+    let html = document.getElementById("searchEngineChooseButton");
+    html.innerHTML = chosenLink.innerHTML;
     let htmlElementFormLink = document.getElementById("searchForm");
     let htmlElementSearchField = document.getElementById("searchInputField");
-    if (htmlElementOptions.options.selectedIndex === searchEngines.engineOptionsEnum.Yandex) {
+    if (chosenLink.id == searchEngines.engineOptionsEnum.Yandex) {
         htmlElementSearchField.setAttribute("name", "text");
     }
     htmlElementFormLink.setAttribute("action",
-        searchEngines.engineLinks[htmlElementOptions.options.selectedIndex]);
+        searchEngines.engineLinks[chosenLink.id]);
+
 }
 
 function initStartPage(mode) {
     generateSearchEngineOptions();
-    initTimeScript();
+    initTimeScript(mode);
     switch (mode) {
         case scriptStartModes.DEV: {
             fillMockUserData();
@@ -223,7 +238,7 @@ function openSettingsMenu() {
     createSettingsContents(settingsWindow);
     parent.appendChild(settingsWindow);
     state.toggleOverLay(true);
-//document.getElementById("defaultOpen").click();
+    document.querySelectorAll("button[defaultopen = true]")[0].click();
 }
 
 function createSettingsContents(parent) {
@@ -247,6 +262,9 @@ function createSettingsContents(parent) {
                         openSettingsTab(e, tabLink.id);
                     },
                     capture: false
+                },
+                attribs: {
+                    defaultopen: tabHeader === "General"
                 }
             }
         );
@@ -264,12 +282,24 @@ function createSettingsContents(parent) {
 }
 
 function generateSettingsTabForms(tabType) {
-    let actualTabContentWrapper = ControlBuilder.build({tag: "div"});
+    let actualTabContentWrapper = ControlBuilder.build({
+        tag: "div",
+        className: "innerDiv"
+    });
     switch (tabType) {
         case "General": {
             actualTabContentWrapper.appendChild(createFormRow(
                 "",
-                "id",
+                "Search box enabled: ",
+                controlTypes.REGULAR_INPUT,
+                {
+                    "id": "generalInput",
+                    "type": "checkbox",
+                    "name": "input"
+                }).mainDiv);
+            actualTabContentWrapper.appendChild(createFormRow(
+                "",
+                "Default search engine: ",
                 controlTypes.REGULAR_INPUT,
                 {
                     "id": "generalInput",
@@ -302,8 +332,10 @@ function generateSettingsTabForms(tabType) {
                 ControlBuilder.build({
                     tag: "div", innerHTML:
                         `Currently running within ${navigator.userAgent}
-            on ${navigator.platform}<br /> 
-            You are currently${navigator.onLine ? ' online' : ' offline'}`
+                        on ${navigator.platform}<br />
+                        You are currently${navigator.onLine ? ' online' : ' offline'}`
+
+
                 })
             );
             break;
@@ -311,6 +343,13 @@ function generateSettingsTabForms(tabType) {
     }
     return actualTabContentWrapper;
 }
+
+
+var userSettings = {
+    clockEnabled: false,
+    clockFormat: "",
+    defaultSearchEngine: "",
+};
 
 function fillMockUserData() {
     //mock user data
@@ -1088,7 +1127,9 @@ function addNewSection() {
 }
 
 function openSettingsTab(evt, tabName) {
-    console.log(`tabname: ${tabName}`);
+    console.log(
+        `tabname: ${tabName}`
+    );
     let i, tabcontent, tablinks;
 
     tabcontent = document.getElementsByClassName("tabcontent");
@@ -1101,7 +1142,9 @@ function openSettingsTab(evt, tabName) {
         tablinks[i].className = tablinks[i].className.replace(" active", "");
     }
 
-    let selectedTab = document.querySelector(`div#all_tabs div[tab_type=${tabName}`);
+    let selectedTab = document.querySelector(
+        `div#all_tabs div[tab_type=${tabName}`
+    );
     // Show the current tab
     selectedTab.style.display = "block";
     evt.currentTarget.className += " active";
@@ -1130,7 +1173,7 @@ function createFormRow(labelClassName,
     }
 
     if (controlParams.type === "text") {
-        formLabel.style.width = "50px";
+        //formLabel.style.width = "50px";
     }
     if (controlParams.type === "color") {
         formLabel.style.width = "110px";
@@ -1182,4 +1225,26 @@ var ControlBuilder = {
 
 function isObject(o) {
     return typeof o;
+}
+
+/* When the user clicks on the button,
+toggle between hiding and showing the dropdown content */
+function activateDropDown() {
+    document.getElementById("searchOptionsDropDown")
+        .classList
+        .toggle("show");
+}
+
+// Close the dropdown menu if the user clicks outside of it
+window.onclick = function (event) {
+    if (!event.target.matches('.dropbtn')) {
+        let dropdowns = document.getElementsByClassName("availableDropDownOptions");
+        let i;
+        for (i = 0; i < dropdowns.length; i++) {
+            let openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+            }
+        }
+    }
 }

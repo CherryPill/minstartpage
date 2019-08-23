@@ -11,7 +11,16 @@
 <div class="main" style="margin-top: 35px;">
     <div class="wrap">
         <div class="searchBlock">
-            <select id="searchOptions" name="chosenEngine"></select>
+            <button
+                    onclick="activateDropDown()"
+                    class="dropbtn"
+                    id="searchEngineChooseButton">
+                Google
+            </button>
+            <div id="searchOptionsDropDown"
+                 name="availableDropDownOptions"
+                 class="availableDropDownOptions">
+            </div>
             <form
                     action="https://www.google.by/search"
                     type="get"
