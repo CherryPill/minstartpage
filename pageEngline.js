@@ -24,6 +24,25 @@ const scriptStartModes = {
 
 var userData;
 
+var userSearchHistory = {
+    searchList: [
+        {
+            searchText: "How to use Youtube",
+            searchUrl: "https://www.google.by/search?q=how+to+use+youtube",
+            searchTimestamp: {
+                actualDateCreated: new Date(2018, 1, 1)
+            },
+        },
+        {
+            searchText: "How to use Google",
+            searchUrl: "https://www.google.by/search?q=how+to+use+Google",
+            searchTimestamp: {
+                actualDateCreated: new Date(2018, 1, 1)
+            },
+        }
+    ]
+};
+
 const controlTypes = {
     REGULAR_INPUT: "input",
     DROP_DOWN_LIST: "select",
@@ -215,9 +234,33 @@ function setSearchLink(e) {
 
 }
 
+function fetchSearchHistory() {
+    if (userSearchHistory !== undefined) {
+        let historyHtmlElement = document.getElementById("userSearchHistoryList");
+        for (let searchItem of userSearchHistory.searchList) {
+            let searchItemElement = ControlBuilder.build({tag: "li"});
+            searchItemElement.appendChild(
+                ControlBuilder.build({
+                    tag: "a",
+                    href: searchItem.searchUrl,
+                    innerHTML: searchItem.searchText
+                })
+            );
+            searchItemElement.appendChild(
+                ControlBuilder.build({
+                    tag: "span",
+                    className: "userSearchHistoryListTimeStamp",
+                    innerHTML: constructSearchHistoryTimeStamp(searchItem)
+                }));
+            historyHtmlElement.appendChild(searchItemElement);
+        }
+    }
+}
+
 function initStartPage(mode) {
     generateSearchEngineOptions();
     initTimeScript(mode);
+    fetchSearchHistory();
     switch (mode) {
         case scriptStartModes.DEV: {
             fillMockUserData();
@@ -622,6 +665,83 @@ function addEventListeners() {
         localStorage.setItem("savedUserData", JSON.stringify(userData));
     };
     document.body.addEventListener("click", () => state.contextMenuOpen = false, false);
+    document.getElementById("initSearchButton")
+        .addEventListener("click",
+            function () {
+                this.parentNode.parentNode.submit();
+                recordUserSearch();
+            },
+            false);
+}
+
+function recordUserSearch() {
+    let userSearchText = document.getElementById("searchInputField").value;
+    userSearchHistory.searchList.push({
+        searchText: userSearchText,
+        searchUrl: constructUrl(),
+        searchTimestamp: constructTimestamp()
+    });
+    updateSearchHistory();
+}
+
+function removeSearchHistory() {
+    let targetHistoryDiv = document.getElementById("userSearchHistoryList");
+    targetHistoryDiv.innerHTML = "";
+}
+
+
+function updateSearchHistory() {
+    removeSearchHistory();
+    fetchSearchHistory();
+
+}
+
+function constructUrl() {
+    let searchFormUrl = document
+        .getElementById("searchForm")
+        .getAttribute("action");
+    let searchInputField = document
+        .getElementById("searchInputField")
+        .getAttribute("name");
+    return searchFormUrl + "/" + searchInputField;
+}
+
+function constructTimestamp() {
+    return {
+        actualDateCreated: new Date(),
+    }
+}
+
+//returns the number of days that have passed up until today
+function getDaysAgoWithinMonth(dateCreated) {
+    let dateNow = new Date();
+    console.log(dateNow.getDate() - dateCreated.getDate());
+    if (dateNow.getFullYear() === dateCreated.getFullYear() &&
+        dateNow.getMonth() === dateCreated.getMonth()) {
+        return dateNow.getDate() - dateCreated.getDate();
+    } else {
+        return 2;
+    }
+
+}
+
+function constructSearchHistoryTimeStamp(searchItem) {
+    let daysElapsed = getDaysAgoWithinMonth(searchItem.searchTimestamp.actualDateCreated);
+    if (daysElapsed < 1) {
+        return "Today @" + searchItem.searchTimestamp.actualDateCreated.toLocaleString(
+            "en-us", {hour: "2-digit", minute: "2-digit"});
+    } else {
+        if (daysElapsed === 1) {
+            return "Yesterday @" + searchItem.searchTimestamp.actualDateCreated.toLocaleString(
+                "en-us", {hour: "2-digit", minute: "2-digit"});
+        } else if (daysElapsed > 1) {
+            return searchItem.searchTimestamp.actualDateCreated.toLocaleString("en-us",
+                {weekday: "short", day: "2-digit", month: "short", year: "numeric"}) + " @ " +
+                searchItem.searchTimestamp.actualDateCreated.toLocaleString("en-us", {
+                    hour: "2-digit", minute: "2-digit"
+                });
+        }
+    }
 }
 
 function dismissModalWindow() {
@@ -1203,6 +1323,7 @@ var ControlBuilder = {
         }
         control.innerHTML !== undefined ? e.innerHTML = control.innerHTML : "";
         control.className !== undefined ? e.className = control.className : "";
+        control.href !== undefined ? e.href = control.href : "";
         control.id !== undefined ? e.id = control.id : "";
         if (control.attribs !== undefined) {
             for (let attrib in control.attribs) {

@@ -35,8 +35,8 @@
                             size="31"
                             placeholder="Your query here..."/>
                     <div class="regularButton"
-                         title="Search results will be opened in the new window"
-                         onclick="this.parentNode.parentNode.submit()">Search
+                         id="initSearchButton"
+                         title="Search results will be opened in a new window">Search
                     </div>
                 </div>
             </form>
@@ -45,13 +45,7 @@
 </div>
 <div class="main">
     <div>
-        <ul id="userSearchHistoryList">
-            <li><a href="">Search number 1</a> | <span class="userSearchHistoryListTimeStamp">Today @ 5:36PM</span></li>
-            <li><a href="">Search number 2</a> | <span class="userSearchHistoryListTimeStamp">Yesterday @ 5:36PM</span></li>
-            <li><a href="">Search number 3</a> | <span class="userSearchHistoryListTimeStamp">Aug 13 @ 5:36PM</span></li>
-            <li><a href="">Search number 4</a> | <span class="userSearchHistoryListTimeStamp">Aug 12 @ 5:36PM</span></li>
-            <li><a href="">Search number 5</a> | <span class="userSearchHistoryListTimeStamp">Aug 11 @ 5:36PM</span></li>
-        </ul>
+        <ul id="userSearchHistoryList"></ul>
     </div>
 </div>
 <div class="main" id="sectionArea">
