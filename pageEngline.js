@@ -22,25 +22,16 @@ const scriptStartModes = {
     DEV: 0,
 };
 
+const imageResources = {
+    IMG_REM_ICON: "img/delete.png",
+    IMG_EDIT_ICON: "img/edit.png",
+    IMG_CONF_ICON: "",
+};
+
 var userData;
 
 var userSearchHistory = {
-    searchList: [
-        {
-            searchText: "How to use Youtube",
-            searchUrl: "https://www.google.by/search?q=how+to+use+youtube",
-            searchTimestamp: {
-                actualDateCreated: new Date(2018, 1, 1)
-            },
-        },
-        {
-            searchText: "How to use Google",
-            searchUrl: "https://www.google.by/search?q=how+to+use+Google",
-            searchTimestamp: {
-                actualDateCreated: new Date(2018, 1, 1)
-            },
-        }
-    ]
+    searchList: []
 };
 
 const controlTypes = {
@@ -234,11 +225,22 @@ function setSearchLink(e) {
 
 }
 
+function toggleComponentVisibility(componentId, val) {
+    let component = document.getElementById(componentId);
+    component.style.display = val ? "block" : "none";
+}
+
 function fetchSearchHistory() {
-    if (userSearchHistory !== undefined) {
+    if (userSearchHistory.searchList.length !== 0) {
         let historyHtmlElement = document.getElementById("userSearchHistoryList");
+        toggleComponentVisibility("searchHistory", true);
         for (let searchItem of userSearchHistory.searchList) {
-            let searchItemElement = ControlBuilder.build({tag: "li"});
+            let searchItemElement = ControlBuilder.build({
+                tag: "li",
+                attribs: {
+                    id: searchItem.searchId
+                }
+            });
             searchItemElement.appendChild(
                 ControlBuilder.build({
                     tag: "a",
@@ -252,8 +254,40 @@ function fetchSearchHistory() {
                     className: "userSearchHistoryListTimeStamp",
                     innerHTML: constructSearchHistoryTimeStamp(searchItem)
                 }));
+            let searchItemElementManagementEnclosure = ControlBuilder.build(
+                {tag: "span", className: "historyManagementRem"}
+            );
+
+            let searchItemElementManagementRemIcon = ControlBuilder.build({
+                tag: "img",
+                title: "Delete this search",
+                attribs: {
+                    src: imageResources.IMG_REM_ICON
+                },
+                event: {
+                    name: "click",
+                    handler: function(){
+                        let itemIdToDelete = this.parentNode.parentNode.id;
+                        let parent = document.getElementById("userSearchHistoryList");
+                        parent.removeChild(this.parentNode.parentNode);
+                        for (let s = 0; s < userSearchHistory.searchList.length; s++) {
+                            if(userSearchHistory.searchList[s].searchId === itemIdToDelete){
+                                userSearchHistory.searchList.splice(s, 1);
+                            }
+                        }
+                        if(userSearchHistory.searchList.length === 0){
+                            toggleComponentVisibility("searchHistory", false)
+                        }
+                    },
+                    capture: false
+                }
+            });
+            searchItemElementManagementEnclosure.appendChild(searchItemElementManagementRemIcon);
+            searchItemElement.appendChild(searchItemElementManagementEnclosure);
             historyHtmlElement.appendChild(searchItemElement);
         }
+    } else {
+        toggleComponentVisibility("searchHistory", false);
     }
 }
 
@@ -509,7 +543,7 @@ function createSection(sectionItemObj) {
     let sectionHeaderManagementEditAnchor = ControlBuilder.build({
         tag: "img",
         attribs: {
-            src: "img/edit.png"
+            src: imageResources.IMG_EDIT_ICON
         }
     });
 
@@ -526,7 +560,7 @@ function createSection(sectionItemObj) {
     let sectionHeaderManagementRemAnchor = ControlBuilder.build({
         tag: "img",
         attribs: {
-            src: "img/delete.png"
+            src: imageResources.IMG_REM_ICON
         }
     });
     let linkTilesSection = ControlBuilder.build({
@@ -679,8 +713,10 @@ function recordUserSearch() {
     userSearchHistory.searchList.push({
         searchText: userSearchText,
         searchUrl: constructUrl(),
-        searchTimestamp: constructTimestamp()
+        searchTimestamp: constructTimestamp(),
+        searchId: UUIDGeneration.getUUID()
     });
+    toggleComponentVisibility("searchHistory", true);
     updateSearchHistory();
 }
 
@@ -728,11 +764,11 @@ function getDaysAgoWithinMonth(dateCreated) {
 function constructSearchHistoryTimeStamp(searchItem) {
     let daysElapsed = getDaysAgoWithinMonth(searchItem.searchTimestamp.actualDateCreated);
     if (daysElapsed < 1) {
-        return "Today @" + searchItem.searchTimestamp.actualDateCreated.toLocaleString(
+        return "Today @ " + searchItem.searchTimestamp.actualDateCreated.toLocaleString(
             "en-us", {hour: "2-digit", minute: "2-digit"});
     } else {
         if (daysElapsed === 1) {
-            return "Yesterday @" + searchItem.searchTimestamp.actualDateCreated.toLocaleString(
+            return "Yesterday @ " + searchItem.searchTimestamp.actualDateCreated.toLocaleString(
                 "en-us", {hour: "2-digit", minute: "2-digit"});
         } else if (daysElapsed > 1) {
             return searchItem.searchTimestamp.actualDateCreated.toLocaleString("en-us",
@@ -1316,15 +1352,12 @@ function createFormRow(labelClassName,
 var ControlBuilder = {
     build: function (control) {
         let e = document.createElement(control.tag);
+        console.log(control);
         for (let prop in control) {
-            if (!isObject(control[prop])) {
+            if (!isNested(control[prop])) {
                 e[prop] = control[prop];
             }
         }
-        control.innerHTML !== undefined ? e.innerHTML = control.innerHTML : "";
-        control.className !== undefined ? e.className = control.className : "";
-        control.href !== undefined ? e.href = control.href : "";
-        control.id !== undefined ? e.id = control.id : "";
         if (control.attribs !== undefined) {
             for (let attrib in control.attribs) {
                 e.setAttribute(attrib, control.attribs[attrib])
@@ -1344,8 +1377,8 @@ var ControlBuilder = {
     }
 };
 
-function isObject(o) {
-    return typeof o;
+function isNested(o) {
+    return o === "attribs" || o === "event";
 }
 
 /* When the user clicks on the button,

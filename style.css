@@ -542,4 +542,19 @@ span.userSearchHistoryListTimeStamp {
     font-size: .8em;
     color: #A0A1A7;
     margin-left: 10px;
+    cursor: default;
+}
+
+span.historyManagementRem img{
+    margin-left: 10px;
+    visibility: hidden;
+}
+
+span.historyManagementRem img {
+    width: 16px;
+    height: 16px;
+}
+
+span.historyManagementRem:hover img {
+    visibility: visible;
 }
