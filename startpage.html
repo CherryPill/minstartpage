@@ -25,7 +25,7 @@
                     action="https://www.google.by/search"
                     type="get"
                     id="searchForm"
-                    target="blank">
+                    target="_blank">
                 <div class="input-group">
                     <input
                             id="searchInputField"
@@ -35,12 +35,18 @@
                             size="31"
                             placeholder="Your query here..."/>
                     <div class="regularButton"
-                         title="Search results will be opened in the new window"
-                         onclick="this.parentNode.parentNode.submit()">Search
+                         id="initSearchButton"
+                         title="Search results will be opened in a new window">Search
                     </div>
                 </div>
             </form>
         </div>
+    </div>
+</div>
+<div class="main" id="searchHistory">
+    <div id="searchHistoryEnclosure" class="wrap">
+        <h4>Recent searches</h4>
+        <ul id="userSearchHistoryList"></ul>
     </div>
 </div>
 <div class="main" id="sectionArea">

@@ -22,7 +22,17 @@ const scriptStartModes = {
     DEV: 0,
 };
 
+const imageResources = {
+    IMG_REM_ICON: "img/delete.png",
+    IMG_EDIT_ICON: "img/edit.png",
+    IMG_CONF_ICON: "",
+};
+
 var userData;
+
+var userSearchHistory = {
+    searchList: []
+};
 
 const controlTypes = {
     REGULAR_INPUT: "input",
@@ -215,9 +225,77 @@ function setSearchLink(e) {
 
 }
 
+function toggleComponentVisibility(componentId, val) {
+    let component = document.getElementById(componentId);
+    component.style.display = val ? "block" : "none";
+}
+
+function fetchSearchHistory() {
+    if (userSearchHistory.searchList.length !== 0) {
+        let historyHtmlElement = document.getElementById("userSearchHistoryList");
+        toggleComponentVisibility("searchHistory", true);
+        for (let searchItem of userSearchHistory.searchList) {
+            let searchItemElement = ControlBuilder.build({
+                tag: "li",
+                attribs: {
+                    id: searchItem.searchId
+                }
+            });
+            searchItemElement.appendChild(
+                ControlBuilder.build({
+                    tag: "a",
+                    target: "_blank",
+                    href: searchItem.searchUrl,
+                    innerHTML: searchItem.searchText
+                })
+            );
+            searchItemElement.appendChild(
+                ControlBuilder.build({
+                    tag: "span",
+                    className: "userSearchHistoryListTimeStamp",
+                    innerHTML: constructSearchHistoryTimeStamp(searchItem)
+                }));
+            let searchItemElementManagementEnclosure = ControlBuilder.build(
+                {tag: "span", className: "historyManagementRem"}
+            );
+
+            let searchItemElementManagementRemIcon = ControlBuilder.build({
+                tag: "img",
+                title: "Delete this search",
+                attribs: {
+                    src: imageResources.IMG_REM_ICON
+                },
+                event: {
+                    name: "click",
+                    handler: function () {
+                        let itemIdToDelete = this.parentNode.parentNode.id;
+                        let parent = document.getElementById("userSearchHistoryList");
+                        parent.removeChild(this.parentNode.parentNode);
+                        for (let s = 0; s < userSearchHistory.searchList.length; s++) {
+                            if (userSearchHistory.searchList[s].searchId === itemIdToDelete) {
+                                userSearchHistory.searchList.splice(s, 1);
+                            }
+                        }
+                        if (userSearchHistory.searchList.length === 0) {
+                            toggleComponentVisibility("searchHistory", false)
+                        }
+                    },
+                    capture: false
+                }
+            });
+            searchItemElementManagementEnclosure.appendChild(searchItemElementManagementRemIcon);
+            searchItemElement.appendChild(searchItemElementManagementEnclosure);
+            historyHtmlElement.appendChild(searchItemElement);
+        }
+    } else {
+        toggleComponentVisibility("searchHistory", false);
+    }
+}
+
 function initStartPage(mode) {
     generateSearchEngineOptions();
     initTimeScript(mode);
+    fetchSearchHistory();
     switch (mode) {
         case scriptStartModes.DEV: {
             fillMockUserData();
@@ -466,7 +544,7 @@ function createSection(sectionItemObj) {
     let sectionHeaderManagementEditAnchor = ControlBuilder.build({
         tag: "img",
         attribs: {
-            src: "img/edit.png"
+            src: imageResources.IMG_EDIT_ICON
         }
     });
 
@@ -483,7 +561,7 @@ function createSection(sectionItemObj) {
     let sectionHeaderManagementRemAnchor = ControlBuilder.build({
         tag: "img",
         attribs: {
-            src: "img/delete.png"
+            src: imageResources.IMG_REM_ICON
         }
     });
     let linkTilesSection = ControlBuilder.build({
@@ -622,6 +700,89 @@ function addEventListeners() {
         localStorage.setItem("savedUserData", JSON.stringify(userData));
     };
     document.body.addEventListener("click", () => state.contextMenuOpen = false, false);
+    document.getElementById("initSearchButton")
+        .addEventListener("click",
+            function () {
+                this.parentNode.parentNode.submit();
+                recordUserSearch();
+                document.getElementById("searchInputField").value = "";
+            },
+            false);
+}
+
+function recordUserSearch() {
+    let userSearchText = document.getElementById("searchInputField").value;
+    userSearchHistory.searchList.push({
+        searchText: userSearchText,
+        searchUrl: constructUrl(),
+        searchTimestamp: constructTimestamp(),
+        searchId: UUIDGeneration.getUUID()
+    });
+    toggleComponentVisibility("searchHistory", true);
+    updateSearchHistory();
+}
+
+function removeSearchHistory() {
+    let targetHistoryDiv = document.getElementById("userSearchHistoryList");
+    targetHistoryDiv.innerHTML = "";
+}
+
+
+function updateSearchHistory() {
+    removeSearchHistory();
+    fetchSearchHistory();
+
+}
+
+function constructUrl() {
+    let searchFormUrl = document
+        .getElementById("searchForm")
+        .getAttribute("action");
+    let searchInputField = document
+        .getElementById("searchInputField")
+        .getAttribute("name");
+
+    let searchInputFieldVal = document.getElementById("searchInputField").value;
+    console.log(searchInputField);
+    return searchFormUrl + "?" + searchInputField + "=" + searchInputFieldVal;
+}
+
+function constructTimestamp() {
+    return {
+        actualDateCreated: new Date(),
+    }
+}
+
+//returns the number of days that have passed up until today
+function getDaysAgoWithinMonth(dateCreated) {
+    let dateNow = new Date();
+    console.log(dateNow.getDate() - dateCreated.getDate());
+    if (dateNow.getFullYear() === dateCreated.getFullYear() &&
+        dateNow.getMonth() === dateCreated.getMonth()) {
+        return dateNow.getDate() - dateCreated.getDate();
+    } else {
+        return 2;
+    }
+
+}
+
+function constructSearchHistoryTimeStamp(searchItem) {
+    let daysElapsed = getDaysAgoWithinMonth(searchItem.searchTimestamp.actualDateCreated);
+    if (daysElapsed < 1) {
+        return "Today @ " + searchItem.searchTimestamp.actualDateCreated.toLocaleString(
+            "en-us", {hour: "2-digit", minute: "2-digit"});
+    } else {
+        if (daysElapsed === 1) {
+            return "Yesterday @ " + searchItem.searchTimestamp.actualDateCreated.toLocaleString(
+                "en-us", {hour: "2-digit", minute: "2-digit"});
+        } else if (daysElapsed > 1) {
+            return searchItem.searchTimestamp.actualDateCreated.toLocaleString("en-us",
+                {weekday: "short", day: "2-digit", month: "short", year: "numeric"}) + " @ " +
+                searchItem.searchTimestamp.actualDateCreated.toLocaleString("en-us", {
+                    hour: "2-digit", minute: "2-digit"
+                });
+        }
+    }
 }
 
 function dismissModalWindow() {
@@ -1197,13 +1358,10 @@ var ControlBuilder = {
     build: function (control) {
         let e = document.createElement(control.tag);
         for (let prop in control) {
-            if (!isObject(control[prop])) {
+            if (!isNested(control[prop])) {
                 e[prop] = control[prop];
             }
         }
-        control.innerHTML !== undefined ? e.innerHTML = control.innerHTML : "";
-        control.className !== undefined ? e.className = control.className : "";
-        control.id !== undefined ? e.id = control.id : "";
         if (control.attribs !== undefined) {
             for (let attrib in control.attribs) {
                 e.setAttribute(attrib, control.attribs[attrib])
@@ -1223,8 +1381,8 @@ var ControlBuilder = {
     }
 };
 
-function isObject(o) {
-    return typeof o;
+function isNested(o) {
+    return o === "attribs" || o === "event";
 }
 
 /* When the user clicks on the button,
