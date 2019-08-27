@@ -53,14 +53,21 @@ a {
 
 }
 
+a:link {
+    color: black;
+}
+
 a:hover {
     color: #000;
-
 }
 
 a:visited:hover {
     color: #000;
 
+}
+
+a:visited {
+    color: black;
 }
 
 div#clock {
@@ -545,7 +552,7 @@ span.userSearchHistoryListTimeStamp {
     cursor: default;
 }
 
-span.historyManagementRem img{
+span.historyManagementRem img {
     margin-left: 10px;
     visibility: hidden;
 }
@@ -558,3 +565,26 @@ span.historyManagementRem img {
 span.historyManagementRem:hover img {
     visibility: visible;
 }
+
+div#searchHistoryEnclosure h4 {
+    margin: 0px;
+    color: #A0A1A7;
+    font-family: Helvetica;
+    font-size: .9em;
+}
+
+ul#userSearchHistoryList {
+    padding: 0px;
+    margin: 0px;
+    margin-top: 10px;
+
+}
+
+ul#userSearchHistoryList a:link {
+    color: black;
+}
+
+ul#userSearchHistoryList a:hover {
+    text-decoration: underline;
+}
+

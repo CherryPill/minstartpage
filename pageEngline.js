@@ -244,6 +244,7 @@ function fetchSearchHistory() {
             searchItemElement.appendChild(
                 ControlBuilder.build({
                     tag: "a",
+                    target: "_blank",
                     href: searchItem.searchUrl,
                     innerHTML: searchItem.searchText
                 })
@@ -266,16 +267,16 @@ function fetchSearchHistory() {
                 },
                 event: {
                     name: "click",
-                    handler: function(){
+                    handler: function () {
                         let itemIdToDelete = this.parentNode.parentNode.id;
                         let parent = document.getElementById("userSearchHistoryList");
                         parent.removeChild(this.parentNode.parentNode);
                         for (let s = 0; s < userSearchHistory.searchList.length; s++) {
-                            if(userSearchHistory.searchList[s].searchId === itemIdToDelete){
+                            if (userSearchHistory.searchList[s].searchId === itemIdToDelete) {
                                 userSearchHistory.searchList.splice(s, 1);
                             }
                         }
-                        if(userSearchHistory.searchList.length === 0){
+                        if (userSearchHistory.searchList.length === 0) {
                             toggleComponentVisibility("searchHistory", false)
                         }
                     },
@@ -704,6 +705,7 @@ function addEventListeners() {
             function () {
                 this.parentNode.parentNode.submit();
                 recordUserSearch();
+                document.getElementById("searchInputField").value = "";
             },
             false);
 }
@@ -739,7 +741,10 @@ function constructUrl() {
     let searchInputField = document
         .getElementById("searchInputField")
         .getAttribute("name");
-    return searchFormUrl + "/" + searchInputField;
+
+    let searchInputFieldVal = document.getElementById("searchInputField").value;
+    console.log(searchInputField);
+    return searchFormUrl + "?" + searchInputField + "=" + searchInputFieldVal;
 }
 
 function constructTimestamp() {
@@ -1352,7 +1357,6 @@ function createFormRow(labelClassName,
 var ControlBuilder = {
     build: function (control) {
         let e = document.createElement(control.tag);
-        console.log(control);
         for (let prop in control) {
             if (!isNested(control[prop])) {
                 e[prop] = control[prop];
