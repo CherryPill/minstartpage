@@ -1,5 +1,6 @@
 * {
     font-size: 20px;
+    font-family: Helvetica;
 
 }
 
@@ -97,6 +98,7 @@ div#clock {
 .sectionHeaderName {
     font-size: 1.9em;
     font-weight: bold;
+    font-family: Consolas;
 
 }
 
@@ -159,8 +161,6 @@ div#settingsWindow {
     background-color: #fff;
     color: #000;
     border: 1px solid #ccc;
-    height: 50%;
-
 }
 
 div#settingsTitle {
@@ -173,6 +173,9 @@ div.linkTilesSection {
     display: flex;
     flex-direction: row;
 
+}
+div.linkTilesSection a {
+    font-family: Consolas !important;
 }
 
 div.iconPreview {
@@ -587,4 +590,11 @@ ul#userSearchHistoryList a:link {
 ul#userSearchHistoryList a:hover {
     text-decoration: underline;
 }
+div#timeHelp{
+    overflow-y: scroll;
+    max-height: 500px;
+}
 
+table.transparentTable td{
+    font-size: .8em;
+}

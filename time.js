@@ -161,10 +161,6 @@ var TimeUtils = {
     S: function () {
         return digitCorrectionNew(this.currentTime.getSeconds());
     },
-    //Horizontal-tab character ('\t')
-    t: function () {
-        return "\t";
-    },
     //ISO 8601 time format (HH:MM:SS), equivalent to %H:%M:%S
     /**
      * @return {string}
