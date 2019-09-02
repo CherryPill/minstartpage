@@ -411,44 +411,51 @@ function generateSettingsTabForms(tabType) {
     });
     switch (tabType) {
         case "General": {
-            actualTabContentWrapper.appendChild(createFormRow(
+            let showSearchBox = createFormRow(
                 "",
                 "Search box enabled: ",
                 controlTypes.REGULAR_INPUT,
                 {
-                    "id": "generalInput",
-                    "type": "checkbox",
-                    "name": "input"
+                    id: "generalInput",
+                    type: "checkbox",
+                    name: "input",
                 }, "change",
                 function () {
-                    saveSettings(SETTINGS_VALUES.SEARCH_BOX_ENABLED_BOOL);
-                }).mainDiv);
+                    saveSettings(SETTINGS_VALUES.SEARCH_BOX_ENABLED_BOOL, this.checked);
+                });
+            let showSearchBoxMainDiv = showSearchBox.mainDiv;
+            let showSearchBoxInput = showSearchBox.input;
+            userSettings.searchBoxEnabledBool ? showSearchBoxInput.checked = true : "";
+            actualTabContentWrapper.appendChild(showSearchBoxMainDiv);
             actualTabContentWrapper.appendChild(createFormRow(
                 "",
                 "Default search engine: ",
                 controlTypes.REGULAR_INPUT,
                 {
-                    "id": "generalInput",
-                    "type": "text",
-                    "name": "input"
+                    id: "generalInput",
+                    type: "text",
+                    name: "input"
                 }).mainDiv);
             break;
         }
         case "Clock": {
-            actualTabContentWrapper.appendChild(
-                createFormRow("", "Clock enabled: ",
-                    controlTypes.REGULAR_INPUT, {
-                        "type": "checkbox",
-                        "name": "clockEnabled",
-                        "checked": "checked"
-                    }).mainDiv
-            );
+            let clockElement = createFormRow("", "Clock enabled: ",
+                controlTypes.REGULAR_INPUT, {
+                    type: "checkbox",
+                    name: "clockEnabled",
+                }, "change", function () {
+                    saveSettings(SETTINGS_VALUES.CLOCK_ENABLED_BOOL, this.checked);
+                });
+            let clockElementMainDiv = clockElement.mainDiv;
+            let clockElementInput = clockElement.input;
+            userSettings.clockEnabledBool ? clockElementInput.checked = true : "";
+            actualTabContentWrapper.appendChild(clockElementMainDiv);
             actualTabContentWrapper.appendChild(
                 createFormRow("", "Date format: ",
                     controlTypes.REGULAR_INPUT,
                     {
-                        "type": "text",
-                        "name": "input"
+                        type: "text",
+                        name: "input"
                     }).mainDiv);
             let clockHelpElement = ControlBuilder.build({tag: "div", id: "timeHelp"})
             constructHelp(clockHelpElement);
@@ -473,8 +480,9 @@ function generateSettingsTabForms(tabType) {
 }
 
 
-function saveSettings(setting) {
-
+function saveSettings(setting, value) {
+    userSettings[setting] = value;
+    updateUI();
 }
 
 function constructHelp(parent) {
@@ -583,7 +591,7 @@ function updateUI() {
     if (userSettings !== null && userSettings !== undefined) {
         console.log();
         toggleComponentVisibility("clock", userSettings.clockEnabledBool);
-        toggleComponentVisibility("search",userSettings.searchBoxEnabledBool)
+        toggleComponentVisibility("search", userSettings.searchBoxEnabledBool)
     }
     addEventListenersDynamic();
 }
