@@ -242,7 +242,9 @@ function generateSearchEngineOptions() {
             ControlBuilder.build({
                     tag: "a",
                     href: "#",
-                    id: i,
+                    attribs: {
+                        s_id: i
+                    },
                     innerHTML: searchEngines.engineOptions[i],
                     event: {
                         name: "click",
@@ -266,8 +268,7 @@ function setSearchLink(e) {
         htmlElementSearchField.setAttribute("name", "text");
     }
     htmlElementFormLink.setAttribute("action",
-        searchEngines.engineLinks[chosenLink.id]);
-
+        searchEngines.engineLinks[chosenLink.getAttribute("s_id")]);
 }
 
 function toggleComponentVisibility(componentId, val) {
@@ -1318,7 +1319,6 @@ function editSection(sectionId) {
     let children = sectionForEditing.childNodes;
     let row = children[0];
     let actualChildren = row.childNodes;
-    console.log(actualChildren);
     for (let c of actualChildren) {
         if (c.className === "sectionHeaderName") {
             let requiredInputWidth = c.offsetWidth;
@@ -1381,9 +1381,9 @@ function openSettingsTab(evt, tabName) {
         tabcontent[i].style.display = "none";
     }
     // Get all elements with class="tablinks" and remove the class "active"
-    tablinks = document.getElementsByClassName("tablinks");
+    tablinks = document.getElementsByClassName("tabLinks");
     for (i = 0; i < tablinks.length; i++) {
-        tablinks[i].className = tablinks[i].className.replace(" active", "");
+        tablinks[i].className = tablinks[i].className.replace("active", "");
     }
 
     let selectedTab = document.querySelector(

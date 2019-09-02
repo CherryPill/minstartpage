@@ -161,6 +161,7 @@ div#settingsWindow {
     background-color: #fff;
     color: #000;
     border: 1px solid #ccc;
+    min-height: 50%;
 }
 
 div#settingsTitle {
