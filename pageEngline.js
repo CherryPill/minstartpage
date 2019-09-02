@@ -1,4 +1,5 @@
 var state = {
+    userSearchedAnything: false,
     settingsWindowOpen: false,
     contextMenuOpen: false,
     currentTab: 0,
@@ -32,7 +33,9 @@ var userSettings = {};
 
 const SETTINGS_VALUES = {
     SEARCH_BOX_ENABLED_BOOL: "searchBoxEnabledBool",
-    CLOCK_ENABLED_BOOL: "clockEnabledBool"
+    CLOCK_ENABLED_BOOL: "clockEnabledBool",
+    SEARCH_HISTORY_ENABLED_BOOL: "searchHistoryEnabledBool",
+    CLOCK_SET_PATTERN_STR: "clockSetPatternStr"
 };
 
 const textResources = {
@@ -340,7 +343,7 @@ function fetchSearchHistory() {
 
 function initStartPage(mode) {
     generateSearchEngineOptions();
-    initTimeScript(mode);
+
     fetchSearchHistory();
     switch (mode) {
         case scriptStartModes.DEV: {
@@ -352,6 +355,7 @@ function initStartPage(mode) {
             break;
         }
     }
+    initTimeScript();
     updateUI();
     addEventListeners();
 }
@@ -428,6 +432,24 @@ function generateSettingsTabForms(tabType) {
             let showSearchBoxInput = showSearchBox.input;
             userSettings.searchBoxEnabledBool ? showSearchBoxInput.checked = true : "";
             actualTabContentWrapper.appendChild(showSearchBoxMainDiv);
+
+            let showHistoryBox = createFormRow(
+                "",
+                "Show search history: ",
+                controlTypes.REGULAR_INPUT,
+                {
+                    id: "generalInput",
+                    type: "checkbox",
+                    name: "input",
+                }, "change",
+                function () {
+                    saveSettings(SETTINGS_VALUES.SEARCH_HISTORY_ENABLED_BOOL, this.checked);
+                });
+            let showHistoryMainDiv = showHistoryBox.mainDiv;
+            let showHistoryInput = showHistoryBox.input;
+            userSettings.searchHistoryEnabledBool ? showHistoryInput.checked = true : "";
+            actualTabContentWrapper.appendChild(showHistoryMainDiv);
+
             actualTabContentWrapper.appendChild(createFormRow(
                 "",
                 "Default search engine: ",
@@ -445,19 +467,41 @@ function generateSettingsTabForms(tabType) {
                     type: "checkbox",
                     name: "clockEnabled",
                 }, "change", function () {
+                    toggleComponentDisabled("dateFormatComponent", this.checked);
                     saveSettings(SETTINGS_VALUES.CLOCK_ENABLED_BOOL, this.checked);
                 });
             let clockElementMainDiv = clockElement.mainDiv;
             let clockElementInput = clockElement.input;
             userSettings.clockEnabledBool ? clockElementInput.checked = true : "";
             actualTabContentWrapper.appendChild(clockElementMainDiv);
-            actualTabContentWrapper.appendChild(
+
+            let clockDateFormat =
                 createFormRow("", "Date format: ",
                     controlTypes.REGULAR_INPUT,
                     {
                         type: "text",
-                        name: "input"
-                    }).mainDiv);
+                        name: "input",
+                    });
+            let clockDateFormatLabelMainDiv = clockDateFormat.mainDiv;
+            clockDateFormatLabelMainDiv.id = "dateFormatComponent";
+            clockDateFormat.input.style.width = "400px";
+            clockDateFormat.input.value = userSettings.clockPatternStr;
+            actualTabContentWrapper.appendChild(clockDateFormatLabelMainDiv);
+            let timePatternSaveButton = ControlBuilder.build({
+                tag: "button",
+                id: "saveTimePattern",
+                innerHTML: "Apply",
+                event: {
+                    name: "click",
+                    handler: function () {
+                        userSettings.clockPatternStr = clockDateFormat.input.value;
+                        _state.patternLoaded = false;
+                        _state.currentPattern = userSettings.clockPatternStr;
+                    },
+                    capture: false
+                }
+            });
+            clockDateFormatLabelMainDiv.appendChild(timePatternSaveButton);
             let clockHelpElement = ControlBuilder.build({tag: "div", id: "timeHelp"})
             constructHelp(clockHelpElement);
             actualTabContentWrapper.appendChild(
@@ -480,6 +524,12 @@ function generateSettingsTabForms(tabType) {
     return actualTabContentWrapper;
 }
 
+
+function toggleComponentDisabled(id, val){
+    let targetElement = document.getElementById(id);
+    console.log(id);
+    targetElement.childNodes.forEach(e => e.disabled = !val);
+}
 
 function saveSettings(setting, value) {
     userSettings[setting] = value;
@@ -562,6 +612,8 @@ function fillMockUserData() {
     userSettings.clockPatternStr = "%p";
     userSettings.defaultSearchEngineStr = "Google";
     userSettings.searchBoxEnabledBool = true;
+    userSettings.searchHistoryEnabledBool = true;
+    userSettings.clockPatternStr = "%A, %B %Y | %H:%M:%S";
 }
 
 function fillLocalStorageUserData() {
@@ -592,7 +644,10 @@ function updateUI() {
     if (userSettings !== null && userSettings !== undefined) {
         console.log();
         toggleComponentVisibility("clock", userSettings.clockEnabledBool);
-        toggleComponentVisibility("search", userSettings.searchBoxEnabledBool)
+        toggleComponentVisibility("search", userSettings.searchBoxEnabledBool);
+        console.log(userSettings.searchHistoryEnabledBool);
+        toggleComponentVisibility("searchHistory",
+            state.userSearchedAnything ? userSettings.searchHistoryEnabledBool : false);
     }
     addEventListenersDynamic();
 }
@@ -788,13 +843,14 @@ function addEventListeners() {
         .addEventListener("click",
             function () {
                 this.parentNode.parentNode.submit();
-                recordUserSearch();
+                userSettings.searchHistoryEnabledBool ? recordUserSearch() : null;
                 document.getElementById("searchInputField").value = "";
             },
             false);
 }
 
 function recordUserSearch() {
+    state.userSearchedAnything = true;
     let userSearchText = document.getElementById("searchInputField").value;
     userSearchHistory.searchList.push({
         searchText: userSearchText,
@@ -941,10 +997,10 @@ function createWindowControls(sectionId, sItem, tileId) {
         "foreground:",
         controlTypes.REGULAR_INPUT,
         {
-            "type": "color", "name": "colorFg",
-            "value": sItem.sectionItemColors[1],
-            "id": "formInputFieldColorFg",
-            "class": "colorPickerInput"
+            type: "color", "name": "colorFg",
+            value: sItem.sectionItemColors[1],
+            id: "formInputFieldColorFg",
+            class: "colorPickerInput"
         },
         "input",
         () => {
@@ -954,11 +1010,11 @@ function createWindowControls(sectionId, sItem, tileId) {
         "autodetect color:",
         controlTypes.REGULAR_INPUT,
         {
-            "id": "colorAutoID",
-            "type": "checkbox",
-            "name": "colorAuto",
-            "value": sItem.sectionItemName,
-            "style": "width: 20px; height: 20px;"
+            id: "colorAutoID",
+            type: "checkbox",
+            name: "colorAuto",
+            value: sItem.sectionItemName,
+            style: "width: 20px; height: 20px;"
         }, "click",
         () => {
             toggleColorLock(state.colorAutoDetectOn)

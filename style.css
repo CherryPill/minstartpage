@@ -175,6 +175,7 @@ div.linkTilesSection {
     flex-direction: row;
 
 }
+
 div.linkTilesSection a {
     font-family: Consolas !important;
 }
@@ -591,11 +592,17 @@ ul#userSearchHistoryList a:link {
 ul#userSearchHistoryList a:hover {
     text-decoration: underline;
 }
-div#timeHelp{
+
+div#timeHelp {
     overflow-y: scroll;
     max-height: 500px;
 }
 
-table.transparentTable td{
+table.transparentTable td {
     font-size: .8em;
+}
+
+input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
 }
