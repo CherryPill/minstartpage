@@ -1,15 +1,12 @@
-//gets from config in local storage
 let timeHtmlElement = document.getElementById("clock");
 
-let testTimePattern = "%A, %B %Y | %H:%M:%S"; //current time format
-//supported time format specifiers
-//testTimePattern = "%a : %A : %b %B %d %f: %R %p %r %x";
-//testTimePattern = "%M";
+//example time pattern
+//"%A, %B %Y | %H:%M:%S"
 
-var userClockSettings = {
-    clockEnabled: false,
-    clockFormat: "",
-};
+var _state = {
+    patternLoaded: false,
+    currentPattern: ""
+}
 
 const timeMeridianModes = {
     AM_PM_UPPERCASE: 0,
@@ -161,10 +158,6 @@ var TimeUtils = {
     S: function () {
         return digitCorrectionNew(this.currentTime.getSeconds());
     },
-    //Horizontal-tab character ('\t')
-    t: function () {
-        return "\t";
-    },
     //ISO 8601 time format (HH:MM:SS), equivalent to %H:%M:%S
     /**
      * @return {string}
@@ -234,22 +227,39 @@ var TimeUtils = {
 };
 
 function parseTimePattern() {
-    let finalTimeString = testTimePattern;
-    for (let c = 0; c < testTimePattern.length - 1; c++)
-        if (testTimePattern[c] === "%" &&
-            (testTimePattern.charCodeAt(c + 1) >= 65 &&
-                testTimePattern.charCodeAt(c + 1) <= 122)) {
-            SavedTimeOptions[testTimePattern[c + 1]] = true;
+    let finalTimeString;
+    if (!_state.patternLoaded) {
+        let testTimePattern = userSettings.clockPatternStr;
+        finalTimeString = testTimePattern;
+        if (testTimePattern !== "" && testTimePattern !== undefined) {
+            for (let c = 0; c < testTimePattern.length - 1; c++) {
+                if (testTimePattern[c] === "%" &&
+                    (testTimePattern.charCodeAt(c + 1) >= 65 &&
+                        testTimePattern.charCodeAt(c + 1) <= 122)) {
+                    SavedTimeOptions[testTimePattern[c + 1]] = true;
+                }
+            }
+            _state.patternLoaded = true;
+            _state.currentPattern = finalTimeString;
+            finalTimeString = getActualTime();
         }
-    //console.log(SavedTimeOptions);
+    } else {
+        finalTimeString = getActualTime();
+    }
+    return finalTimeString;
+}
+
+
+function getActualTime() {
+    let timeString = _state.currentPattern;
     TimeUtils.currentTime = new Date();
     for (let setOption in SavedTimeOptions) {
         if (SavedTimeOptions[setOption] === true) {
-            finalTimeString = finalTimeString.replace("%" + setOption,
+            timeString = timeString.replace("%" + setOption,
                 TimeUtils[setOption]());
         }
     }
-    return finalTimeString;
+    return timeString;
 }
 
 function convertTo12HRFormat(hrs) {
@@ -311,23 +321,9 @@ function dayPostFixNew(day) {
 }
 
 function initTimeScript(mode) {
-    /*if(mode === 0){
-
-    }
-    else{
-
-    }*/
     timeHtmlElement.innerHTML = "Today is " + parseTimePattern();
     let t = setTimeout(function () {
         initTimeScript()
     }, 500);
 }
 
-/*function fillLocalStorageData(){
-    let res = JSON.parse(localStorage.getItem("savedUserClockSettings"));
-    if (res != null) {
-        userClockSettings = res;
-    } else {
-        userClockSettings = new UserData();
-    }
-}*/

@@ -1,4 +1,5 @@
 var state = {
+    userSearchedAnything: false,
     settingsWindowOpen: false,
     contextMenuOpen: false,
     currentTab: 0,
@@ -28,44 +29,52 @@ const imageResources = {
     IMG_CONF_ICON: "",
 };
 
+var userSettings = {};
+
+const SETTINGS_VALUES = {
+    SEARCH_BOX_ENABLED_BOOL: "searchBoxEnabledBool",
+    CLOCK_ENABLED_BOOL: "clockEnabledBool",
+    SEARCH_HISTORY_ENABLED_BOOL: "searchHistoryEnabledBool",
+    CLOCK_SET_PATTERN_STR: "clockSetPatternStr",
+    DEFAULT_SEARCH_ENGINE_INT: "defaultSearchEngineInt"
+};
+
 const textResources = {
-    text: [["%a","Abbreviated weekday name *","Thu"],
-        ["%A","Full weekday name *","Thursday"],
-        ["%b","Abbreviated month name *","Aug"],
-        ["%B","Full month name *","August"],
-        ["%c","Date and time representation *","Thu Aug 23 14:55:02 2001"],
-        ["%C","Year divided by 100 and truncated to integer (00-99)","20"],
-        ["%d","Day of the month, zero-padded (01-31)","23"],
-        ["%D","Short MM/DD/YY date, equivalent to %m/%d/%y","08/23/01"],
-        ["%e","Day of the month, space-padded ( 1-31)","23"],
-        ["%F","Short YYYY-MM-DD date, equivalent to %Y-%m-%d","2001-08-23"],
-        ["%g","Week-based year, last two digits (00-99)","01"],
-        ["%G","Week-based year","2001"],
-        ["%h","Abbreviated month name * (same as %b)","Aug"],
-        ["%H","Hour in 24h format (00-23)","14"],
-        ["%I","Hour in 12h format (01-12)","02"],
-        ["%j","Day of the year (001-366)","235"],
-        ["%m","Month as a decimal number (01-12)","08"],
-        ["%M","Minute (00-59)","55"],
-        ["%n","New-line character ('\\n')",""],
-        ["%p","AM or PM designation","PM"],
-        ["%r","12-hour clock time *","02:55:02 pm"],
-        ["%R","24-hour HH:MM time, equivalent to %H:%M","14:55"],
-        ["%S","Second (00-61)","02"],
-        ["%t","Horizontal-tab character ('\\t')",""],
-        ["%T","ISO 8601 time format (HH:MM:SS), equivalent to %H:%M:%S","14:55:02"],
-        ["%u","ISO 8601 weekday as number with Monday as 1 (1-7)","4"],
-        ["%U","Week number with the first Sunday as the first day of week one (00-53)","33"],
-        ["%V","ISO 8601 week number (01-53)","34"],
-        ["%w","Weekday as a decimal number with Sunday as 0 (0-6)","4"],
-        ["%W","Week number with the first Monday as the first day of week one (00-53)","34"],
-        ["%x","Date representation *","08/23/01"],
-        ["%X","Time representation *","14:55:02"],
-        ["%y","Year, last two digits (00-99)","01"],
-        ["%Y","Year","2001"],
-        ["%z","ISO 8601 offset from UTC in timezone (1 minute=1, 1 hour=100)\nIf timezone cannot be determined, no characters","+100"],
-        ["%Z","Timezone name or abbreviation *\nIf timezone cannot be determined, no characters","CDT"],
-        ]
+    text: [["%a", "Abbreviated weekday name", "Thu"],
+        ["%A", "Full weekday name", "Thursday"],
+        ["%b", "Abbreviated month name", "Aug"],
+        ["%B", "Full month name", "August"],
+        ["%c", "Date and time representation", "Thu Aug 23 14:55:02 2001"],
+        ["%C", "Year divided by 100 and truncated to integer (00-99)", "20"],
+        ["%d", "Day of the month, zero-padded (01-31)", "23"],
+        ["%D", "Short MM/DD/YY date", "08/23/01"],
+        ["%e", "Day of the month, space-padded (1-31)", "23"],
+        ["%F", "Short YYYY-MM-DD date", "2001-08-23"],
+        ["%g", "Week-based year, last two digits (00-99)", "01"],
+        ["%G", "Week-based year", "2001"],
+        ["%h", "Abbreviated month name", "Aug"],
+        ["%H", "Hour in 24h format (00-23)", "14"],
+        ["%I", "Hour in 12h format (01-12)", "02"],
+        ["%j", "Day of the year (001-366)", "235"],
+        ["%m", "Month as a decimal number (01-12)", "08"],
+        ["%M", "Minute (00-59)", "55"],
+        ["%p", "AM or PM designation", "PM"],
+        ["%r", "12-hour clock time *", "02:55:02 pm"],
+        ["%R", "24-hour HH:MM time, equivalent to %H:%M", "14:55"],
+        ["%S", "Second (00-61)", "02"],
+        ["%T", "ISO 8601 time format (HH:MM:SS)", "14:55:02"],
+        ["%u", "ISO 8601 weekday as number with Monday as 1 (1-7)", "4"],
+        ["%U", "Week number with the first Sunday as the first day of week one (00-53)", "33"],
+        ["%V", "ISO 8601 week number (01-53)", "34"],
+        ["%w", "Weekday as a decimal number with Sunday as 0 (0-6)", "4"],
+        ["%W", "Week number with the first Monday as the first day of week one (00-53)", "34"],
+        ["%x", "Date representation", "08/23/01"],
+        ["%X", "Time representation", "14:55:02"],
+        ["%y", "Year, last two digits (00-99)", "01"],
+        ["%Y", "Year", "2001"],
+        ["%z", "ISO 8601 offset from UTC in timezone", "+100"],
+        ["%Z", "Timezone name or abbreviation", "UTC"]
+    ]
 };
 
 var userData;
@@ -230,14 +239,16 @@ function validate(inputFieldValue, inputFieldName) {
 }
 
 function generateSearchEngineOptions() {
-    let searchEngineOptionsDrowDownHtml =
+    let searchEngineOptionsDropDownHtml =
         document.getElementById("searchOptionsDropDown");
     for (let i = 0; i < searchEngines.engineOptions.length; i++) {
-        searchEngineOptionsDrowDownHtml.appendChild(
+        searchEngineOptionsDropDownHtml.appendChild(
             ControlBuilder.build({
                     tag: "a",
                     href: "#",
-                    id: i,
+                    attribs: {
+                        s_id: i
+                    },
                     innerHTML: searchEngines.engineOptions[i],
                     event: {
                         name: "click",
@@ -249,10 +260,20 @@ function generateSearchEngineOptions() {
             )
         );
     }
+    setSearchLink(null, userSettings.defaultSearchEngineInt);
 }
 
-function setSearchLink(e) {
-    let chosenLink = e.target;
+//to do save selected search engine right away
+function setSearchLink(e, def) {
+    let chosenLink;
+    e === null
+        ?
+        chosenLink = document
+            .querySelectorAll("div#searchOptionsDropDown a").item(def)
+        :
+        chosenLink = e.target;
+    let l = document.querySelectorAll("div#searchOptionsDropDown a");
+    console.log(def);
     let html = document.getElementById("searchEngineChooseButton");
     html.innerHTML = chosenLink.innerHTML;
     let htmlElementFormLink = document.getElementById("searchForm");
@@ -261,8 +282,7 @@ function setSearchLink(e) {
         htmlElementSearchField.setAttribute("name", "text");
     }
     htmlElementFormLink.setAttribute("action",
-        searchEngines.engineLinks[chosenLink.id]);
-
+        searchEngines.engineLinks[chosenLink.getAttribute("s_id")]);
 }
 
 function toggleComponentVisibility(componentId, val) {
@@ -333,8 +353,7 @@ function fetchSearchHistory() {
 }
 
 function initStartPage(mode) {
-    generateSearchEngineOptions();
-    initTimeScript(mode);
+
     fetchSearchHistory();
     switch (mode) {
         case scriptStartModes.DEV: {
@@ -346,6 +365,8 @@ function initStartPage(mode) {
             break;
         }
     }
+    generateSearchEngineOptions();
+    initTimeScript();
     updateUI();
     addEventListeners();
 }
@@ -406,45 +427,111 @@ function generateSettingsTabForms(tabType) {
     });
     switch (tabType) {
         case "General": {
-            actualTabContentWrapper.appendChild(createFormRow(
+            let showSearchBox = createFormRow(
                 "",
                 "Search box enabled: ",
                 controlTypes.REGULAR_INPUT,
                 {
-                    "id": "generalInput",
-                    "type": "checkbox",
-                    "name": "input"
-                }).mainDiv);
-            actualTabContentWrapper.appendChild(createFormRow(
+                    id: "generalInput",
+                    type: "checkbox",
+                    name: "input",
+                }, "change",
+                function () {
+                    saveSettings(SETTINGS_VALUES.SEARCH_BOX_ENABLED_BOOL, this.checked);
+                });
+            let showSearchBoxMainDiv = showSearchBox.mainDiv;
+            let showSearchBoxInput = showSearchBox.input;
+            userSettings.searchBoxEnabledBool ? showSearchBoxInput.checked = true : "";
+            actualTabContentWrapper.appendChild(showSearchBoxMainDiv);
+
+            let showHistoryBox = createFormRow(
                 "",
-                "Default search engine: ",
+                "Show search history: ",
                 controlTypes.REGULAR_INPUT,
                 {
-                    "id": "generalInput",
-                    "type": "text",
-                    "name": "input"
-                }).mainDiv);
+                    id: "generalInput",
+                    type: "checkbox",
+                    name: "input",
+                }, "change",
+                function () {
+                    saveSettings(SETTINGS_VALUES.SEARCH_HISTORY_ENABLED_BOOL, this.checked);
+                });
+            let showHistoryMainDiv = showHistoryBox.mainDiv;
+            let showHistoryInput = showHistoryBox.input;
+            userSettings.searchHistoryEnabledBool ? showHistoryInput.checked = true : "";
+            actualTabContentWrapper.appendChild(showHistoryMainDiv);
+            let formRowEnclosure = ControlBuilder.build({tag: "div", className: "form-row"});
+
+            let defSearchEngineLabel = ControlBuilder.build({
+                tag: "label",
+                innerHTML: "Default search engine: "
+            });
+
+            formRowEnclosure.appendChild(defSearchEngineLabel);
+            let enclosingSelectTag = ControlBuilder.build({tag: "select"});
+            for (let i = 0; i < searchEngines.engineOptions.length; i++) {
+                enclosingSelectTag.options[enclosingSelectTag.options.length] = new Option(
+                    searchEngines.engineOptions[i], searchEngines.engineOptions[i]);
+            }
+            console.log(enclosingSelectTag.selectedIndex);
+            enclosingSelectTag.options.selectedIndex = userSettings.defaultSearchEngineInt;
+            enclosingSelectTag.addEventListener("change",
+                function () {
+                    saveSettings(SETTINGS_VALUES.DEFAULT_SEARCH_ENGINE_INT,
+                        enclosingSelectTag.options.selectedIndex);
+                    setSearchLink(null, userSettings.defaultSearchEngineInt);
+                }
+                , false);
+            formRowEnclosure.appendChild(enclosingSelectTag);
+            actualTabContentWrapper.appendChild(formRowEnclosure);
             break;
         }
         case "Clock": {
-            actualTabContentWrapper.appendChild(
-                createFormRow("", "Clock enabled: ",
-                    controlTypes.REGULAR_INPUT, {
-                        "type": "checkbox",
-                        "name": "clockEnabled",
-                        "checked": "checked"
-                    }).mainDiv
-            );
-            actualTabContentWrapper.appendChild(
+            let clockElement = createFormRow("", "Clock enabled: ",
+                controlTypes.REGULAR_INPUT, {
+                    type: "checkbox",
+                    name: "clockEnabled",
+                }, "change", function () {
+                    toggleComponentDisabled("dateFormatComponent", this.checked);
+                    saveSettings(SETTINGS_VALUES.CLOCK_ENABLED_BOOL, this.checked);
+                });
+            let clockElementMainDiv = clockElement.mainDiv;
+            let clockElementInput = clockElement.input;
+            userSettings.clockEnabledBool ? clockElementInput.checked = true : "";
+            actualTabContentWrapper.appendChild(clockElementMainDiv);
+
+            let clockDateFormat =
                 createFormRow("", "Date format: ",
                     controlTypes.REGULAR_INPUT,
                     {
-                        "type": "text",
-                        "name": "input"
-                    }).mainDiv);
+                        type: "text",
+                        name: "input",
+                    });
+            let clockDateFormatLabelMainDiv = clockDateFormat.mainDiv;
+            clockDateFormatLabelMainDiv.id = "dateFormatComponent";
+            clockDateFormat.input.style.width = "400px";
+            clockDateFormat.input.value = userSettings.clockPatternStr;
+            actualTabContentWrapper.appendChild(clockDateFormatLabelMainDiv);
+            let timePatternSaveButton = ControlBuilder.build({
+                tag: "button",
+                id: "saveTimePattern",
+                innerHTML: "Apply",
+                event: {
+                    name: "click",
+                    handler: function () {
+                        userSettings.clockPatternStr = clockDateFormat.input.value;
+                        _state.patternLoaded = false;
+                        _state.currentPattern = userSettings.clockPatternStr;
+                    },
+                    capture: false
+                }
+            });
+            clockDateFormatLabelMainDiv.appendChild(timePatternSaveButton);
+            let clockHelpElement = ControlBuilder.build({tag: "div", id: "timeHelp"})
+            constructHelp(clockHelpElement);
             actualTabContentWrapper.appendChild(
-                ControlBuilder.build({tag: "p"})
-            )
+                clockHelpElement
+            );
             break;
         }
         case "About": {
@@ -453,9 +540,7 @@ function generateSettingsTabForms(tabType) {
                     tag: "div", innerHTML:
                         `Currently running within ${navigator.userAgent}
                         on ${navigator.platform}<br />
-                        You are currently${navigator.onLine ? ' online' : ' offline'}`
-
-
+                        You are currently ${navigator.onLine ? 'online' : 'offline'}`
                 })
             );
             break;
@@ -465,11 +550,34 @@ function generateSettingsTabForms(tabType) {
 }
 
 
-var userSettings = {
-    clockEnabled: false,
-    clockFormat: "",
-    defaultSearchEngine: "",
-};
+function toggleComponentDisabled(id, val) {
+    let targetElement = document.getElementById(id);
+    console.log(id);
+    targetElement.childNodes.forEach(e => e.disabled = !val);
+}
+
+function saveSettings(setting, value) {
+    userSettings[setting] = value;
+    updateUI();
+}
+
+function constructHelp(parent) {
+    let table = ControlBuilder.build({tag: "table", className: "transparentTable"});
+    for (let item of textResources.text) {
+        let row = ControlBuilder.build({tag: "tr"});
+        let childTdArray = [];
+        for (let innerItem of item) {
+            childTdArray.push(ControlBuilder.build({
+                tag: "td",
+                innerHTML: innerItem
+            }));
+        }
+        chainAppend(row, childTdArray);
+        table.appendChild(row);
+    }
+    parent.appendChild(table);
+}
+
 
 function fillMockUserData() {
     //mock user data
@@ -525,6 +633,11 @@ function fillMockUserData() {
             },
         ],
     };
+    userSettings.clockEnabledBool = true;
+    userSettings.defaultSearchEngineInt = 1;
+    userSettings.searchBoxEnabledBool = true;
+    userSettings.searchHistoryEnabledBool = true;
+    userSettings.clockPatternStr = "%A, %B %Y | %H:%M:%S";
 }
 
 function fillLocalStorageUserData() {
@@ -551,6 +664,14 @@ function updateUI() {
         for (let section of userData.sections) {
             createSection(section);
         }
+    }
+    if (userSettings !== null && userSettings !== undefined) {
+        console.log();
+        toggleComponentVisibility("clock", userSettings.clockEnabledBool);
+        toggleComponentVisibility("search", userSettings.searchBoxEnabledBool);
+        console.log(userSettings.searchHistoryEnabledBool);
+        toggleComponentVisibility("searchHistory",
+            state.userSearchedAnything ? userSettings.searchHistoryEnabledBool : false);
     }
     addEventListenersDynamic();
 }
@@ -746,13 +867,14 @@ function addEventListeners() {
         .addEventListener("click",
             function () {
                 this.parentNode.parentNode.submit();
-                recordUserSearch();
+                userSettings.searchHistoryEnabledBool ? recordUserSearch() : null;
                 document.getElementById("searchInputField").value = "";
             },
             false);
 }
 
 function recordUserSearch() {
+    state.userSearchedAnything = true;
     let userSearchText = document.getElementById("searchInputField").value;
     userSearchHistory.searchList.push({
         searchText: userSearchText,
@@ -899,10 +1021,10 @@ function createWindowControls(sectionId, sItem, tileId) {
         "foreground:",
         controlTypes.REGULAR_INPUT,
         {
-            "type": "color", "name": "colorFg",
-            "value": sItem.sectionItemColors[1],
-            "id": "formInputFieldColorFg",
-            "class": "colorPickerInput"
+            type: "color", "name": "colorFg",
+            value: sItem.sectionItemColors[1],
+            id: "formInputFieldColorFg",
+            class: "colorPickerInput"
         },
         "input",
         () => {
@@ -912,11 +1034,11 @@ function createWindowControls(sectionId, sItem, tileId) {
         "autodetect color:",
         controlTypes.REGULAR_INPUT,
         {
-            "id": "colorAutoID",
-            "type": "checkbox",
-            "name": "colorAuto",
-            "value": sItem.sectionItemName,
-            "style": "width: 20px; height: 20px;"
+            id: "colorAutoID",
+            type: "checkbox",
+            name: "colorAuto",
+            value: sItem.sectionItemName,
+            style: "width: 20px; height: 20px;"
         }, "click",
         () => {
             toggleColorLock(state.colorAutoDetectOn)
@@ -1277,7 +1399,6 @@ function editSection(sectionId) {
     let children = sectionForEditing.childNodes;
     let row = children[0];
     let actualChildren = row.childNodes;
-    console.log(actualChildren);
     for (let c of actualChildren) {
         if (c.className === "sectionHeaderName") {
             let requiredInputWidth = c.offsetWidth;
@@ -1340,9 +1461,9 @@ function openSettingsTab(evt, tabName) {
         tabcontent[i].style.display = "none";
     }
     // Get all elements with class="tablinks" and remove the class "active"
-    tablinks = document.getElementsByClassName("tablinks");
+    tablinks = document.getElementsByClassName("tabLinks");
     for (i = 0; i < tablinks.length; i++) {
-        tablinks[i].className = tablinks[i].className.replace(" active", "");
+        tablinks[i].className = tablinks[i].className.replace("active", "");
     }
 
     let selectedTab = document.querySelector(
@@ -1351,6 +1472,15 @@ function openSettingsTab(evt, tabName) {
     // Show the current tab
     selectedTab.style.display = "block";
     evt.currentTarget.className += " active";
+}
+
+/*{
+    tag: "label",
+        text: "label text"
+}
+//array of required controls*/
+function createFormRowNew(controls) {
+
 }
 
 function createFormRow(labelClassName,
@@ -1373,10 +1503,6 @@ function createFormRow(labelClassName,
 
     for (let param in controlParams) {
         formInputOptions.attribs[param] = controlParams[param];
-    }
-
-    if (controlParams.type === "text") {
-        //formLabel.style.width = "50px";
     }
     if (controlParams.type === "color") {
         formLabel.style.width = "110px";
