@@ -239,10 +239,10 @@ function validate(inputFieldValue, inputFieldName) {
 }
 
 function generateSearchEngineOptions() {
-    let searchEngineOptionsDrowDownHtml =
+    let searchEngineOptionsDropDownHtml =
         document.getElementById("searchOptionsDropDown");
     for (let i = 0; i < searchEngines.engineOptions.length; i++) {
-        searchEngineOptionsDrowDownHtml.appendChild(
+        searchEngineOptionsDropDownHtml.appendChild(
             ControlBuilder.build({
                     tag: "a",
                     href: "#",
@@ -634,7 +634,6 @@ function fillMockUserData() {
         ],
     };
     userSettings.clockEnabledBool = true;
-    userSettings.clockPatternStr = "%p";
     userSettings.defaultSearchEngineInt = 1;
     userSettings.searchBoxEnabledBool = true;
     userSettings.searchHistoryEnabledBool = true;
