@@ -35,7 +35,8 @@ const SETTINGS_VALUES = {
     SEARCH_BOX_ENABLED_BOOL: "searchBoxEnabledBool",
     CLOCK_ENABLED_BOOL: "clockEnabledBool",
     SEARCH_HISTORY_ENABLED_BOOL: "searchHistoryEnabledBool",
-    CLOCK_SET_PATTERN_STR: "clockSetPatternStr"
+    CLOCK_SET_PATTERN_STR: "clockSetPatternStr",
+    DEFAULT_SEARCH_ENGINE_INT: "defaultSearchEngineInt"
 };
 
 const textResources = {
@@ -259,10 +260,20 @@ function generateSearchEngineOptions() {
             )
         );
     }
+    setSearchLink(null, userSettings.defaultSearchEngineInt);
 }
 
-function setSearchLink(e) {
-    let chosenLink = e.target;
+//to do save selected search engine right away
+function setSearchLink(e, def) {
+    let chosenLink;
+    e === null
+        ?
+        chosenLink = document
+            .querySelectorAll("div#searchOptionsDropDown a").item(def)
+        :
+        chosenLink = e.target;
+    let l = document.querySelectorAll("div#searchOptionsDropDown a");
+    console.log(def);
     let html = document.getElementById("searchEngineChooseButton");
     html.innerHTML = chosenLink.innerHTML;
     let htmlElementFormLink = document.getElementById("searchForm");
@@ -342,7 +353,6 @@ function fetchSearchHistory() {
 }
 
 function initStartPage(mode) {
-    generateSearchEngineOptions();
 
     fetchSearchHistory();
     switch (mode) {
@@ -355,6 +365,7 @@ function initStartPage(mode) {
             break;
         }
     }
+    generateSearchEngineOptions();
     initTimeScript();
     updateUI();
     addEventListeners();
@@ -449,16 +460,30 @@ function generateSettingsTabForms(tabType) {
             let showHistoryInput = showHistoryBox.input;
             userSettings.searchHistoryEnabledBool ? showHistoryInput.checked = true : "";
             actualTabContentWrapper.appendChild(showHistoryMainDiv);
+            let formRowEnclosure = ControlBuilder.build({tag: "div", className: "form-row"});
 
-            actualTabContentWrapper.appendChild(createFormRow(
-                "",
-                "Default search engine: ",
-                controlTypes.REGULAR_INPUT,
-                {
-                    id: "generalInput",
-                    type: "text",
-                    name: "input"
-                }).mainDiv);
+            let defSearchEngineLabel = ControlBuilder.build({
+                tag: "label",
+                innerHTML: "Default search engine: "
+            });
+
+            formRowEnclosure.appendChild(defSearchEngineLabel);
+            let enclosingSelectTag = ControlBuilder.build({tag: "select"});
+            for (let i = 0; i < searchEngines.engineOptions.length; i++) {
+                enclosingSelectTag.options[enclosingSelectTag.options.length] = new Option(
+                    searchEngines.engineOptions[i], searchEngines.engineOptions[i]);
+            }
+            console.log(enclosingSelectTag.selectedIndex);
+            enclosingSelectTag.options.selectedIndex = userSettings.defaultSearchEngineInt;
+            enclosingSelectTag.addEventListener("change",
+                function () {
+                    saveSettings(SETTINGS_VALUES.DEFAULT_SEARCH_ENGINE_INT,
+                        enclosingSelectTag.options.selectedIndex);
+                    setSearchLink(null, userSettings.defaultSearchEngineInt);
+                }
+                , false);
+            formRowEnclosure.appendChild(enclosingSelectTag);
+            actualTabContentWrapper.appendChild(formRowEnclosure);
             break;
         }
         case "Clock": {
@@ -525,7 +550,7 @@ function generateSettingsTabForms(tabType) {
 }
 
 
-function toggleComponentDisabled(id, val){
+function toggleComponentDisabled(id, val) {
     let targetElement = document.getElementById(id);
     console.log(id);
     targetElement.childNodes.forEach(e => e.disabled = !val);
@@ -610,7 +635,7 @@ function fillMockUserData() {
     };
     userSettings.clockEnabledBool = true;
     userSettings.clockPatternStr = "%p";
-    userSettings.defaultSearchEngineStr = "Google";
+    userSettings.defaultSearchEngineInt = 1;
     userSettings.searchBoxEnabledBool = true;
     userSettings.searchHistoryEnabledBool = true;
     userSettings.clockPatternStr = "%A, %B %Y | %H:%M:%S";
