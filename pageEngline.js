@@ -148,20 +148,18 @@ var tempSectionStore = {
     currentSectionName: "",
 };
 
-function initSysVars() {
-    let _viewPortWidth = document.documentElement.clientWidth;
-    let _viewPortHeight = document.documentElement.clientHeight;
-    return {
-        getViewPortWidth() {
-            return _viewPortWidth;
-        },
-        getViewPortHeight() {
-            return _viewPortHeight;
-        },
+function SysVars() {
+    this._viewPortWidth = document.documentElement.clientWidth;
+    this._viewPortHeight = document.documentElement.clientHeight;
+    this.getViewPortWidth = function () {
+        return this._viewPortWidth;
+    };
+    this.getViewPortHeight = function () {
+        return this._viewPortHeight;
     };
 }
 
-const _sysVars = initSysVars();
+const _sysVars = new SysVars();
 
 const searchEngines = {
     engineOptionsEnum: {
@@ -200,7 +198,7 @@ const webAppSuggestions = {
 
 
 var ValidationError = {
-    formError: (errorType, fieldName) => {
+    formError: function (errorType, fieldName) {
         let messagePostFix = "";
         switch (errorType) {
             case ValidationError.EmptyString: {
