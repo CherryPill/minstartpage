@@ -23,6 +23,11 @@ const scriptStartModes = {
     DEV: 0,
 };
 
+const settingsWindowModes = {
+    SET_WIN_ADD: "Add new tile",
+    SET_WIN_EDIT: "Edit existing tile"
+}
+
 const imageResources = {
     IMG_REM_ICON: "img/delete.png",
     IMG_EDIT_ICON: "img/edit.png",
@@ -955,7 +960,8 @@ function dismissModalWindow() {
     }
 }
 
-function createWindowControls(sectionId, sItem, tileId) {
+function createWindowControls(sectionId, sItem, tileId, windowOpenMode) {
+    console.log("open" + windowOpenMode)
     console.log(sItem);
     let tileEditWindow = ControlBuilder.build({
         tag: "div",
@@ -963,7 +969,7 @@ function createWindowControls(sectionId, sItem, tileId) {
     });
     let header = ControlBuilder.build({
         tag: "div",
-        innerHTML: "Add new tile",
+        innerHTML: windowOpenMode,
         id: "modalWindowTitle"
     });
     let formRowsEnclosure = ControlBuilder.build({tag: "div", id: "formRowsEnclosure"});
@@ -987,6 +993,16 @@ function createWindowControls(sectionId, sItem, tileId) {
             placeholder: "name"
         });
 
+    let formRowShortName = createFormRow("", "",
+        controlTypes.REGULAR_INPUT,
+        {
+            id: "formInputFieldShortName",
+            type: "text",
+            name: "name",
+            value: sItem.sectionItemNameShort,
+            placeholder: "short name"
+        });
+
     let addWindowContentWrapper = ControlBuilder.build({
         tag: "div",
         className: "wrap",
@@ -1000,7 +1016,10 @@ function createWindowControls(sectionId, sItem, tileId) {
     let fullTitleAnchor = ControlBuilder.build({tag: "a", attribs: {href: "https://vk.com/feed"}});
     let linkTileEditMode = ControlBuilder.build({
         tag: "div",
-        innerHTML: "AA",
+        innerHTML: windowOpenMode === settingsWindowModes.SET_WIN_EDIT
+            ?
+            sItem.sectionItemNameShort
+            : "AA",
         className: "linkTile editMode",
         id: "iconPreviewDiv"
     });
@@ -1089,7 +1108,10 @@ function createWindowControls(sectionId, sItem, tileId) {
     chainAppend(iconPreviewSection, [linkTilesSectionIconPreview, colorPickerSection]);
     chainAppend(actionButtonsDiv, [actionButtonOk, actionButtonCancel]);
     tileEditWindow.appendChild(header);
-    chainAppend(formRowsEnclosure, [formRowName.mainDiv, formRowUrl.mainDiv, colorPickerSection]);
+    chainAppend(formRowsEnclosure, [formRowName.mainDiv,
+        formRowUrl.mainDiv,
+        formRowShortName.mainDiv,
+        colorPickerSection]);
     iconPreviewSection.appendChild(linkTilesSectionIconPreview);
     chainAppend(addWindowContentWrapper, [iconPreviewSection, formRowsEnclosure]);
     chainAppend(tileEditWindow, [addWindowContentWrapper, actionButtonsDiv]);
@@ -1107,18 +1129,20 @@ function createWindowControls(sectionId, sItem, tileId) {
         / 2 + "px";
     ;
     tempSectionStore.currentSectionId = sectionId;
-    console.log(document.getElementById("formInputFieldName"));
     autocomplete(document.getElementById("formInputFieldName"), webAppSuggestions);
 }
 
 function generateAddEditTileWindow(sectionId, tileId) {
     var itemForForm;
+    let windowOpenMode;
     //add new title
     if (tileId === "null") {
         itemForForm = new SectionItem();
+        windowOpenMode = settingsWindowModes.SET_WIN_ADD;
     } else {
         //edit existing tile
         //find tile id in userdata and fill the ui form accordingly
+        windowOpenMode = settingsWindowModes.SET_WIN_EDIT;
         for (let s = 0; s < userData.sections.length; s++) {
             for (let sectionItem = 0; sectionItem < userData.sections[s].sectionItems.length; sectionItem++) {
                 if (userData.sections[s].sectionItems[sectionItem].sectionItemId == tileId) {
@@ -1133,8 +1157,7 @@ function generateAddEditTileWindow(sectionId, tileId) {
             }
         }
     }
-    console.log(itemForForm);
-    createWindowControls(sectionId, itemForForm, tileId);
+    createWindowControls(sectionId, itemForForm, tileId, windowOpenMode);
 }
 
 function addNewTile() {
@@ -1260,6 +1283,9 @@ function autocomplete(inp, arr) {
         var previewIconTextElement = document.getElementById("iconPreviewDiv");
         var formUrlFieldDisabled = document.getElementById("formInputFieldUrl");
         var formInputFieldName = document.getElementById("formInputFieldName");
+        if (formInputFieldName.value.length >= 2) {
+            previewIconTextElement.innerHTML = formInputFieldName.value.substr(0, 2);
+        }
         closeAllLists();
         var formInputFieldToAttachTo = document.getElementById("formInputFieldName");
         if (!val) {
