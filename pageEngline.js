@@ -148,20 +148,18 @@ var tempSectionStore = {
     currentSectionName: "",
 };
 
-function initSysVars() {
-    let _viewPortWidth = document.documentElement.clientWidth;
-    let _viewPortHeight = document.documentElement.clientHeight;
-    return {
-        getViewPortWidth() {
-            return _viewPortWidth;
-        },
-        getViewPortHeight() {
-            return _viewPortHeight;
-        },
+function SysVars() {
+    this._viewPortWidth = document.documentElement.clientWidth;
+    this._viewPortHeight = document.documentElement.clientHeight;
+    this.getViewPortWidth = function () {
+        return this._viewPortWidth;
+    };
+    this.getViewPortHeight = function () {
+        return this._viewPortHeight;
     };
 }
 
-const _sysVars = initSysVars();
+const _sysVars = new SysVars();
 
 const searchEngines = {
     engineOptionsEnum: {
@@ -200,7 +198,7 @@ const webAppSuggestions = {
 
 
 var ValidationError = {
-    formError: (errorType, fieldName) => {
+    formError: function (errorType, fieldName) {
         let messagePostFix = "";
         switch (errorType) {
             case ValidationError.EmptyString: {
@@ -381,7 +379,7 @@ function openSettingsMenu() {
 }
 
 function createSettingsContents(parent) {
-    let settingsWindowTitle = ControlBuilder.build({tag: "div", innerHTML: "Settings", id: "settingsTitle"});
+    let settingsWindowTitle = ControlBuilder.build({tag: "div", innerHTML: "Settings", id: "modalWindowTitle"});
     let settingsWindowNavBar = ControlBuilder.build({tag: "div", className: "tab"});
     let settingsWindowMainContent = ControlBuilder.build({tag: "div", id: "all_tabs"});
 
@@ -959,26 +957,34 @@ function dismissModalWindow() {
 
 function createWindowControls(sectionId, sItem, tileId) {
     console.log(sItem);
-    let tileEditWindow = ControlBuilder.build({tag: "div", className: "tileEditWindow modalWindow"});
-    let header = ControlBuilder.build({tag: "div", innerHTML: "Add new tile"});
+    let tileEditWindow = ControlBuilder.build({
+        tag: "div",
+        className: "tileEditWindow modalWindow"
+    });
+    let header = ControlBuilder.build({
+        tag: "div",
+        innerHTML: "Add new tile",
+        id: "modalWindowTitle"
+    });
     let formRowsEnclosure = ControlBuilder.build({tag: "div", id: "formRowsEnclosure"});
-    let formRowUrl = createFormRow("", "url:",
+    let formRowUrl = createFormRow("", "",
         controlTypes.REGULAR_INPUT,
         {
-            "id": "formInputFieldUrl",
-            "type": "text",
-            "name": "url",
-            "value": sItem.sectionItemUrl,
-            "disabled": ""
+            id: "formInputFieldUrl",
+            type: "text",
+            name: "url",
+            value: sItem.sectionItemUrl,
+            placeholder: "url"
         });
 
-    let formRowName = createFormRow("", "name:",
+    let formRowName = createFormRow("", "",
         controlTypes.REGULAR_INPUT,
         {
-            "id": "formInputFieldName",
-            "type": "text",
-            "name": "name",
-            "value": sItem.sectionItemName
+            id: "formInputFieldName",
+            type: "text",
+            name: "name",
+            value: sItem.sectionItemName,
+            placeholder: "name"
         });
 
     let addWindowContentWrapper = ControlBuilder.build({
@@ -994,7 +1000,9 @@ function createWindowControls(sectionId, sItem, tileId) {
     let fullTitleAnchor = ControlBuilder.build({tag: "a", attribs: {href: "https://vk.com/feed"}});
     let linkTileEditMode = ControlBuilder.build({
         tag: "div",
-        innerHTML: "AA", className: "linkTile editMode", id: "iconPreviewDiv"
+        innerHTML: "AA",
+        className: "linkTile editMode",
+        id: "iconPreviewDiv"
     });
     linkTileEditMode.style.backgroundColor = sItem.sectionItemColors[0];
     linkTileEditMode.style.color = sItem.sectionItemColors[1];
@@ -1007,10 +1015,10 @@ function createWindowControls(sectionId, sItem, tileId) {
         "background:",
         controlTypes.REGULAR_INPUT,
         {
-            "type": "color", "name": "colorBg",
-            "value": sItem.sectionItemColors[0],
-            "id": "formInputFieldColorBg",
-            "class": "colorPickerInput"
+            type: "color", "name": "colorBg",
+            value: sItem.sectionItemColors[0],
+            id: "formInputFieldColorBg",
+            class: "colorPickerInput"
         },
         "input",
         () => {
@@ -1076,7 +1084,7 @@ function createWindowControls(sectionId, sItem, tileId) {
     });
     fullTitleAnchor.appendChild(linkTileEditMode);
     chainAppend(linkTilesSectionIconPreview, [linkTilesSectionIconPreviewInnerDiv, fullTitleAnchor]);
-    colorAutodetect.appendChild(formRowColorAutoDetect.mainDiv)
+    colorAutodetect.appendChild(formRowColorAutoDetect.mainDiv);
     chainAppend(colorPickerSection, [colorAutodetect, formColorPickerBg.mainDiv, formColorPickerFg.mainDiv]);
     chainAppend(iconPreviewSection, [linkTilesSectionIconPreview, colorPickerSection]);
     chainAppend(actionButtonsDiv, [actionButtonOk, actionButtonCancel]);
@@ -1158,7 +1166,6 @@ function getFormData(tileId) {
         let fieldUUID = null;
         if (tileId == null)
             fieldUUID = UUIDGeneration.getUUID();
-        fieldUUID = tileId;
         state.errorRaised = false;
         return new SectionItem(fieldUrl, fieldName, fieldNameShort, fieldColorBg, fieldColorFg, fieldUUID);
     }
@@ -1198,6 +1205,7 @@ function generateContextMenu(tileId, coordX, coordY, sectionId) {
 }
 
 function removeTile(tileId) {
+    console.log(tileId);
     for (let s = 0; s < userData.sections.length; s++) {
         for (let sectionItem = 0; sectionItem < userData.sections[s].sectionItems.length; sectionItem++) {
             if (userData.sections[s].sectionItems[sectionItem].sectionItemId === tileId) {

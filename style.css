@@ -164,10 +164,13 @@ div#settingsWindow {
     min-height: 50%;
 }
 
-div#settingsTitle {
-    margin: 25px;
+div#modalWindowTitle {
     font-size: 1.9em;
     color: darkgrey;
+    text-align: left;
+    padding: 20px;
+    margin: 0px;
+    border-bottom: 1px solid #ccc;
 }
 
 div.linkTilesSection {
@@ -273,7 +276,7 @@ div.tileEditWindow {
     position: absolute;
     border: 1px solid #ccc;
     font-family: Helvetica;
-    padding: 30px;
+    padding: 0px;
     width: 700px;
     margin: 0 auto;
     background-color: #fff;
@@ -312,7 +315,7 @@ div.iconPreviewSection input.colorPickerInput {
 
 div.actionButtons {
     text-align: center;
-
+    margin-bottom: 30px;
 }
 
 div#overlay {
@@ -425,6 +428,7 @@ div.regularButton:hover {
     background-color: #f1f1f1;
     border-left: 0px;
     border-right: 0px;
+    border-top: 0px;
 }
 
 /* Style the buttons that are used to open the tab content */
@@ -605,4 +609,8 @@ table.transparentTable td {
 input[type="checkbox"] {
     width: 20px;
     height: 20px;
+}
+
+div#formRowsEnclosure div.form-row{
+    text-align: left;
 }
