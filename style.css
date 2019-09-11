@@ -202,7 +202,7 @@ div.linkTile {
     font-size: 1.5em;
     margin-right: 5px;
     font-family: inherit;
-
+    transition: all .5s ease;
 }
 
 div.addNew {
@@ -457,6 +457,19 @@ div.regularButton:hover {
     display: none;
     padding: 6px 12px;
     border: none;
+    animation: .2s ease-in 0s normal forwards 1 fadein;
+}
+
+@keyframes fadein {
+    0% {
+        opacity: 0;
+    }
+    66% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
 }
 
 label.form-row-label {
@@ -611,6 +624,10 @@ input[type="checkbox"] {
     height: 20px;
 }
 
-div#formRowsEnclosure div.form-row{
+div#formRowsEnclosure div.form-row {
     text-align: left;
+}
+
+button.tabLinks {
+    transition: all .5s ease;
 }

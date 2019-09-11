@@ -23,10 +23,16 @@ const scriptStartModes = {
     DEV: 0,
 };
 
+const constHelperStrings = {
+    EMPTY_STRING: "",
+    HTML_LINE_BREAK: "<br />",
+    PROG_LINE_BREAK: "\n"
+};
+
 const settingsWindowModes = {
     SET_WIN_ADD: "Add new tile",
     SET_WIN_EDIT: "Edit existing tile"
-}
+};
 
 const imageResources = {
     IMG_REM_ICON: "img/delete.png",
@@ -879,14 +885,16 @@ function addEventListeners() {
 function recordUserSearch() {
     state.userSearchedAnything = true;
     let userSearchText = document.getElementById("searchInputField").value;
-    userSearchHistory.searchList.push({
-        searchText: userSearchText,
-        searchUrl: constructUrl(),
-        searchTimestamp: constructTimestamp(),
-        searchId: UUIDGeneration.getUUID()
-    });
-    toggleComponentVisibility("searchHistory", true);
-    updateSearchHistory();
+    if (userSearchText !== constHelperStrings.EMPTY_STRING) {
+        userSearchHistory.searchList.push({
+            searchText: userSearchText,
+            searchUrl: constructUrl(),
+            searchTimestamp: constructTimestamp(),
+            searchId: UUIDGeneration.getUUID()
+        });
+        toggleComponentVisibility("searchHistory", true);
+        updateSearchHistory();
+    }
 }
 
 function removeSearchHistory() {
