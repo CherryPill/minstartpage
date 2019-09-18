@@ -18,6 +18,10 @@ var state = {
     errorRaised: false,
 };
 
+const internalErrors = {
+    DOM_ELEMENT_NOT_FOUND: "DOM element wasn't found on the DOM tree",
+};
+
 const scriptStartModes = {
     PROD: 1,
     DEV: 0,
@@ -1268,19 +1272,58 @@ function editTile(tileId) {
 }
 
 function getOffset(el) {
-    const rect = el.getBoundingClientRect();
-    return {
-        left: rect.left + window.scrollX,
-        top: rect.top + window.scrollY
-    };
+    if (el === null) {
+        return internalErrors.DOM_ELEMENT_NOT_FOUND;
+    } else {
+        const rect = el.getBoundingClientRect();
+        return {
+            left: rect.left + window.scrollX,
+            top: rect.top + window.scrollY
+        };
+    }
 }
 
 function alignAutocomplete(autocompleteElement) {
     let formInputFieldName = document.getElementById("formInputFieldName");
+    formInputFieldName = null;
     let formInputFieldNameOffsets = getOffset(formInputFieldName);
+    if (formInputFieldNameOffsets === internalErrors.DOM_ELEMENT_NOT_FOUND) {
+        throwError(internalErrors.DOM_ELEMENT_NOT_FOUND);
+    }
     autocompleteElement.style.left = formInputFieldNameOffsets.left + "px";
     autocompleteElement.style.top = formInputFieldNameOffsets.top + 30 + "px";
     return autocompleteElement;
+}
+
+function throwError(errorText) {
+    let mainWindow = ControlBuilder.build({
+        tag: "div",
+        className: "tileEditWindow modalWindow"
+    });
+    let header = ControlBuilder.build({
+        tag: "div",
+        innerHTML: "Error occurred",
+        id: "modalWindowTitle"
+    });
+    let errorMessageBlock = ControlBuilder.build({
+        tag: "div",
+        className: "wrap",
+        innerHTML: errorText,
+    });
+    chainAppend(mainWindow, [header, errorMessageBlock]);
+    document.body.appendChild(mainWindow);
+    state.toggleOverLay(true);
+    state.overlayElement.style.zIndex = "0";
+    mainWindow.style.zIndex = "5";
+    mainWindow.style.top =
+        _sysVars.getViewPortHeight() / 2 -
+        mainWindow.getBoundingClientRect().height
+        / 2 + "px";
+    ;
+    mainWindow.style.left = _sysVars.getViewPortWidth() / 2 -
+        mainWindow.getBoundingClientRect().width
+        / 2 + "px";
+    ;
 }
 
 function autocomplete(inp, arr) {
