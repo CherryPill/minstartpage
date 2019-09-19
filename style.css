@@ -631,3 +631,17 @@ div#formRowsEnclosure div.form-row {
 button.tabLinks {
     transition: all .5s ease;
 }
+
+div.modalWindowButton{
+    padding: 10px;
+    cursor: default;
+    border: 1px solid #ccc;
+    width: 25%;
+    margin: 0 auto;
+    margin-top: 16px;
+}
+
+div.modalWindowButton:hover{
+    background-color: black;
+    color: #fff;
+}

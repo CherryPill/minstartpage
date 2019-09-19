@@ -92,6 +92,7 @@ const textResources = {
     ]
 };
 
+
 var userData;
 
 var userSearchHistory = {
@@ -972,6 +973,7 @@ function dismissModalWindow() {
     }
 }
 
+
 function createWindowControls(sectionId, sItem, tileId, windowOpenMode) {
     console.log("open" + windowOpenMode)
     console.log(sItem);
@@ -1296,34 +1298,52 @@ function alignAutocomplete(autocompleteElement) {
 }
 
 function throwError(errorText) {
-    let mainWindow = ControlBuilder.build({
-        tag: "div",
-        className: "tileEditWindow modalWindow"
-    });
-    let header = ControlBuilder.build({
-        tag: "div",
-        innerHTML: "Error occurred",
-        id: "modalWindowTitle"
-    });
-    let errorMessageBlock = ControlBuilder.build({
-        tag: "div",
-        className: "wrap",
-        innerHTML: errorText,
-    });
-    chainAppend(mainWindow, [header, errorMessageBlock]);
-    document.body.appendChild(mainWindow);
-    state.toggleOverLay(true);
-    state.overlayElement.style.zIndex = "0";
-    mainWindow.style.zIndex = "5";
-    mainWindow.style.top =
-        _sysVars.getViewPortHeight() / 2 -
-        mainWindow.getBoundingClientRect().height
-        / 2 + "px";
-    ;
-    mainWindow.style.left = _sysVars.getViewPortWidth() / 2 -
-        mainWindow.getBoundingClientRect().width
-        / 2 + "px";
-    ;
+    if(state.errorRaised === false){
+        state.errorRaised = true;
+        let mainWindow = ControlBuilder.build({
+            tag: "div",
+            className: "tileEditWindow modalWindow",
+            id: "modalErrorWindow",
+        });
+        let header = ControlBuilder.build({
+            tag: "div",
+            innerHTML: "&#9888; Error occurred",
+            id: "modalWindowTitle"
+        });
+        let errorMessageBlock = ControlBuilder.build({
+            tag: "div",
+            className: "wrap",
+            innerHTML: errorText,
+        });
+        let errorOkButton = ControlBuilder.build({
+            tag: "div",
+            className: "modalWindowButton",
+            innerHTML: "OK",
+            event: {
+                name: "click",
+                handler: function (e) {
+                    state.errorRaised = false;
+                    document.body.removeChild(document.getElementById("modalErrorWindow"));
+                },
+                capture: false,
+            }
+        });
+        errorMessageBlock.appendChild(errorOkButton);
+        chainAppend(mainWindow, [header, errorMessageBlock]);
+        document.body.appendChild(mainWindow);
+        state.toggleOverLay(true);
+        state.overlayElement.style.zIndex = "0";
+        mainWindow.style.zIndex = "5";
+        mainWindow.style.top =
+            _sysVars.getViewPortHeight() / 2 -
+            mainWindow.getBoundingClientRect().height
+            / 2 + "px";
+        ;
+        mainWindow.style.left = _sysVars.getViewPortWidth() / 2 -
+            mainWindow.getBoundingClientRect().width
+            / 2 + "px";
+        ;
+    }
 }
 
 function autocomplete(inp, arr) {
