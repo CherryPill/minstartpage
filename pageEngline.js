@@ -10,11 +10,11 @@ var state = {
     editSectionOn: false,
     toggleOverLay: function (val) {
         this.overlayElement.style.visibility = val ? "visible" : "hidden";
-        this.modalOverlayOn = !this.modalOverlayOn;
     },
     toggleSectionAreaVisibility: function (val) {
         this.sectionAreaElement.style.display = val ? "block" : "none";
     },
+    modalWindowOpened: false,
     errorRaised: false,
 };
 
@@ -287,7 +287,6 @@ function setSearchLink(e, def) {
         :
         chosenLink = e.target;
     let l = document.querySelectorAll("div#searchOptionsDropDown a");
-    console.log(def);
     let html = document.getElementById("searchEngineChooseButton");
     html.innerHTML = chosenLink.innerHTML;
     let htmlElementFormLink = document.getElementById("searchForm");
@@ -680,7 +679,6 @@ function updateUI() {
         }
     }
     if (userSettings !== null && userSettings !== undefined) {
-        console.log();
         toggleComponentVisibility("clock", userSettings.clockEnabledBool);
         toggleComponentVisibility("search", userSettings.searchBoxEnabledBool);
         console.log(userSettings.searchHistoryEnabledBool);
@@ -969,6 +967,7 @@ function dismissModalWindow() {
     let activeModalWindow = document.getElementsByClassName("modalWindow");
     if (activeModalWindow != null) {
         state.toggleOverLay(false);
+        state.modalWindowOpened = false;
         document.body.removeChild(activeModalWindow[0]);
     }
 }
@@ -1144,6 +1143,7 @@ function createWindowControls(sectionId, sItem, tileId, windowOpenMode) {
     ;
     tempSectionStore.currentSectionId = sectionId;
     autocomplete(document.getElementById("formInputFieldName"), webAppSuggestions);
+    state.modalWindowOpened = true;
 }
 
 function generateAddEditTileWindow(sectionId, tileId) {
@@ -1194,7 +1194,7 @@ function getFormData(tileId) {
     let foundFieldNameErrors = validate(fieldUrl, "Tile name");
     let allCurrentFormErrors = foundFieldUrlErrors.concat(foundFieldNameErrors);
     if (allCurrentFormErrors.length > 0) {
-        alert(formErrorString(allCurrentFormErrors));
+        throwError(allCurrentFormErrors);
         state.errorRaised = true;
     } else {
         let fieldNameShort = document.getElementById("iconPreviewDiv").innerHTML;
@@ -1298,7 +1298,7 @@ function alignAutocomplete(autocompleteElement) {
 }
 
 function throwError(errorText) {
-    if(state.errorRaised === false){
+    if (state.errorRaised === false) {
         state.errorRaised = true;
         let mainWindow = ControlBuilder.build({
             tag: "div",
@@ -1313,7 +1313,7 @@ function throwError(errorText) {
         let errorMessageBlock = ControlBuilder.build({
             tag: "div",
             className: "wrap",
-            innerHTML: errorText,
+            innerHTML: errorText.join("<br />"),
         });
         let errorOkButton = ControlBuilder.build({
             tag: "div",
@@ -1324,7 +1324,8 @@ function throwError(errorText) {
                 handler: function (e) {
                     state.errorRaised = false;
                     document.body.removeChild(document.getElementById("modalErrorWindow"));
-                },
+                    !state.modalWindowOpened ? state.toggleOverLay(false) : null;
+                    },
                 capture: false,
             }
         });
@@ -1545,7 +1546,7 @@ function addNewSection() {
     let sectionCreationInputField = document.getElementById("newSectionName");
     let foundErrors = validate(sectionCreationInputField.value, "Section name");
     if (foundErrors.length > 0) {
-        alert(formErrorString(foundErrors));
+        throwError(foundErrors);
     } else {
         state.toggleSectionAreaVisibility(true);
         let newSection = new Section(sectionCreationInputField.value);
