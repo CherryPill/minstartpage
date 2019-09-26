@@ -50,6 +50,7 @@ const SETTINGS_VALUES = {
     SEARCH_BOX_ENABLED_BOOL: "searchBoxEnabledBool",
     CLOCK_ENABLED_BOOL: "clockEnabledBool",
     SEARCH_HISTORY_ENABLED_BOOL: "searchHistoryEnabledBool",
+    SEARCH_HISTORY_MAX_SIZE: "searchHistoryMaxSize",
     CLOCK_SET_PATTERN_STR: "clockSetPatternStr",
     DEFAULT_SEARCH_ENGINE_INT: "defaultSearchEngineInt"
 };
@@ -398,9 +399,6 @@ function createSettingsContents(parent) {
     let settingsWindowNavBar = ControlBuilder.build({tag: "div", className: "tab"});
     let settingsWindowMainContent = ControlBuilder.build({tag: "div", id: "all_tabs"});
 
-    let settingsWindowControlButtonOK = ControlBuilder.build({tag: "button"});
-    let settingsWindowControlButtonCancel = ControlBuilder.build({tag: "button"});
-
     for (let tabHeader of utilStrings.settingsWindowTabNames) {
         let tabLink = ControlBuilder.build(
             {
@@ -469,6 +467,18 @@ function generateSettingsTabForms(tabType) {
                 function () {
                     saveSettings(SETTINGS_VALUES.SEARCH_HISTORY_ENABLED_BOOL, this.checked);
                 });
+            /*let historyMaxSizeBox = createFormRow(
+                "",
+                "Search history max size: ",
+                controlTypes.REGULAR_INPUT,
+                {
+                    id: "generalInput",
+                    type: "checkbox",
+                    name: "input",
+                }, "change",
+                function () {
+                    saveSettings(SETTINGS_VALUES.SEARCH_HISTORY_MAX_SIZE, this.value);
+                });*/
             let showHistoryMainDiv = showHistoryBox.mainDiv;
             let showHistoryInput = showHistoryBox.input;
             userSettings.searchHistoryEnabledBool ? showHistoryInput.checked = true : "";
@@ -909,7 +919,6 @@ function removeSearchHistory() {
 function updateSearchHistory() {
     removeSearchHistory();
     fetchSearchHistory();
-
 }
 
 function constructUrl() {
@@ -941,7 +950,6 @@ function getDaysAgoWithinMonth(dateCreated) {
     } else {
         return 2;
     }
-
 }
 
 function constructSearchHistoryTimeStamp(searchItem) {
@@ -968,6 +976,7 @@ function dismissModalWindow() {
     if (activeModalWindow != null) {
         state.toggleOverLay(false);
         state.modalWindowOpened = false;
+        state.errorRaised = false;
         document.body.removeChild(activeModalWindow[0]);
     }
 }
@@ -1013,9 +1022,15 @@ function createWindowControls(sectionId, sItem, tileId, windowOpenMode) {
             type: "text",
             name: "name",
             value: sItem.sectionItemNameShort,
-            placeholder: "short name"
+            placeholder: "short name (2 characters)",
+            maxlength: 2
         });
-
+    formRowShortName.input.addEventListener("input", function () {
+        let previewIcon = document.getElementById("iconPreviewDiv");
+        if (this.value.length === 2) {
+            previewIcon.innerHTML = this.value;
+        }
+    }, false);
     let addWindowContentWrapper = ControlBuilder.build({
         tag: "div",
         className: "wrap",
@@ -1026,7 +1041,7 @@ function createWindowControls(sectionId, sItem, tileId, windowOpenMode) {
     let iconPreviewSection = ControlBuilder.build({tag: "div", className: "iconPreviewSection"});
     let linkTilesSectionIconPreview = ControlBuilder.build({tag: "div", className: "linkTilesSection iconPreview"});
     let linkTilesSectionIconPreviewInnerDiv = ControlBuilder.build({tag: "div", className: "Preview"});
-    let fullTitleAnchor = ControlBuilder.build({tag: "a", attribs: {href: "https://vk.com/feed"}});
+    let fullTitleAnchor = ControlBuilder.build({tag: "a", attribs: {href: "#stub"}});
     let linkTileEditMode = ControlBuilder.build({
         tag: "div",
         innerHTML: windowOpenMode === settingsWindowModes.SET_WIN_EDIT
@@ -1142,6 +1157,7 @@ function createWindowControls(sectionId, sItem, tileId, windowOpenMode) {
         / 2 + "px";
     ;
     tempSectionStore.currentSectionId = sectionId;
+
     autocomplete(document.getElementById("formInputFieldName"), webAppSuggestions);
     state.modalWindowOpened = true;
 }
@@ -1197,6 +1213,7 @@ function getFormData(tileId) {
         throwError(allCurrentFormErrors);
         state.errorRaised = true;
     } else {
+        fieldUrl = fieldUrl.prependHttpPart();
         let fieldNameShort = document.getElementById("iconPreviewDiv").innerHTML;
         let fieldColorBg = document.getElementById("formInputFieldColorBg").value;
         let fieldColorFg = document.getElementById("formInputFieldColorFg").value;
@@ -1204,6 +1221,7 @@ function getFormData(tileId) {
         if (tileId == null)
             fieldUUID = UUIDGeneration.getUUID();
         state.errorRaised = false;
+        console.log(`bg: ${fieldColorBg} fg: ${fieldColorFg}`);
         return new SectionItem(fieldUrl, fieldName, fieldNameShort, fieldColorBg, fieldColorFg, fieldUUID);
     }
 }
@@ -1287,7 +1305,6 @@ function getOffset(el) {
 
 function alignAutocomplete(autocompleteElement) {
     let formInputFieldName = document.getElementById("formInputFieldName");
-    formInputFieldName = null;
     let formInputFieldNameOffsets = getOffset(formInputFieldName);
     if (formInputFieldNameOffsets === internalErrors.DOM_ELEMENT_NOT_FOUND) {
         throwError(internalErrors.DOM_ELEMENT_NOT_FOUND);
@@ -1325,7 +1342,7 @@ function throwError(errorText) {
                     state.errorRaised = false;
                     document.body.removeChild(document.getElementById("modalErrorWindow"));
                     !state.modalWindowOpened ? state.toggleOverLay(false) : null;
-                    },
+                },
                 capture: false,
             }
         });
@@ -1355,8 +1372,13 @@ function autocomplete(inp, arr) {
         var previewIconTextElement = document.getElementById("iconPreviewDiv");
         var formUrlFieldDisabled = document.getElementById("formInputFieldUrl");
         var formInputFieldName = document.getElementById("formInputFieldName");
-        if (formInputFieldName.value.length >= 2) {
-            previewIconTextElement.innerHTML = formInputFieldName.value.substr(0, 2);
+        let formInputFieldShortName = document.getElementById("formInputFieldShortName");
+        if (formInputFieldName.value.length >= 2 &&
+            formInputFieldShortName.value.length === 0) {
+            previewIconTextElement.innerHTML =
+                formInputFieldName.value.substr(0, 2);
+        } else {
+            //fill it here from short name
         }
         closeAllLists();
         var formInputFieldToAttachTo = document.getElementById("formInputFieldName");
@@ -1381,7 +1403,7 @@ function autocomplete(inp, arr) {
                 webAppText += webApp.substr(val.length);
                 webAppText += "<input type='hidden' value='" + webAppSuggestions[webApp][0] + "'>";
 
-                /*create a DIV element for each matching element:*/
+                /*create a div element for each matching element*/
                 b = ControlBuilder.build({
                     tag: "div",
                     id: "autoCompleteDiv",
@@ -1478,8 +1500,8 @@ function detectAndApplyColors(formFieldBg, formFieldFg, formFieldUrl, iconPrevie
             if (!webappDetected) {
                 if (link === formFieldUrl.value) {
                     webappDetected = true;
-                    iconPreviewDiv.style.backgroundColor = webAppColors[link][0];
-                    iconPreviewDiv.style.color = webAppColors[link][1];
+                    iconPreviewDiv.style.backgroundColor = formFieldBg.value = webAppColors[link][0];
+                    iconPreviewDiv.style.color = formFieldFg.value = webAppColors[link][1];
                 }
             } else {
                 break;
@@ -1679,4 +1701,12 @@ window.onclick = function (event) {
             }
         }
     }
+};
+
+String.prototype.prependHttpPart = function () {
+    let target = this.toString();
+    if (!~target.indexOf("https://") && !~target.indexOf("http://")) {
+        return "http://" + this.toString();
+    }
+    return this.toString();
 };
