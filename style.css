@@ -45,7 +45,6 @@ div.b {
 .wrap {
     padding: 0px;
     margin: 30px;
-
 }
 
 a {
@@ -644,4 +643,8 @@ div.modalWindowButton{
 div.modalWindowButton:hover{
     background-color: black;
     color: #fff;
+}
+
+.scrollable{
+    overflow-y: scroll;
 }

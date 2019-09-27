@@ -306,8 +306,17 @@ function toggleComponentVisibility(componentId, val) {
 
 function fetchSearchHistory() {
     if (userSearchHistory.searchList.length !== 0) {
+        let historyHtmlElementEnclosure = document.getElementById("searchHistoryEnclosure");
         let historyHtmlElement = document.getElementById("userSearchHistoryList");
         toggleComponentVisibility("searchHistory", true);
+        if(userSearchHistory.searchList.length > userSettings.searchHistoryMaxSize){
+            if(window.getComputedStyle(historyHtmlElement).maxHeight === "none"){
+                historyHtmlElementEnclosure.classList.add("scrollable");
+                let currHeight = window.getComputedStyle(historyHtmlElementEnclosure).height;
+                console.log(`current div height is ${currHeight}`);
+                historyHtmlElementEnclosure.style.maxHeight = currHeight;
+            }
+        }
         for (let searchItem of userSearchHistory.searchList) {
             let searchItemElement = ControlBuilder.build({
                 tag: "li",
@@ -467,22 +476,32 @@ function generateSettingsTabForms(tabType) {
                 function () {
                     saveSettings(SETTINGS_VALUES.SEARCH_HISTORY_ENABLED_BOOL, this.checked);
                 });
-            /*let historyMaxSizeBox = createFormRow(
+            let historyMaxSizeBox = createFormRow(
                 "",
                 "Search history max size: ",
                 controlTypes.REGULAR_INPUT,
                 {
                     id: "generalInput",
-                    type: "checkbox",
+                    type: "text",
                     name: "input",
-                }, "change",
-                function () {
-                    saveSettings(SETTINGS_VALUES.SEARCH_HISTORY_MAX_SIZE, this.value);
-                });*/
+                }, "input",
+                function (e) {
+                    if (this.value.match(/^[1-9]\d*$/) != null) {
+                        saveSettings(SETTINGS_VALUES.SEARCH_HISTORY_MAX_SIZE, this.value);
+                    }
+                });
+            historyMaxSizeBox.input.addEventListener("keypress", function (e) {
+                if (this.value.length > 1) {
+                    e.preventDefault();
+                }
+            }, false);
             let showHistoryMainDiv = showHistoryBox.mainDiv;
             let showHistoryInput = showHistoryBox.input;
             userSettings.searchHistoryEnabledBool ? showHistoryInput.checked = true : "";
+            let userMaxSize = userSettings.searchHistoryMaxSize;
+            userMaxSize > 0 ? historyMaxSizeBox.input.value = userMaxSize : null;
             actualTabContentWrapper.appendChild(showHistoryMainDiv);
+            actualTabContentWrapper.appendChild(historyMaxSizeBox.mainDiv);
             let formRowEnclosure = ControlBuilder.build({tag: "div", className: "form-row"});
 
             let defSearchEngineLabel = ControlBuilder.build({
@@ -572,7 +591,6 @@ function generateSettingsTabForms(tabType) {
     return actualTabContentWrapper;
 }
 
-
 function toggleComponentDisabled(id, val) {
     let targetElement = document.getElementById(id);
     console.log(id);
@@ -580,6 +598,7 @@ function toggleComponentDisabled(id, val) {
 }
 
 function saveSettings(setting, value) {
+    console.log(`Saving kv pair [${setting}: ${value}]`);
     userSettings[setting] = value;
     updateUI();
 }
@@ -600,7 +619,6 @@ function constructHelp(parent) {
     }
     parent.appendChild(table);
 }
-
 
 function fillMockUserData() {
     //mock user data
@@ -660,6 +678,7 @@ function fillMockUserData() {
     userSettings.defaultSearchEngineInt = 1;
     userSettings.searchBoxEnabledBool = true;
     userSettings.searchHistoryEnabledBool = true;
+    userSettings.searchHistoryMaxSize = 1;
     userSettings.clockPatternStr = "%A, %B %Y | %H:%M:%S";
 }
 
@@ -983,7 +1002,6 @@ function dismissModalWindow() {
 
 
 function createWindowControls(sectionId, sItem, tileId, windowOpenMode) {
-    console.log("open" + windowOpenMode)
     console.log(sItem);
     let tileEditWindow = ControlBuilder.build({
         tag: "div",
@@ -1221,7 +1239,6 @@ function getFormData(tileId) {
         if (tileId == null)
             fieldUUID = UUIDGeneration.getUUID();
         state.errorRaised = false;
-        console.log(`bg: ${fieldColorBg} fg: ${fieldColorFg}`);
         return new SectionItem(fieldUrl, fieldName, fieldNameShort, fieldColorBg, fieldColorFg, fieldUUID);
     }
 }
