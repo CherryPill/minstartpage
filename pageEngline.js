@@ -309,17 +309,11 @@ function fetchSearchHistory() {
         let historyHtmlElementEnclosure = document.getElementById("searchHistoryEnclosure");
         let historyHtmlElement = document.getElementById("userSearchHistoryList");
         toggleComponentVisibility("searchHistory", true);
-        if(userSearchHistory.searchList.length > userSettings.searchHistoryMaxSize){
-            if(window.getComputedStyle(historyHtmlElement).maxHeight === "none"){
-                historyHtmlElementEnclosure.classList.add("scrollable");
-                let currHeight = window.getComputedStyle(historyHtmlElementEnclosure).height;
-                console.log(`current div height is ${currHeight}`);
-                historyHtmlElementEnclosure.style.maxHeight = currHeight;
-            }
-        }
+
         for (let searchItem of userSearchHistory.searchList) {
             let searchItemElement = ControlBuilder.build({
                 tag: "li",
+                className: "searchHistoryItem",
                 attribs: {
                     id: searchItem.searchId
                 }
@@ -369,6 +363,14 @@ function fetchSearchHistory() {
             searchItemElementManagementEnclosure.appendChild(searchItemElementManagementRemIcon);
             searchItemElement.appendChild(searchItemElementManagementEnclosure);
             historyHtmlElement.appendChild(searchItemElement);
+        }
+        if (userSearchHistory.searchList.length === userSettings.searchHistoryMaxSize) {
+            if (window.getComputedStyle(historyHtmlElement).maxHeight === "none") {
+                historyHtmlElement.style.maxHeight = window.getComputedStyle(historyHtmlElement).height;
+            }
+        }
+        if (userSearchHistory.searchList.length > userSettings.searchHistoryMaxSize) {
+            historyHtmlElementEnclosure.classList.add("scrollable");
         }
     } else {
         toggleComponentVisibility("searchHistory", false);
@@ -678,7 +680,7 @@ function fillMockUserData() {
     userSettings.defaultSearchEngineInt = 1;
     userSettings.searchBoxEnabledBool = true;
     userSettings.searchHistoryEnabledBool = true;
-    userSettings.searchHistoryMaxSize = 1;
+    userSettings.searchHistoryMaxSize = 2;
     userSettings.clockPatternStr = "%A, %B %Y | %H:%M:%S";
 }
 
