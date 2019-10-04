@@ -10,12 +10,16 @@ var state = {
     editSectionOn: false,
     toggleOverLay: function (val) {
         this.overlayElement.style.visibility = val ? "visible" : "hidden";
-        this.modalOverlayOn = !this.modalOverlayOn;
     },
     toggleSectionAreaVisibility: function (val) {
         this.sectionAreaElement.style.display = val ? "block" : "none";
     },
+    modalWindowOpened: false,
     errorRaised: false,
+};
+
+const internalErrors = {
+    DOM_ELEMENT_NOT_FOUND: "DOM element wasn't found on the DOM tree",
 };
 
 const scriptStartModes = {
@@ -23,10 +27,16 @@ const scriptStartModes = {
     DEV: 0,
 };
 
+const constHelperStrings = {
+    EMPTY_STRING: "",
+    HTML_LINE_BREAK: "<br />",
+    PROG_LINE_BREAK: "\n"
+};
+
 const settingsWindowModes = {
     SET_WIN_ADD: "Add new tile",
     SET_WIN_EDIT: "Edit existing tile"
-}
+};
 
 const imageResources = {
     IMG_REM_ICON: "img/delete.png",
@@ -40,6 +50,7 @@ const SETTINGS_VALUES = {
     SEARCH_BOX_ENABLED_BOOL: "searchBoxEnabledBool",
     CLOCK_ENABLED_BOOL: "clockEnabledBool",
     SEARCH_HISTORY_ENABLED_BOOL: "searchHistoryEnabledBool",
+    SEARCH_HISTORY_MAX_SIZE: "searchHistoryMaxSize",
     CLOCK_SET_PATTERN_STR: "clockSetPatternStr",
     DEFAULT_SEARCH_ENGINE_INT: "defaultSearchEngineInt"
 };
@@ -81,6 +92,7 @@ const textResources = {
         ["%Z", "Timezone name or abbreviation", "UTC"]
     ]
 };
+
 
 var userData;
 
@@ -276,7 +288,6 @@ function setSearchLink(e, def) {
         :
         chosenLink = e.target;
     let l = document.querySelectorAll("div#searchOptionsDropDown a");
-    console.log(def);
     let html = document.getElementById("searchEngineChooseButton");
     html.innerHTML = chosenLink.innerHTML;
     let htmlElementFormLink = document.getElementById("searchForm");
@@ -295,11 +306,14 @@ function toggleComponentVisibility(componentId, val) {
 
 function fetchSearchHistory() {
     if (userSearchHistory.searchList.length !== 0) {
+        let historyHtmlElementEnclosure = document.getElementById("searchHistoryEnclosure");
         let historyHtmlElement = document.getElementById("userSearchHistoryList");
         toggleComponentVisibility("searchHistory", true);
+
         for (let searchItem of userSearchHistory.searchList) {
             let searchItemElement = ControlBuilder.build({
                 tag: "li",
+                className: "searchHistoryItem",
                 attribs: {
                     id: searchItem.searchId
                 }
@@ -342,6 +356,10 @@ function fetchSearchHistory() {
                         if (userSearchHistory.searchList.length === 0) {
                             toggleComponentVisibility("searchHistory", false)
                         }
+                        if(userSearchHistory.searchList.length <= userSettings.searchHistoryMaxSize){
+                            let l = document.getElementById("searchHistoryEnclosure");
+                            l.classList.remove("scrollable");
+                        }
                     },
                     capture: false
                 }
@@ -349,6 +367,14 @@ function fetchSearchHistory() {
             searchItemElementManagementEnclosure.appendChild(searchItemElementManagementRemIcon);
             searchItemElement.appendChild(searchItemElementManagementEnclosure);
             historyHtmlElement.appendChild(searchItemElement);
+        }
+        if (userSearchHistory.searchList.length === userSettings.searchHistoryMaxSize) {
+            if (window.getComputedStyle(historyHtmlElement).maxHeight === "none") {
+                historyHtmlElement.style.maxHeight = window.getComputedStyle(historyHtmlElement).height;
+            }
+        }
+        if (userSearchHistory.searchList.length > userSettings.searchHistoryMaxSize) {
+            historyHtmlElementEnclosure.classList.add("scrollable");
         }
     } else {
         toggleComponentVisibility("searchHistory", false);
@@ -387,9 +413,6 @@ function createSettingsContents(parent) {
     let settingsWindowTitle = ControlBuilder.build({tag: "div", innerHTML: "Settings", id: "modalWindowTitle"});
     let settingsWindowNavBar = ControlBuilder.build({tag: "div", className: "tab"});
     let settingsWindowMainContent = ControlBuilder.build({tag: "div", id: "all_tabs"});
-
-    let settingsWindowControlButtonOK = ControlBuilder.build({tag: "button"});
-    let settingsWindowControlButtonCancel = ControlBuilder.build({tag: "button"});
 
     for (let tabHeader of utilStrings.settingsWindowTabNames) {
         let tabLink = ControlBuilder.build(
@@ -459,10 +482,32 @@ function generateSettingsTabForms(tabType) {
                 function () {
                     saveSettings(SETTINGS_VALUES.SEARCH_HISTORY_ENABLED_BOOL, this.checked);
                 });
+            let historyMaxSizeBox = createFormRow(
+                "",
+                "Search history max size: ",
+                controlTypes.REGULAR_INPUT,
+                {
+                    id: "generalInput",
+                    type: "text",
+                    name: "input",
+                }, "input",
+                function (e) {
+                    if (this.value.match(/^[1-9]\d*$/) != null) {
+                        saveSettings(SETTINGS_VALUES.SEARCH_HISTORY_MAX_SIZE, this.value);
+                    }
+                });
+            historyMaxSizeBox.input.addEventListener("keypress", function (e) {
+                if (this.value.length > 1) {
+                    e.preventDefault();
+                }
+            }, false);
             let showHistoryMainDiv = showHistoryBox.mainDiv;
             let showHistoryInput = showHistoryBox.input;
             userSettings.searchHistoryEnabledBool ? showHistoryInput.checked = true : "";
+            let userMaxSize = userSettings.searchHistoryMaxSize;
+            userMaxSize > 0 ? historyMaxSizeBox.input.value = userMaxSize : null;
             actualTabContentWrapper.appendChild(showHistoryMainDiv);
+            actualTabContentWrapper.appendChild(historyMaxSizeBox.mainDiv);
             let formRowEnclosure = ControlBuilder.build({tag: "div", className: "form-row"});
 
             let defSearchEngineLabel = ControlBuilder.build({
@@ -552,7 +597,6 @@ function generateSettingsTabForms(tabType) {
     return actualTabContentWrapper;
 }
 
-
 function toggleComponentDisabled(id, val) {
     let targetElement = document.getElementById(id);
     console.log(id);
@@ -560,6 +604,7 @@ function toggleComponentDisabled(id, val) {
 }
 
 function saveSettings(setting, value) {
+    console.log(`Saving kv pair [${setting}: ${value}]`);
     userSettings[setting] = value;
     updateUI();
 }
@@ -580,7 +625,6 @@ function constructHelp(parent) {
     }
     parent.appendChild(table);
 }
-
 
 function fillMockUserData() {
     //mock user data
@@ -640,6 +684,7 @@ function fillMockUserData() {
     userSettings.defaultSearchEngineInt = 1;
     userSettings.searchBoxEnabledBool = true;
     userSettings.searchHistoryEnabledBool = true;
+    userSettings.searchHistoryMaxSize = 2;
     userSettings.clockPatternStr = "%A, %B %Y | %H:%M:%S";
 }
 
@@ -669,7 +714,6 @@ function updateUI() {
         }
     }
     if (userSettings !== null && userSettings !== undefined) {
-        console.log();
         toggleComponentVisibility("clock", userSettings.clockEnabledBool);
         toggleComponentVisibility("search", userSettings.searchBoxEnabledBool);
         console.log(userSettings.searchHistoryEnabledBool);
@@ -879,14 +923,16 @@ function addEventListeners() {
 function recordUserSearch() {
     state.userSearchedAnything = true;
     let userSearchText = document.getElementById("searchInputField").value;
-    userSearchHistory.searchList.push({
-        searchText: userSearchText,
-        searchUrl: constructUrl(),
-        searchTimestamp: constructTimestamp(),
-        searchId: UUIDGeneration.getUUID()
-    });
-    toggleComponentVisibility("searchHistory", true);
-    updateSearchHistory();
+    if (userSearchText !== constHelperStrings.EMPTY_STRING) {
+        userSearchHistory.searchList.push({
+            searchText: userSearchText,
+            searchUrl: constructUrl(),
+            searchTimestamp: constructTimestamp(),
+            searchId: UUIDGeneration.getUUID()
+        });
+        toggleComponentVisibility("searchHistory", true);
+        updateSearchHistory();
+    }
 }
 
 function removeSearchHistory() {
@@ -898,7 +944,6 @@ function removeSearchHistory() {
 function updateSearchHistory() {
     removeSearchHistory();
     fetchSearchHistory();
-
 }
 
 function constructUrl() {
@@ -930,7 +975,6 @@ function getDaysAgoWithinMonth(dateCreated) {
     } else {
         return 2;
     }
-
 }
 
 function constructSearchHistoryTimeStamp(searchItem) {
@@ -956,12 +1000,14 @@ function dismissModalWindow() {
     let activeModalWindow = document.getElementsByClassName("modalWindow");
     if (activeModalWindow != null) {
         state.toggleOverLay(false);
+        state.modalWindowOpened = false;
+        state.errorRaised = false;
         document.body.removeChild(activeModalWindow[0]);
     }
 }
 
+
 function createWindowControls(sectionId, sItem, tileId, windowOpenMode) {
-    console.log("open" + windowOpenMode)
     console.log(sItem);
     let tileEditWindow = ControlBuilder.build({
         tag: "div",
@@ -1000,9 +1046,15 @@ function createWindowControls(sectionId, sItem, tileId, windowOpenMode) {
             type: "text",
             name: "name",
             value: sItem.sectionItemNameShort,
-            placeholder: "short name"
+            placeholder: "short name (2 characters)",
+            maxlength: 2
         });
-
+    formRowShortName.input.addEventListener("input", function () {
+        let previewIcon = document.getElementById("iconPreviewDiv");
+        if (this.value.length === 2) {
+            previewIcon.innerHTML = this.value;
+        }
+    }, false);
     let addWindowContentWrapper = ControlBuilder.build({
         tag: "div",
         className: "wrap",
@@ -1013,7 +1065,7 @@ function createWindowControls(sectionId, sItem, tileId, windowOpenMode) {
     let iconPreviewSection = ControlBuilder.build({tag: "div", className: "iconPreviewSection"});
     let linkTilesSectionIconPreview = ControlBuilder.build({tag: "div", className: "linkTilesSection iconPreview"});
     let linkTilesSectionIconPreviewInnerDiv = ControlBuilder.build({tag: "div", className: "Preview"});
-    let fullTitleAnchor = ControlBuilder.build({tag: "a", attribs: {href: "https://vk.com/feed"}});
+    let fullTitleAnchor = ControlBuilder.build({tag: "a", attribs: {href: "#stub"}});
     let linkTileEditMode = ControlBuilder.build({
         tag: "div",
         innerHTML: windowOpenMode === settingsWindowModes.SET_WIN_EDIT
@@ -1129,7 +1181,9 @@ function createWindowControls(sectionId, sItem, tileId, windowOpenMode) {
         / 2 + "px";
     ;
     tempSectionStore.currentSectionId = sectionId;
+
     autocomplete(document.getElementById("formInputFieldName"), webAppSuggestions);
+    state.modalWindowOpened = true;
 }
 
 function generateAddEditTileWindow(sectionId, tileId) {
@@ -1180,9 +1234,10 @@ function getFormData(tileId) {
     let foundFieldNameErrors = validate(fieldUrl, "Tile name");
     let allCurrentFormErrors = foundFieldUrlErrors.concat(foundFieldNameErrors);
     if (allCurrentFormErrors.length > 0) {
-        alert(formErrorString(allCurrentFormErrors));
+        throwError(allCurrentFormErrors);
         state.errorRaised = true;
     } else {
+        fieldUrl = fieldUrl.prependHttpPart();
         let fieldNameShort = document.getElementById("iconPreviewDiv").innerHTML;
         let fieldColorBg = document.getElementById("formInputFieldColorBg").value;
         let fieldColorFg = document.getElementById("formInputFieldColorFg").value;
@@ -1260,19 +1315,76 @@ function editTile(tileId) {
 }
 
 function getOffset(el) {
-    const rect = el.getBoundingClientRect();
-    return {
-        left: rect.left + window.scrollX,
-        top: rect.top + window.scrollY
-    };
+    if (el === null) {
+        return internalErrors.DOM_ELEMENT_NOT_FOUND;
+    } else {
+        const rect = el.getBoundingClientRect();
+        return {
+            left: rect.left + window.scrollX,
+            top: rect.top + window.scrollY
+        };
+    }
 }
 
 function alignAutocomplete(autocompleteElement) {
     let formInputFieldName = document.getElementById("formInputFieldName");
     let formInputFieldNameOffsets = getOffset(formInputFieldName);
+    if (formInputFieldNameOffsets === internalErrors.DOM_ELEMENT_NOT_FOUND) {
+        throwError(internalErrors.DOM_ELEMENT_NOT_FOUND);
+    }
     autocompleteElement.style.left = formInputFieldNameOffsets.left + "px";
     autocompleteElement.style.top = formInputFieldNameOffsets.top + 30 + "px";
     return autocompleteElement;
+}
+
+function throwError(errorText) {
+    if (state.errorRaised === false) {
+        state.errorRaised = true;
+        let mainWindow = ControlBuilder.build({
+            tag: "div",
+            className: "tileEditWindow modalWindow",
+            id: "modalErrorWindow",
+        });
+        let header = ControlBuilder.build({
+            tag: "div",
+            innerHTML: "&#9888; Error occurred",
+            id: "modalWindowTitle"
+        });
+        let errorMessageBlock = ControlBuilder.build({
+            tag: "div",
+            className: "wrap",
+            innerHTML: errorText.join("<br />"),
+        });
+        let errorOkButton = ControlBuilder.build({
+            tag: "div",
+            className: "modalWindowButton",
+            innerHTML: "OK",
+            event: {
+                name: "click",
+                handler: function (e) {
+                    state.errorRaised = false;
+                    document.body.removeChild(document.getElementById("modalErrorWindow"));
+                    !state.modalWindowOpened ? state.toggleOverLay(false) : null;
+                },
+                capture: false,
+            }
+        });
+        errorMessageBlock.appendChild(errorOkButton);
+        chainAppend(mainWindow, [header, errorMessageBlock]);
+        document.body.appendChild(mainWindow);
+        state.toggleOverLay(true);
+        state.overlayElement.style.zIndex = "0";
+        mainWindow.style.zIndex = "5";
+        mainWindow.style.top =
+            _sysVars.getViewPortHeight() / 2 -
+            mainWindow.getBoundingClientRect().height
+            / 2 + "px";
+        ;
+        mainWindow.style.left = _sysVars.getViewPortWidth() / 2 -
+            mainWindow.getBoundingClientRect().width
+            / 2 + "px";
+        ;
+    }
 }
 
 function autocomplete(inp, arr) {
@@ -1283,8 +1395,13 @@ function autocomplete(inp, arr) {
         var previewIconTextElement = document.getElementById("iconPreviewDiv");
         var formUrlFieldDisabled = document.getElementById("formInputFieldUrl");
         var formInputFieldName = document.getElementById("formInputFieldName");
-        if (formInputFieldName.value.length >= 2) {
-            previewIconTextElement.innerHTML = formInputFieldName.value.substr(0, 2);
+        let formInputFieldShortName = document.getElementById("formInputFieldShortName");
+        if (formInputFieldName.value.length >= 2 &&
+            formInputFieldShortName.value.length === 0) {
+            previewIconTextElement.innerHTML =
+                formInputFieldName.value.substr(0, 2);
+        } else {
+            //fill it here from short name
         }
         closeAllLists();
         var formInputFieldToAttachTo = document.getElementById("formInputFieldName");
@@ -1309,7 +1426,7 @@ function autocomplete(inp, arr) {
                 webAppText += webApp.substr(val.length);
                 webAppText += "<input type='hidden' value='" + webAppSuggestions[webApp][0] + "'>";
 
-                /*create a DIV element for each matching element:*/
+                /*create a div element for each matching element*/
                 b = ControlBuilder.build({
                     tag: "div",
                     id: "autoCompleteDiv",
@@ -1406,8 +1523,8 @@ function detectAndApplyColors(formFieldBg, formFieldFg, formFieldUrl, iconPrevie
             if (!webappDetected) {
                 if (link === formFieldUrl.value) {
                     webappDetected = true;
-                    iconPreviewDiv.style.backgroundColor = webAppColors[link][0];
-                    iconPreviewDiv.style.color = webAppColors[link][1];
+                    iconPreviewDiv.style.backgroundColor = formFieldBg.value = webAppColors[link][0];
+                    iconPreviewDiv.style.color = formFieldFg.value = webAppColors[link][1];
                 }
             } else {
                 break;
@@ -1474,7 +1591,7 @@ function addNewSection() {
     let sectionCreationInputField = document.getElementById("newSectionName");
     let foundErrors = validate(sectionCreationInputField.value, "Section name");
     if (foundErrors.length > 0) {
-        alert(formErrorString(foundErrors));
+        throwError(foundErrors);
     } else {
         state.toggleSectionAreaVisibility(true);
         let newSection = new Section(sectionCreationInputField.value);
@@ -1607,4 +1724,12 @@ window.onclick = function (event) {
             }
         }
     }
+};
+
+String.prototype.prependHttpPart = function () {
+    let target = this.toString();
+    if (!~target.indexOf("https://") && !~target.indexOf("http://")) {
+        return "http://" + this.toString();
+    }
+    return this.toString();
 };
