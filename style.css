@@ -587,11 +587,15 @@ span.historyManagementRem:hover img {
     visibility: visible;
 }
 
-div#searchHistoryEnclosure h4 {
-    margin: 0px;
+div#searchHistory h4 {
     color: #A0A1A7;
     font-family: Helvetica;
     font-size: .9em;
+    margin-bottom: 10px;
+}
+
+div#searchHistoryEnclosure{
+    margin-top: 0px;
 }
 
 ul#userSearchHistoryList {

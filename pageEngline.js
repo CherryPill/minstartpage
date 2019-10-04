@@ -356,6 +356,10 @@ function fetchSearchHistory() {
                         if (userSearchHistory.searchList.length === 0) {
                             toggleComponentVisibility("searchHistory", false)
                         }
+                        if(userSearchHistory.searchList.length <= userSettings.searchHistoryMaxSize){
+                            let l = document.getElementById("searchHistoryEnclosure");
+                            l.classList.remove("scrollable");
+                        }
                     },
                     capture: false
                 }
