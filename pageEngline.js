@@ -356,7 +356,7 @@ function fetchSearchHistory() {
                         if (userSearchHistory.searchList.length === 0) {
                             toggleComponentVisibility("searchHistory", false)
                         }
-                        if(userSearchHistory.searchList.length <= userSettings.searchHistoryMaxSize){
+                        if (userSearchHistory.searchList.length <= userSettings.searchHistoryMaxSize) {
                             let l = document.getElementById("searchHistoryEnclosure");
                             l.classList.remove("scrollable");
                         }
@@ -1092,7 +1092,8 @@ function createWindowControls(sectionId, sItem, tileId, windowOpenMode) {
             class: "colorPickerInput"
         },
         "input",
-        () => {
+        function () {
+            console.log(this);
             linkTileEditMode.style.backgroundColor = this.value;
         });
 
@@ -1106,7 +1107,7 @@ function createWindowControls(sectionId, sItem, tileId, windowOpenMode) {
             class: "colorPickerInput"
         },
         "input",
-        () => {
+        function () {
             linkTileEditMode.style.color = this.value;
         });
     let formRowColorAutoDetect = createFormRow("",
