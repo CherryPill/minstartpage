@@ -594,7 +594,7 @@ div#searchHistory h4 {
     margin-bottom: 10px;
 }
 
-div#searchHistoryEnclosure{
+div#searchHistoryEnclosure {
     margin-top: 0px;
 }
 
@@ -635,7 +635,7 @@ button.tabLinks {
     transition: all .5s ease;
 }
 
-div.modalWindowButton{
+div.modalWindowButton {
     padding: 10px;
     cursor: default;
     border: 1px solid #ccc;
@@ -644,11 +644,11 @@ div.modalWindowButton{
     margin-top: 16px;
 }
 
-div.modalWindowButton:hover{
+div.modalWindowButton:hover {
     background-color: black;
     color: #fff;
 }
 
-.scrollable{
+.scrollable {
     overflow-y: scroll;
 }
