@@ -1,0 +1,9 @@
+{
+  "name": "Minstartpage",
+  "version": "1.0",
+  "description": "Lightweight and customizable startpage",
+  "manifest_version": 2,
+  "chrome_url_overrides": {
+    "newtab": "startpage.html"
+  }
+}

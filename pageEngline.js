@@ -1,3 +1,7 @@
+window.addEventListener("DOMContentLoaded", function () {
+    initStartPage(0);
+}, false);
+
 var state = {
     userSearchedAnything: false,
     settingsWindowOpen: false,
@@ -240,7 +244,7 @@ var ValidationError = {
 };
 
 function validate(inputFieldValue, inputFieldName) {
-    console.log("Currently checking: "+inputFieldValue);
+    console.log("Currently checking: " + inputFieldValue);
     let allErrors = [];
     if (inputFieldValue === "") {
         allErrors.push(ValidationError.formError(ValidationError.EmptyString,
