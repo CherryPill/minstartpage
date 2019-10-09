@@ -240,6 +240,7 @@ var ValidationError = {
 };
 
 function validate(inputFieldValue, inputFieldName) {
+    console.log("Currently checking: "+inputFieldValue);
     let allErrors = [];
     if (inputFieldValue === "") {
         allErrors.push(ValidationError.formError(ValidationError.EmptyString,
@@ -1232,7 +1233,7 @@ function getFormData(tileId) {
     let fieldUrl = document.getElementById("formInputFieldUrl").value;
     let fieldName = document.getElementById("formInputFieldName").value;
     let foundFieldUrlErrors = validate(fieldUrl, "URL");
-    let foundFieldNameErrors = validate(fieldUrl, "Tile name");
+    let foundFieldNameErrors = validate(fieldName, "Tile name");
     let allCurrentFormErrors = foundFieldUrlErrors.concat(foundFieldNameErrors);
     if (allCurrentFormErrors.length > 0) {
         throwError(allCurrentFormErrors);
