@@ -97,6 +97,10 @@ const textResources = {
     ]
 };
 
+const windowTypes = {
+    MODAL: 0,
+    REGULAR: 1,
+};
 
 var userData;
 
@@ -407,7 +411,10 @@ function initStartPage(mode) {
 
 function openSettingsMenu() {
     let parent = document.getElementById("docBody");
-    let settingsWindow = ControlBuilder.build({tag: "div", id: "settingsWindow", className: "modalWindow"});
+    let settingsWindow = WindowBuilder.buildBasicWindow(
+        windowTypes.MODAL,
+        "Settings",
+        "settingsWindow");
     createSettingsContents(settingsWindow);
     parent.appendChild(settingsWindow);
     state.toggleOverLay(true);
@@ -415,7 +422,6 @@ function openSettingsMenu() {
 }
 
 function createSettingsContents(parent) {
-    let settingsWindowTitle = ControlBuilder.build({tag: "div", innerHTML: "Settings", id: "modalWindowTitle"});
     let settingsWindowNavBar = ControlBuilder.build({tag: "div", className: "tab"});
     let settingsWindowMainContent = ControlBuilder.build({tag: "div", id: "all_tabs"});
 
@@ -448,7 +454,7 @@ function createSettingsContents(parent) {
         actualTabContent.appendChild(generatedTabContent);
         settingsWindowMainContent.appendChild(actualTabContent);
     }
-    chainAppend(parent, [settingsWindowTitle, settingsWindowNavBar, settingsWindowMainContent])
+    chainAppend(parent, [settingsWindowNavBar, settingsWindowMainContent])
 }
 
 function generateSettingsTabForms(tabType) {
@@ -1018,15 +1024,11 @@ function dismissModalWindow() {
 
 function createWindowControls(sectionId, sItem, tileId, windowOpenMode) {
     console.log(sItem);
-    let tileEditWindow = ControlBuilder.build({
-        tag: "div",
-        className: "tileEditWindow modalWindow"
-    });
-    let header = ControlBuilder.build({
-        tag: "div",
-        innerHTML: windowOpenMode,
-        id: "modalWindowTitle"
-    });
+    let tileEditWindow = WindowBuilder.buildBasicWindow(
+        windowTypes.MODAL,
+        windowOpenMode,
+        null,
+        "tileEditWindow modalWindow");
     let formRowsEnclosure = ControlBuilder.build({tag: "div", id: "formRowsEnclosure"});
     let formRowUrl = createFormRow("", "",
         controlTypes.REGULAR_INPUT,
@@ -1067,6 +1069,7 @@ function createWindowControls(sectionId, sItem, tileId, windowOpenMode) {
     let addWindowContentWrapper = ControlBuilder.build({
         tag: "div",
         className: "wrap",
+        id: "windowContentWrapper",
         attribs: {
             style: "display: flex; flex-direction: row;"
         }
@@ -1169,7 +1172,6 @@ function createWindowControls(sectionId, sItem, tileId, windowOpenMode) {
     chainAppend(colorPickerSection, [colorAutodetect, formColorPickerBg.mainDiv, formColorPickerFg.mainDiv]);
     chainAppend(iconPreviewSection, [linkTilesSectionIconPreview, colorPickerSection]);
     chainAppend(actionButtonsDiv, [actionButtonOk, actionButtonCancel]);
-    tileEditWindow.appendChild(header);
     chainAppend(formRowsEnclosure, [formRowName.mainDiv,
         formRowUrl.mainDiv,
         formRowShortName.mainDiv,
@@ -1682,6 +1684,42 @@ function createFormRow(labelClassName,
         input: formInput
     };
 }
+
+var WindowBuilder = {
+    buildBasicWindow: function (windowType, title, id, className) {
+        if (windowType === windowTypes.MODAL) {
+            let windowCarcass = ControlBuilder.build({
+                tag: "div",
+                id: id,
+                className: className ? className : "modalWindow"
+            });
+            let windowHeaderWrapper = ControlBuilder.build({
+                tag: "div",
+                id: "windowHeaderWrapper"
+            });
+            let windowTitle = ControlBuilder.build({
+                tag: "div",
+                innerHTML: title,
+                id: "modalWindowTitle"
+            });
+            let windowCloseButton = ControlBuilder.build({
+                tag: "div",
+                id: "modalWindowCloseButton",
+                innerHTML: "&#x2715;",
+                event: {
+                    name: "click",
+                    handler: function () {
+                        dismissModalWindow();
+                    },
+                    capture: false
+                }
+            });
+            chainAppend(windowHeaderWrapper, [windowTitle, windowCloseButton]);
+            windowCarcass.appendChild(windowHeaderWrapper);
+            return windowCarcass;
+        }
+    }
+};
 
 var ControlBuilder = {
     build: function (control) {

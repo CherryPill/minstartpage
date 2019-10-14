@@ -164,12 +164,30 @@ div#settingsWindow {
 }
 
 div#modalWindowTitle {
+    display: inline-block;
     font-size: 1.9em;
     color: darkgrey;
     text-align: left;
     padding: 20px;
     margin: 0px;
+}
+
+div#modalWindowCloseButton {
+    display: inline-block;
+    font-size: 1.9em;
+    float: right;
+    margin-right: 20px;
+    margin-top: 16px;
+}
+
+div#modalWindowCloseButton:hover {
+    cursor: pointer;
+}
+
+div#windowHeaderWrapper{
     border-bottom: 1px solid #ccc;
+    padding: 0px;
+    margin: 0px;
 }
 
 div.linkTilesSection {
@@ -281,9 +299,6 @@ div.tileEditWindow {
     background-color: #fff;
 }
 
-div.tileEditWindow div {
-    text-align: center;
-}
 
 
 div.tileEditWindow label {
