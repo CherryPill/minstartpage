@@ -248,7 +248,6 @@ var ValidationError = {
 };
 
 function validate(inputFieldValue, inputFieldName) {
-    console.log("Currently checking: " + inputFieldValue);
     let allErrors = [];
     if (inputFieldValue === "") {
         allErrors.push(ValidationError.formError(ValidationError.EmptyString,
@@ -1253,9 +1252,12 @@ function getFormData(tileId) {
         let fieldNameShort = document.getElementById("iconPreviewDiv").innerHTML;
         let fieldColorBg = document.getElementById("formInputFieldColorBg").value;
         let fieldColorFg = document.getElementById("formInputFieldColorFg").value;
-        let fieldUUID = null;
-        if (tileId == null)
+        let fieldUUID;
+        if (tileId == null) {
             fieldUUID = UUIDGeneration.getUUID();
+        } else {
+            fieldUUID = document.getElementById(tileId).id;
+        }
         state.errorRaised = false;
         return new SectionItem(fieldUrl, fieldName, fieldNameShort, fieldColorBg, fieldColorFg, fieldUUID);
     }
