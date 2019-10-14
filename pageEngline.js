@@ -876,6 +876,10 @@ function addEventListenersDynamic() {
 }
 
 function addEventListeners() {
+    document.getElementById("searchEngineChooseButton")
+        .addEventListener("click", activateDropDown);
+    document.getElementById("settingsMenu")
+        .addEventListener("click", openSettingsMenu);
     //global even listener for contextmenu and section editing input
     document.body.addEventListener("click", function (e) {
         let a = document.getElementsByClassName("contextMenu");
