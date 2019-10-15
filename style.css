@@ -184,7 +184,7 @@ div#modalWindowCloseButton:hover {
     cursor: pointer;
 }
 
-div#windowHeaderWrapper{
+div#windowHeaderWrapper {
     border-bottom: 1px solid #ccc;
     padding: 0px;
     margin: 0px;
@@ -298,7 +298,6 @@ div.tileEditWindow {
     margin: 0 auto;
     background-color: #fff;
 }
-
 
 
 div.tileEditWindow label {
@@ -667,4 +666,8 @@ div.modalWindowButton:hover {
 
 .scrollable {
     overflow-y: scroll;
+}
+
+div.dialog {
+    text-align: center;
 }

@@ -1354,19 +1354,12 @@ function alignAutocomplete(autocompleteElement) {
 function throwError(errorText) {
     if (state.errorRaised === false) {
         state.errorRaised = true;
-        let mainWindow = ControlBuilder.build({
-            tag: "div",
-            className: "tileEditWindow modalWindow",
-            id: "modalErrorWindow",
-        });
-        let header = ControlBuilder.build({
-            tag: "div",
-            innerHTML: "&#9888; Error occurred",
-            id: "modalWindowTitle"
-        });
+        let mainWindow = WindowBuilder.buildBasicWindow(
+            windowTypes.MODAL, "&#9888; Error occurred",
+            "modalErrorWindow", "tileEditWindow modalWindow");
         let errorMessageBlock = ControlBuilder.build({
             tag: "div",
-            className: "wrap",
+            className: "wrap dialog",
             innerHTML: errorText.join("<br />"),
         });
         let errorOkButton = ControlBuilder.build({
@@ -1384,7 +1377,7 @@ function throwError(errorText) {
             }
         });
         errorMessageBlock.appendChild(errorOkButton);
-        chainAppend(mainWindow, [header, errorMessageBlock]);
+        mainWindow.appendChild(errorMessageBlock);
         document.body.appendChild(mainWindow);
         state.toggleOverLay(true);
         state.overlayElement.style.zIndex = "0";
