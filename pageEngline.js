@@ -1,5 +1,5 @@
 window.addEventListener("DOMContentLoaded", function () {
-    initStartPage(0);
+    initStartPage(scriptStartModes.PROD);
 }, false);
 
 var state = {
@@ -699,12 +699,27 @@ function fillMockUserData() {
 }
 
 function fillLocalStorageUserData() {
-    let res = JSON.parse(localStorage.getItem("savedUserData"));
-    if (res != null) {
-        userData = res;
+    let savedUserData = JSON.parse(localStorage.getItem("savedUserData"));
+    if (savedUserData != null) {
+        userData = savedUserData;
     } else {
         userData = new UserData();
     }
+    let savedUserSettings = JSON.parse(localStorage.getItem("savedUserSettings"));
+    if (savedUserSettings != null) {
+        userSettings = savedUserSettings;
+    } else {
+        loadDefaultUserSettings();
+    }
+}
+
+function loadDefaultUserSettings() {
+    userSettings.clockEnabledBool = true;
+    userSettings.defaultSearchEngineInt = 1;
+    userSettings.searchBoxEnabledBool = true;
+    userSettings.searchHistoryEnabledBool = true;
+    userSettings.searchHistoryMaxSize = 2;
+    userSettings.clockPatternStr = "%A, %B %Y | %H:%M:%S";
 }
 
 function removeSections() {
