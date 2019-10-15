@@ -900,9 +900,23 @@ function addEventListenersDynamic() {
 }
 
 function addEventListeners() {
+
+    let settingsOverlay = document.getElementById("settingsPaneOverlay");
+    settingsOverlay.addEventListener("mouseover",
+        function () {
+            let settingsCogWheel = document
+                .getElementsByClassName("settingsPane")[0];
+            settingsCogWheel.style.left = "380px";
+        });
+    settingsOverlay.addEventListener("mouseout",
+        function () {
+            let settingsCogWheel = document
+                .getElementsByClassName("settingsPane")[0];
+            settingsCogWheel.style.left = "400px";
+        });
     document.getElementById("searchEngineChooseButton")
         .addEventListener("click", activateDropDown);
-    document.getElementById("settingsMenu")
+    document.getElementById("settingsPaneOverlay")
         .addEventListener("click", openSettingsMenu);
     //global even listener for contextmenu and section editing input
     document.body.addEventListener("click", function (e) {

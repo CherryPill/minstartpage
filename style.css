@@ -31,6 +31,8 @@ input {
     border: 1px solid #ccc;
     margin: auto auto;
     margin-top: 5px;
+    background-color: white;
+    z-index: 2;
 
 }
 
@@ -45,6 +47,7 @@ div.b {
 .wrap {
     padding: 0px;
     margin: 30px;
+    background-color: white;
 }
 
 a {
@@ -139,12 +142,30 @@ div.sectionHeaderManagementEnclosure:hover div.sectionHeaderManagement {
 
 }
 
-.settingsPane {
-    top: 150px;
-    left: 10px;
+div#settingsPaneOverlay{
+    top: 100px;
+    left: 400px;
     position: fixed;
-    width: 64px;
+    z-index: 3;
+    opacity: .5;
+    width: 128px;
+    height: 128px;
+    cursor: pointer;
+}
 
+.settingsPane {
+    top: 100px;
+    left: 400px;
+    position: fixed;
+    z-index: -1;
+
+}
+
+.settingsPane img{
+    width: 128px;
+    height: 128px;
+    opacity: .2;
+    z-index: 0;
 }
 
 #searchOptions {
