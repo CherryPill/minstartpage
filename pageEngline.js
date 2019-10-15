@@ -580,6 +580,10 @@ function generateSettingsTabForms(tabType) {
                         userSettings.clockPatternStr = clockDateFormat.input.value;
                         _state.patternLoaded = false;
                         _state.currentPattern = userSettings.clockPatternStr;
+                        let dateFormatInput = document
+                            .querySelector("div#dateFormatComponent > input.form-row-input");
+                        console.log(dateFormatInput.value);
+                        saveSettings(SETTINGS_VALUES.CLOCK_SET_PATTERN_STR, dateFormatInput.value);
                     },
                     capture: false
                 }
@@ -937,6 +941,7 @@ function addEventListeners() {
     });
     window.onunload = window.onbeforeunload = () => {
         localStorage.setItem("savedUserData", JSON.stringify(userData));
+        localStorage.setItem("savedUserSettings", JSON.stringify(userSettings));
     };
     document.body.addEventListener("click", () => state.contextMenuOpen = false, false);
     document.getElementById("initSearchButton")
