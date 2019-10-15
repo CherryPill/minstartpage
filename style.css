@@ -158,7 +158,7 @@ div#settingsPaneOverlay{
     left: 400px;
     position: fixed;
     z-index: -1;
-
+    transition: all .5s ease;
 }
 
 .settingsPane img{
