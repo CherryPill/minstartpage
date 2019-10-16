@@ -143,12 +143,12 @@ div.sectionHeaderManagementEnclosure:hover div.sectionHeaderManagement {
 }
 
 div#settingsPaneOverlay {
-    top: 0;
+    top: 25px;
     left: -50px;
     position: relative;
     z-index: 3;
     opacity: .5;
-    width: 128px;
+    width: 50px;
     height: 128px;
     cursor: pointer;
     margin: 0px !important;
@@ -213,6 +213,8 @@ div#modalWindowCloseButton {
 
 div#modalWindowCloseButton:hover {
     cursor: pointer;
+    transition: all .2s ease;
+    transform: scale(1.3);
 }
 
 div#windowHeaderWrapper {
@@ -705,4 +707,7 @@ div.dialog {
 
 div.addNewSection, div.addNew {
     font-weight: normal;
+}
+div#search{
+    height: 180px;
 }
