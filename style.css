@@ -33,7 +33,6 @@ input {
     margin-top: 5px;
     background-color: white;
     z-index: 2;
-
 }
 
 div.b {
@@ -48,6 +47,7 @@ div.b {
     padding: 0px;
     margin: 30px;
     background-color: white;
+    display: inline-block;
 }
 
 a {
@@ -142,26 +142,36 @@ div.sectionHeaderManagementEnclosure:hover div.sectionHeaderManagement {
 
 }
 
-div#settingsPaneOverlay{
-    top: 100px;
-    left: 400px;
-    position: fixed;
+div#settingsPaneOverlay {
+    top: 0;
+    left: -50px;
+    position: relative;
     z-index: 3;
     opacity: .5;
     width: 128px;
     height: 128px;
     cursor: pointer;
+    margin: 0px !important;
+
+}
+
+div#searchWrapBlock {
+    position: relative;
+    top: -130px;
+    left: -135px;
 }
 
 .settingsPane {
-    top: 100px;
-    left: 400px;
-    position: fixed;
-    z-index: -1;
+    display: inline-block;
+    top: -100px;
+    left: -50px;
+    position: relative;
+    z-index: -2;
     transition: all .5s ease;
+    margin: 0;
 }
 
-.settingsPane img{
+.settingsPane img {
     width: 128px;
     height: 128px;
     opacity: .2;

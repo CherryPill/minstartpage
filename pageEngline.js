@@ -906,13 +906,13 @@ function addEventListeners() {
         function () {
             let settingsCogWheel = document
                 .getElementsByClassName("settingsPane")[0];
-            settingsCogWheel.style.left = "380px";
+            settingsCogWheel.style.left = "-70px";
         });
     settingsOverlay.addEventListener("mouseout",
         function () {
             let settingsCogWheel = document
                 .getElementsByClassName("settingsPane")[0];
-            settingsCogWheel.style.left = "400px";
+            settingsCogWheel.style.left = "-50px";
         });
     document.getElementById("searchEngineChooseButton")
         .addEventListener("click", activateDropDown);
