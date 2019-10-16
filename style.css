@@ -47,7 +47,6 @@ div.b {
     padding: 0px;
     margin: 30px;
     background-color: white;
-    display: inline-block;
 }
 
 a {
@@ -159,6 +158,7 @@ div#searchWrapBlock {
     position: relative;
     top: -130px;
     left: -135px;
+    display: inline-block;
 }
 
 .settingsPane {

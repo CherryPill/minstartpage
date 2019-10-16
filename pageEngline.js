@@ -1636,6 +1636,7 @@ function addNewSection() {
     } else {
         state.toggleSectionAreaVisibility(true);
         let newSection = new Section(sectionCreationInputField.value);
+        sectionCreationInputField.value = "";
         createSection(newSection);
         userData.sections.push(newSection);
         addEventListenersDynamic();
