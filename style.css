@@ -708,6 +708,7 @@ div.dialog {
 div.addNewSection, div.addNew {
     font-weight: normal;
 }
-div#search{
+
+div#search {
     height: 180px;
 }

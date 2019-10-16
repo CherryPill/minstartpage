@@ -819,10 +819,12 @@ function createSection(sectionItemObj) {
         });
         let linkTileAnchorInnerDiv = ControlBuilder.build({
                 tag: "div",
-                className: "linkTile", innerHTML: sectionItem.sectionItemNameShort,
+                className: "linkTile",
+                innerHTML: sectionItem.sectionItemNameShort,
                 id: sectionItem.sectionItemId,
                 attribs: {
-                    sectionId: sectionItemObj.sectionId
+                    sectionId: sectionItemObj.sectionId,
+                    title: `Open ${sectionItem.sectionItemName} [${sectionItem.sectionItemUrl}]`,
                 }
             },
         );
@@ -840,9 +842,11 @@ function createSection(sectionItemObj) {
     });
     let linkTileAnchorAddNewInnerDiv = ControlBuilder.build({
         tag: "div",
-        className: "linkTile addNew", id: null,
+        className: "linkTile addNew",
+        id: null,
         attribs: {
-            sectionId: sectionItemObj.sectionId
+            sectionId: sectionItemObj.sectionId,
+            title: "Add new tile",
         }
     });
     linkTileAnchorAddNewInnerDiv.style.color = "black";
