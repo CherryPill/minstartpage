@@ -6,15 +6,22 @@
     <link rel="shortcut icon" type="image/x-con" href="doge.jpg"/>
     <link rel="stylesheet" type="text/css" href="style.css"/>
 </head>
-<body onload="initStartPage(0)" id="docBody">
+<body id="docBody">
 <div id="clock"></div>
 <div class="main" style="margin-top: 35px;" id="search">
-    <div class="wrap">
+    <div id="settingsPaneOverlay" title="Open settings"></div>
+    <div class="settingsPane">
+        <div
+                class="option"
+                title="Settings"
+                open="false"
+                id="settingsMenu">
+            <a href="#"><img src="img/settingsIconNew.png" alt="settingsIcon"></a>
+        </div>
+    </div>
+    <div class="wrap" id="searchWrapBlock">
         <div class="searchBlock">
-            <button
-                    onclick="activateDropDown()"
-                    class="dropbtn"
-                    id="searchEngineChooseButton">
+            <button class="dropbtn" id="searchEngineChooseButton">
                 Google
             </button>
             <div id="searchOptionsDropDown"
@@ -52,6 +59,7 @@
 <div class="main" id="sectionArea">
     <div class="wrap" id="mainArea"></div>
 </div>
+
 <div class="main">
     <div class="wrap">
         <div class="newSection">
@@ -61,18 +69,12 @@
                    value=""
                    placeholder="New section name">
             <a href="">
-                <div class="linkTile addNew addNewSection" id="null"></div>
+                <div
+                        class="linkTile addNew addNewSection"
+                        id="null"
+                        title="Create new section"></div>
             </a>
         </div>
-    </div>
-</div>
-<div class="main settingsPane">
-    <div
-            class="option"
-            title="Settings"
-            onclick="openSettingsMenu(this)"
-            open="false">
-        <a href="#"><img src="img/settingsIcon.png" alt="settingsIcond"></a>
     </div>
 </div>
 <div id="overlay"></div>

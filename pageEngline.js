@@ -1,3 +1,7 @@
+window.addEventListener("DOMContentLoaded", function () {
+    initStartPage(scriptStartModes.PROD);
+}, false);
+
 var state = {
     userSearchedAnything: false,
     settingsWindowOpen: false,
@@ -93,6 +97,10 @@ const textResources = {
     ]
 };
 
+const windowTypes = {
+    MODAL: 0,
+    REGULAR: 1,
+};
 
 var userData;
 
@@ -240,7 +248,6 @@ var ValidationError = {
 };
 
 function validate(inputFieldValue, inputFieldName) {
-    console.log("Currently checking: "+inputFieldValue);
     let allErrors = [];
     if (inputFieldValue === "") {
         allErrors.push(ValidationError.formError(ValidationError.EmptyString,
@@ -403,7 +410,10 @@ function initStartPage(mode) {
 
 function openSettingsMenu() {
     let parent = document.getElementById("docBody");
-    let settingsWindow = ControlBuilder.build({tag: "div", id: "settingsWindow", className: "modalWindow"});
+    let settingsWindow = WindowBuilder.buildBasicWindow(
+        windowTypes.MODAL,
+        "Settings",
+        "settingsWindow");
     createSettingsContents(settingsWindow);
     parent.appendChild(settingsWindow);
     state.toggleOverLay(true);
@@ -411,7 +421,6 @@ function openSettingsMenu() {
 }
 
 function createSettingsContents(parent) {
-    let settingsWindowTitle = ControlBuilder.build({tag: "div", innerHTML: "Settings", id: "modalWindowTitle"});
     let settingsWindowNavBar = ControlBuilder.build({tag: "div", className: "tab"});
     let settingsWindowMainContent = ControlBuilder.build({tag: "div", id: "all_tabs"});
 
@@ -444,7 +453,7 @@ function createSettingsContents(parent) {
         actualTabContent.appendChild(generatedTabContent);
         settingsWindowMainContent.appendChild(actualTabContent);
     }
-    chainAppend(parent, [settingsWindowTitle, settingsWindowNavBar, settingsWindowMainContent])
+    chainAppend(parent, [settingsWindowNavBar, settingsWindowMainContent])
 }
 
 function generateSettingsTabForms(tabType) {
@@ -571,6 +580,10 @@ function generateSettingsTabForms(tabType) {
                         userSettings.clockPatternStr = clockDateFormat.input.value;
                         _state.patternLoaded = false;
                         _state.currentPattern = userSettings.clockPatternStr;
+                        let dateFormatInput = document
+                            .querySelector("div#dateFormatComponent > input.form-row-input");
+                        console.log(dateFormatInput.value);
+                        saveSettings(SETTINGS_VALUES.CLOCK_SET_PATTERN_STR, dateFormatInput.value);
                     },
                     capture: false
                 }
@@ -690,12 +703,27 @@ function fillMockUserData() {
 }
 
 function fillLocalStorageUserData() {
-    let res = JSON.parse(localStorage.getItem("savedUserData"));
-    if (res != null) {
-        userData = res;
+    let savedUserData = JSON.parse(localStorage.getItem("savedUserData"));
+    if (savedUserData != null) {
+        userData = savedUserData;
     } else {
         userData = new UserData();
     }
+    let savedUserSettings = JSON.parse(localStorage.getItem("savedUserSettings"));
+    if (savedUserSettings != null) {
+        userSettings = savedUserSettings;
+    } else {
+        loadDefaultUserSettings();
+    }
+}
+
+function loadDefaultUserSettings() {
+    userSettings.clockEnabledBool = true;
+    userSettings.defaultSearchEngineInt = 1;
+    userSettings.searchBoxEnabledBool = true;
+    userSettings.searchHistoryEnabledBool = true;
+    userSettings.searchHistoryMaxSize = 2;
+    userSettings.clockPatternStr = "%A, %B %Y | %H:%M:%S";
 }
 
 function removeSections() {
@@ -791,10 +819,12 @@ function createSection(sectionItemObj) {
         });
         let linkTileAnchorInnerDiv = ControlBuilder.build({
                 tag: "div",
-                className: "linkTile", innerHTML: sectionItem.sectionItemNameShort,
+                className: "linkTile",
+                innerHTML: sectionItem.sectionItemNameShort,
                 id: sectionItem.sectionItemId,
                 attribs: {
-                    sectionId: sectionItemObj.sectionId
+                    sectionId: sectionItemObj.sectionId,
+                    title: `Open ${sectionItem.sectionItemName} [${sectionItem.sectionItemUrl}]`,
                 }
             },
         );
@@ -812,9 +842,11 @@ function createSection(sectionItemObj) {
     });
     let linkTileAnchorAddNewInnerDiv = ControlBuilder.build({
         tag: "div",
-        className: "linkTile addNew", id: null,
+        className: "linkTile addNew",
+        id: null,
         attribs: {
-            sectionId: sectionItemObj.sectionId
+            sectionId: sectionItemObj.sectionId,
+            title: "Add new tile",
         }
     });
     linkTileAnchorAddNewInnerDiv.style.color = "black";
@@ -872,6 +904,24 @@ function addEventListenersDynamic() {
 }
 
 function addEventListeners() {
+
+    let settingsOverlay = document.getElementById("settingsPaneOverlay");
+    settingsOverlay.addEventListener("mouseover",
+        function () {
+            let settingsCogWheel = document
+                .getElementsByClassName("settingsPane")[0];
+            settingsCogWheel.style.left = "-70px";
+        });
+    settingsOverlay.addEventListener("mouseout",
+        function () {
+            let settingsCogWheel = document
+                .getElementsByClassName("settingsPane")[0];
+            settingsCogWheel.style.left = "-50px";
+        });
+    document.getElementById("searchEngineChooseButton")
+        .addEventListener("click", activateDropDown);
+    document.getElementById("settingsPaneOverlay")
+        .addEventListener("click", openSettingsMenu);
     //global even listener for contextmenu and section editing input
     document.body.addEventListener("click", function (e) {
         let a = document.getElementsByClassName("contextMenu");
@@ -909,6 +959,7 @@ function addEventListeners() {
     });
     window.onunload = window.onbeforeunload = () => {
         localStorage.setItem("savedUserData", JSON.stringify(userData));
+        localStorage.setItem("savedUserSettings", JSON.stringify(userSettings));
     };
     document.body.addEventListener("click", () => state.contextMenuOpen = false, false);
     document.getElementById("initSearchButton")
@@ -1010,15 +1061,11 @@ function dismissModalWindow() {
 
 function createWindowControls(sectionId, sItem, tileId, windowOpenMode) {
     console.log(sItem);
-    let tileEditWindow = ControlBuilder.build({
-        tag: "div",
-        className: "tileEditWindow modalWindow"
-    });
-    let header = ControlBuilder.build({
-        tag: "div",
-        innerHTML: windowOpenMode,
-        id: "modalWindowTitle"
-    });
+    let tileEditWindow = WindowBuilder.buildBasicWindow(
+        windowTypes.MODAL,
+        windowOpenMode,
+        null,
+        "tileEditWindow modalWindow");
     let formRowsEnclosure = ControlBuilder.build({tag: "div", id: "formRowsEnclosure"});
     let formRowUrl = createFormRow("", "",
         controlTypes.REGULAR_INPUT,
@@ -1059,6 +1106,7 @@ function createWindowControls(sectionId, sItem, tileId, windowOpenMode) {
     let addWindowContentWrapper = ControlBuilder.build({
         tag: "div",
         className: "wrap",
+        id: "windowContentWrapper",
         attribs: {
             style: "display: flex; flex-direction: row;"
         }
@@ -1161,7 +1209,6 @@ function createWindowControls(sectionId, sItem, tileId, windowOpenMode) {
     chainAppend(colorPickerSection, [colorAutodetect, formColorPickerBg.mainDiv, formColorPickerFg.mainDiv]);
     chainAppend(iconPreviewSection, [linkTilesSectionIconPreview, colorPickerSection]);
     chainAppend(actionButtonsDiv, [actionButtonOk, actionButtonCancel]);
-    tileEditWindow.appendChild(header);
     chainAppend(formRowsEnclosure, [formRowName.mainDiv,
         formRowUrl.mainDiv,
         formRowShortName.mainDiv,
@@ -1243,9 +1290,12 @@ function getFormData(tileId) {
         let fieldNameShort = document.getElementById("iconPreviewDiv").innerHTML;
         let fieldColorBg = document.getElementById("formInputFieldColorBg").value;
         let fieldColorFg = document.getElementById("formInputFieldColorFg").value;
-        let fieldUUID = null;
-        if (tileId == null)
+        let fieldUUID;
+        if (tileId == null) {
             fieldUUID = UUIDGeneration.getUUID();
+        } else {
+            fieldUUID = document.getElementById(tileId).id;
+        }
         state.errorRaised = false;
         return new SectionItem(fieldUrl, fieldName, fieldNameShort, fieldColorBg, fieldColorFg, fieldUUID);
     }
@@ -1342,19 +1392,12 @@ function alignAutocomplete(autocompleteElement) {
 function throwError(errorText) {
     if (state.errorRaised === false) {
         state.errorRaised = true;
-        let mainWindow = ControlBuilder.build({
-            tag: "div",
-            className: "tileEditWindow modalWindow",
-            id: "modalErrorWindow",
-        });
-        let header = ControlBuilder.build({
-            tag: "div",
-            innerHTML: "&#9888; Error occurred",
-            id: "modalWindowTitle"
-        });
+        let mainWindow = WindowBuilder.buildBasicWindow(
+            windowTypes.MODAL, "&#9888; Error occurred",
+            "modalErrorWindow", "tileEditWindow modalWindow");
         let errorMessageBlock = ControlBuilder.build({
             tag: "div",
-            className: "wrap",
+            className: "wrap dialog",
             innerHTML: errorText.join("<br />"),
         });
         let errorOkButton = ControlBuilder.build({
@@ -1372,7 +1415,7 @@ function throwError(errorText) {
             }
         });
         errorMessageBlock.appendChild(errorOkButton);
-        chainAppend(mainWindow, [header, errorMessageBlock]);
+        mainWindow.appendChild(errorMessageBlock);
         document.body.appendChild(mainWindow);
         state.toggleOverLay(true);
         state.overlayElement.style.zIndex = "0";
@@ -1597,6 +1640,7 @@ function addNewSection() {
     } else {
         state.toggleSectionAreaVisibility(true);
         let newSection = new Section(sectionCreationInputField.value);
+        sectionCreationInputField.value = "";
         createSection(newSection);
         userData.sections.push(newSection);
         addEventListenersDynamic();
@@ -1674,6 +1718,42 @@ function createFormRow(labelClassName,
         input: formInput
     };
 }
+
+var WindowBuilder = {
+    buildBasicWindow: function (windowType, title, id, className) {
+        if (windowType === windowTypes.MODAL) {
+            let windowCarcass = ControlBuilder.build({
+                tag: "div",
+                id: id,
+                className: className ? className : "modalWindow"
+            });
+            let windowHeaderWrapper = ControlBuilder.build({
+                tag: "div",
+                id: "windowHeaderWrapper"
+            });
+            let windowTitle = ControlBuilder.build({
+                tag: "div",
+                innerHTML: title,
+                id: "modalWindowTitle"
+            });
+            let windowCloseButton = ControlBuilder.build({
+                tag: "div",
+                id: "modalWindowCloseButton",
+                innerHTML: "&#x2715;",
+                event: {
+                    name: "click",
+                    handler: function () {
+                        dismissModalWindow();
+                    },
+                    capture: false
+                }
+            });
+            chainAppend(windowHeaderWrapper, [windowTitle, windowCloseButton]);
+            windowCarcass.appendChild(windowHeaderWrapper);
+            return windowCarcass;
+        }
+    }
+};
 
 var ControlBuilder = {
     build: function (control) {
