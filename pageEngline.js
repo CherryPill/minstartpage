@@ -695,7 +695,7 @@ function fillMockUserData() {
         ],
     };
     userSettings.clockEnabledBool = true;
-    userSettings.defaultSearchEngineInt = 1;
+    userSettings.defaultSearchEngineInt = 0;
     userSettings.searchBoxEnabledBool = true;
     userSettings.searchHistoryEnabledBool = true;
     userSettings.searchHistoryMaxSize = 2;
@@ -719,7 +719,7 @@ function fillLocalStorageUserData() {
 
 function loadDefaultUserSettings() {
     userSettings.clockEnabledBool = true;
-    userSettings.defaultSearchEngineInt = 1;
+    userSettings.defaultSearchEngineInt = 0;
     userSettings.searchBoxEnabledBool = true;
     userSettings.searchHistoryEnabledBool = true;
     userSettings.searchHistoryMaxSize = 2;
