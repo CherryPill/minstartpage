@@ -61,39 +61,39 @@ const SETTINGS_VALUES = {
 
 const textResources = {
     text: [["%a", "Abbreviated weekday name", "Thu"],
-        ["%A", "Full weekday name", "Thursday"],
-        ["%b", "Abbreviated month name", "Aug"],
-        ["%B", "Full month name", "August"],
-        ["%c", "Date and time representation", "Thu Aug 23 14:55:02 2001"],
-        ["%C", "Year divided by 100 and truncated to integer (00-99)", "20"],
-        ["%d", "Day of the month, zero-padded (01-31)", "23"],
-        ["%D", "Short MM/DD/YY date", "08/23/01"],
-        ["%e", "Day of the month, space-padded (1-31)", "23"],
-        ["%F", "Short YYYY-MM-DD date", "2001-08-23"],
-        ["%g", "Week-based year, last two digits (00-99)", "01"],
-        ["%G", "Week-based year", "2001"],
-        ["%h", "Abbreviated month name", "Aug"],
-        ["%H", "Hour in 24h format (00-23)", "14"],
-        ["%I", "Hour in 12h format (01-12)", "02"],
-        ["%j", "Day of the year (001-366)", "235"],
-        ["%m", "Month as a decimal number (01-12)", "08"],
-        ["%M", "Minute (00-59)", "55"],
-        ["%p", "AM or PM designation", "PM"],
-        ["%r", "12-hour clock time *", "02:55:02 pm"],
-        ["%R", "24-hour HH:MM time, equivalent to %H:%M", "14:55"],
-        ["%S", "Second (00-61)", "02"],
-        ["%T", "ISO 8601 time format (HH:MM:SS)", "14:55:02"],
-        ["%u", "ISO 8601 weekday as number with Monday as 1 (1-7)", "4"],
-        ["%U", "Week number with the first Sunday as the first day of week one (00-53)", "33"],
-        ["%V", "ISO 8601 week number (01-53)", "34"],
-        ["%w", "Weekday as a decimal number with Sunday as 0 (0-6)", "4"],
-        ["%W", "Week number with the first Monday as the first day of week one (00-53)", "34"],
-        ["%x", "Date representation", "08/23/01"],
-        ["%X", "Time representation", "14:55:02"],
-        ["%y", "Year, last two digits (00-99)", "01"],
-        ["%Y", "Year", "2001"],
-        ["%z", "ISO 8601 offset from UTC in timezone", "+100"],
-        ["%Z", "Timezone name or abbreviation", "UTC"]
+    ["%A", "Full weekday name", "Thursday"],
+    ["%b", "Abbreviated month name", "Aug"],
+    ["%B", "Full month name", "August"],
+    ["%c", "Date and time representation", "Thu Aug 23 14:55:02 2001"],
+    ["%C", "Year divided by 100 and truncated to integer (00-99)", "20"],
+    ["%d", "Day of the month, zero-padded (01-31)", "23"],
+    ["%D", "Short MM/DD/YY date", "08/23/01"],
+    ["%e", "Day of the month, space-padded (1-31)", "23"],
+    ["%F", "Short YYYY-MM-DD date", "2001-08-23"],
+    ["%g", "Week-based year, last two digits (00-99)", "01"],
+    ["%G", "Week-based year", "2001"],
+    ["%h", "Abbreviated month name", "Aug"],
+    ["%H", "Hour in 24h format (00-23)", "14"],
+    ["%I", "Hour in 12h format (01-12)", "02"],
+    ["%j", "Day of the year (001-366)", "235"],
+    ["%m", "Month as a decimal number (01-12)", "08"],
+    ["%M", "Minute (00-59)", "55"],
+    ["%p", "AM or PM designation", "PM"],
+    ["%r", "12-hour clock time *", "02:55:02 pm"],
+    ["%R", "24-hour HH:MM time, equivalent to %H:%M", "14:55"],
+    ["%S", "Second (00-61)", "02"],
+    ["%T", "ISO 8601 time format (HH:MM:SS)", "14:55:02"],
+    ["%u", "ISO 8601 weekday as number with Monday as 1 (1-7)", "4"],
+    ["%U", "Week number with the first Sunday as the first day of week one (00-53)", "33"],
+    ["%V", "ISO 8601 week number (01-53)", "34"],
+    ["%w", "Weekday as a decimal number with Sunday as 0 (0-6)", "4"],
+    ["%W", "Week number with the first Monday as the first day of week one (00-53)", "34"],
+    ["%x", "Date representation", "08/23/01"],
+    ["%X", "Time representation", "14:55:02"],
+    ["%y", "Year, last two digits (00-99)", "01"],
+    ["%Y", "Year", "2001"],
+    ["%z", "ISO 8601 offset from UTC in timezone", "+100"],
+    ["%Z", "Timezone name or abbreviation", "UTC"]
     ]
 };
 
@@ -104,9 +104,7 @@ const windowTypes = {
 
 var userData;
 
-var userSearchHistory = {
-    searchList: []
-};
+var userSearchHistory;
 
 const controlTypes = {
     REGULAR_INPUT: "input",
@@ -136,6 +134,10 @@ const utilStrings = {
 
 function UserData() {
     this.sections = [];
+}
+
+function UserSearchHistory() {
+    this.searchList = [];
 }
 
 function SectionItem(
@@ -267,19 +269,19 @@ function generateSearchEngineOptions() {
     for (let i = 0; i < searchEngines.engineOptions.length; i++) {
         searchEngineOptionsDropDownHtml.appendChild(
             ControlBuilder.build({
-                    tag: "a",
-                    href: "#",
-                    attribs: {
-                        s_id: i
-                    },
-                    innerHTML: searchEngines.engineOptions[i],
-                    event: {
-                        name: "click",
-                        handler: function (e) {
-                            setSearchLink(e);
-                        }
-                    },
+                tag: "a",
+                href: "#",
+                attribs: {
+                    s_id: i
                 },
+                innerHTML: searchEngines.engineOptions[i],
+                event: {
+                    name: "click",
+                    handler: function (e) {
+                        setSearchLink(e);
+                    }
+                },
+            },
             )
         );
     }
@@ -312,7 +314,7 @@ function toggleComponentVisibility(componentId, val) {
     component.style.display = val ? "block" : "none";
 }
 
-function fetchSearchHistory() {
+function createSearchHistoryUI() {
     if (userSearchHistory.searchList.length !== 0) {
         let historyHtmlElementEnclosure = document.getElementById("searchHistoryEnclosure");
         let historyHtmlElement = document.getElementById("userSearchHistoryList");
@@ -341,7 +343,7 @@ function fetchSearchHistory() {
                     innerHTML: constructSearchHistoryTimeStamp(searchItem)
                 }));
             let searchItemElementManagementEnclosure = ControlBuilder.build(
-                {tag: "span", className: "historyManagementRem"}
+                { tag: "span", className: "historyManagementRem" }
             );
 
             let searchItemElementManagementRemIcon = ControlBuilder.build({
@@ -391,7 +393,6 @@ function fetchSearchHistory() {
 
 function initStartPage(mode) {
 
-    fetchSearchHistory();
     switch (mode) {
         case scriptStartModes.DEV: {
             fillMockUserData();
@@ -403,6 +404,7 @@ function initStartPage(mode) {
         }
     }
     generateSearchEngineOptions();
+    createSearchHistoryUI();
     initTimeScript();
     updateUI();
     addEventListeners();
@@ -421,8 +423,8 @@ function openSettingsMenu() {
 }
 
 function createSettingsContents(parent) {
-    let settingsWindowNavBar = ControlBuilder.build({tag: "div", className: "tab"});
-    let settingsWindowMainContent = ControlBuilder.build({tag: "div", id: "all_tabs"});
+    let settingsWindowNavBar = ControlBuilder.build({ tag: "div", className: "tab" });
+    let settingsWindowMainContent = ControlBuilder.build({ tag: "div", id: "all_tabs" });
 
     for (let tabHeader of utilStrings.settingsWindowTabNames) {
         let tabLink = ControlBuilder.build(
@@ -447,7 +449,7 @@ function createSettingsContents(parent) {
         let actualTabContent = ControlBuilder.build({
             tag: "div",
             className: "tabcontent",
-            attribs: {"tab_type": tabHeader}
+            attribs: { "tab_type": tabHeader }
         });
         let generatedTabContent = generateSettingsTabForms(tabHeader);
         actualTabContent.appendChild(generatedTabContent);
@@ -518,7 +520,7 @@ function generateSettingsTabForms(tabType) {
             userMaxSize > 0 ? historyMaxSizeBox.input.value = userMaxSize : null;
             actualTabContentWrapper.appendChild(showHistoryMainDiv);
             actualTabContentWrapper.appendChild(historyMaxSizeBox.mainDiv);
-            let formRowEnclosure = ControlBuilder.build({tag: "div", className: "form-row"});
+            let formRowEnclosure = ControlBuilder.build({ tag: "div", className: "form-row" });
 
             let defSearchEngineLabel = ControlBuilder.build({
                 tag: "label",
@@ -526,7 +528,7 @@ function generateSettingsTabForms(tabType) {
             });
 
             formRowEnclosure.appendChild(defSearchEngineLabel);
-            let enclosingSelectTag = ControlBuilder.build({tag: "select"});
+            let enclosingSelectTag = ControlBuilder.build({ tag: "select" });
             for (let i = 0; i < searchEngines.engineOptions.length; i++) {
                 enclosingSelectTag.options[enclosingSelectTag.options.length] = new Option(
                     searchEngines.engineOptions[i], searchEngines.engineOptions[i]);
@@ -547,12 +549,12 @@ function generateSettingsTabForms(tabType) {
         case "Clock": {
             let clockElement = createFormRow("", "Clock enabled: ",
                 controlTypes.REGULAR_INPUT, {
-                    type: "checkbox",
-                    name: "clockEnabled",
-                }, "change", function () {
-                    toggleComponentDisabled("dateFormatComponent", this.checked);
-                    saveSettings(SETTINGS_VALUES.CLOCK_ENABLED_BOOL, this.checked);
-                });
+                type: "checkbox",
+                name: "clockEnabled",
+            }, "change", function () {
+                toggleComponentDisabled("dateFormatComponent", this.checked);
+                saveSettings(SETTINGS_VALUES.CLOCK_ENABLED_BOOL, this.checked);
+            });
             let clockElementMainDiv = clockElement.mainDiv;
             let clockElementInput = clockElement.input;
             userSettings.clockEnabledBool ? clockElementInput.checked = true : "";
@@ -589,7 +591,7 @@ function generateSettingsTabForms(tabType) {
                 }
             });
             clockDateFormatLabelMainDiv.appendChild(timePatternSaveButton);
-            let clockHelpElement = ControlBuilder.build({tag: "div", id: "timeHelp"})
+            let clockHelpElement = ControlBuilder.build({ tag: "div", id: "timeHelp" })
             constructHelp(clockHelpElement);
             actualTabContentWrapper.appendChild(
                 clockHelpElement
@@ -624,9 +626,9 @@ function saveSettings(setting, value) {
 }
 
 function constructHelp(parent) {
-    let table = ControlBuilder.build({tag: "table", className: "transparentTable"});
+    let table = ControlBuilder.build({ tag: "table", className: "transparentTable" });
     for (let item of textResources.text) {
-        let row = ControlBuilder.build({tag: "tr"});
+        let row = ControlBuilder.build({ tag: "tr" });
         let childTdArray = [];
         for (let innerItem of item) {
             childTdArray.push(ControlBuilder.build({
@@ -654,13 +656,13 @@ function fillMockUserData() {
                     sectionItemColors: ["#FF8C00", "#000"],
                     sectionItemId: "b202656a-ce7c-4f66-acb2-6b11f5981382"
                 },
-                    {
-                        sectionItemName: "myanimelist",
-                        sectionItemNameShort: "ma",
-                        sectionItemUrl: "http://myanimelist.net/",
-                        sectionItemColors: ["#0000ff", "#ffffff"],
-                        sectionItemId: "a202656a-ce7c-4f66-a2b2-6b11f4981382",
-                    }]
+                {
+                    sectionItemName: "myanimelist",
+                    sectionItemNameShort: "ma",
+                    sectionItemUrl: "http://myanimelist.net/",
+                    sectionItemColors: ["#0000ff", "#ffffff"],
+                    sectionItemId: "a202656a-ce7c-4f66-a2b2-6b11f4981382",
+                }]
             },
             {
                 sectionName: "WORK",
@@ -672,13 +674,13 @@ function fillMockUserData() {
                     sectionItemColors: ["#000", "#fff"],
                     sectionItemId: "93e4d3e0-0e23-4d02-a76d-02943409d2eb",
                 },
-                    {
-                        sectionItemName: "tutby",
-                        sectionItemNameShort: "tu",
-                        sectionItemUrl: "tut.by",
-                        sectionItemColors: ["#000", "#fff"],
-                        sectionItemId: "4a96aac6-5443-43eb-85fe-78aba85dd325",
-                    }]
+                {
+                    sectionItemName: "tutby",
+                    sectionItemNameShort: "tu",
+                    sectionItemUrl: "tut.by",
+                    sectionItemColors: ["#000", "#fff"],
+                    sectionItemId: "4a96aac6-5443-43eb-85fe-78aba85dd325",
+                }]
             },
             {
                 sectionName: "SOCIAL",
@@ -715,6 +717,13 @@ function fillLocalStorageUserData() {
     } else {
         loadDefaultUserSettings();
     }
+    let savedUserHistory = JSON.parse(localStorage.getItem("savedUserHistory"));
+    if (savedUserHistory != null) {
+        userSearchHistory = savedUserHistory;
+    }
+    else {
+        userSearchHistory = new UserSearchHistory();
+    }
 }
 
 function loadDefaultUserSettings() {
@@ -747,15 +756,15 @@ function updateUI() {
         toggleComponentVisibility("search", userSettings.searchBoxEnabledBool);
         console.log(userSettings.searchHistoryEnabledBool);
         toggleComponentVisibility("searchHistory",
-            state.userSearchedAnything ? userSettings.searchHistoryEnabledBool : false);
+            state.userSearchedAnything || userSearchHistory.searchList.length !== 0 ? userSettings.searchHistoryEnabledBool : false);
     }
     addEventListenersDynamic();
 }
 
 function createSection(sectionItemObj) {
     let mainArea = document.getElementById("mainArea");
-    let mainAreaRow = ControlBuilder.build({tag: "div", className: "b", id: sectionItemObj.sectionId});
-    let sectionHeaderRow = ControlBuilder.build({tag: "div", className: "sectionHeaderRow"});
+    let mainAreaRow = ControlBuilder.build({ tag: "div", className: "b", id: sectionItemObj.sectionId });
+    let sectionHeaderRow = ControlBuilder.build({ tag: "div", className: "sectionHeaderRow" });
     let sectionHeaderName = ControlBuilder.build({
         tag: "div",
         className: "sectionHeaderName",
@@ -766,7 +775,7 @@ function createSection(sectionItemObj) {
         tag: "div",
         className: "sectionHeaderManagementEnclosure"
     });
-    let sectionHeaderManagement = ControlBuilder.build({tag: "div", className: "sectionHeaderManagement"});
+    let sectionHeaderManagement = ControlBuilder.build({ tag: "div", className: "sectionHeaderManagement" });
 
     let sectionHeaderManagementEdit = ControlBuilder.build({
         tag: "div",
@@ -818,15 +827,15 @@ function createSection(sectionItemObj) {
             }
         });
         let linkTileAnchorInnerDiv = ControlBuilder.build({
-                tag: "div",
-                className: "linkTile",
-                innerHTML: sectionItem.sectionItemNameShort,
-                id: sectionItem.sectionItemId,
-                attribs: {
-                    sectionId: sectionItemObj.sectionId,
-                    title: `Open ${sectionItem.sectionItemName} [${sectionItem.sectionItemUrl}]`,
-                }
-            },
+            tag: "div",
+            className: "linkTile",
+            innerHTML: sectionItem.sectionItemNameShort,
+            id: sectionItem.sectionItemId,
+            attribs: {
+                sectionId: sectionItemObj.sectionId,
+                title: `Open ${sectionItem.sectionItemName} [${sectionItem.sectionItemUrl}]`,
+            }
+        },
         );
         linkTileAnchorInnerDiv.style.color = sectionItem.sectionItemColors[1];
         linkTileAnchorInnerDiv.style.backgroundColor = sectionItem.sectionItemColors[0];
@@ -957,7 +966,8 @@ function addEventListeners() {
         addNewSection();
         e.preventDefault();
     });
-    window.onunload = window.onbeforeunload = () => {
+    window.onbeforeunload = function () {
+        localStorage.setItem("savedUserHistory", JSON.stringify(userSearchHistory));
         localStorage.setItem("savedUserData", JSON.stringify(userData));
         localStorage.setItem("savedUserSettings", JSON.stringify(userSettings));
     };
@@ -995,7 +1005,7 @@ function removeSearchHistory() {
 
 function updateSearchHistory() {
     removeSearchHistory();
-    fetchSearchHistory();
+    createSearchHistoryUI();
 }
 
 function constructUrl() {
@@ -1018,30 +1028,43 @@ function constructTimestamp() {
 }
 
 //returns the number of days that have passed up until today
-function getDaysAgoWithinMonth(dateCreated) {
-    let dateNow = new Date();
-    console.log(dateNow.getDate() - dateCreated.getDate());
-    if (dateNow.getFullYear() === dateCreated.getFullYear() &&
-        dateNow.getMonth() === dateCreated.getMonth()) {
-        return dateNow.getDate() - dateCreated.getDate();
+function getDaysAgoWithinMonth(dateCreatedString) {
+    const dateNow = new Date();
+    const dateCreatedActual = new Date(dateCreatedString);
+    if (dateNow.getFullYear() === dateCreatedActual.getFullYear() &&
+        dateNow.getMonth() === dateCreatedActual.getMonth()) {
+        return dateNow.getDate() - dateCreatedActual.getDate();
     } else {
         return 2;
     }
 }
 
+let DateStringPostFormatter = {
+
+    formatWithoutLeadingZero: function (str) {
+        if (str != null || str != undefined) {
+            return str[0] === '0' ? str.substr(1, str.length) : str;
+        }
+    }
+};
+
+function formatTime(dateTime, format) {
+    return DateStringPostFormatter.formatWithoutLeadingZero(dateTime.toLocaleString("en-us", format));
+}
+
 function constructSearchHistoryTimeStamp(searchItem) {
-    let daysElapsed = getDaysAgoWithinMonth(searchItem.searchTimestamp.actualDateCreated);
+    const daysElapsed = getDaysAgoWithinMonth(searchItem.searchTimestamp.actualDateCreated);
+    const actualDate = new Date(searchItem.searchTimestamp.actualDateCreated);
     if (daysElapsed < 1) {
-        return "Today @ " + searchItem.searchTimestamp.actualDateCreated.toLocaleString(
-            "en-us", {hour: "2-digit", minute: "2-digit"});
+        return "Today @ " + formatTime(
+            actualDate, { hour: "2-digit", minute: "2-digit" });
     } else {
         if (daysElapsed === 1) {
-            return "Yesterday @ " + searchItem.searchTimestamp.actualDateCreated.toLocaleString(
-                "en-us", {hour: "2-digit", minute: "2-digit"});
+            return "Yesterday @ " + formatTime(actualDate, { hour: "2-digit", minute: "2-digit" });
         } else if (daysElapsed > 1) {
-            return searchItem.searchTimestamp.actualDateCreated.toLocaleString("en-us",
-                {weekday: "short", day: "2-digit", month: "short", year: "numeric"}) + " @ " +
-                searchItem.searchTimestamp.actualDateCreated.toLocaleString("en-us", {
+            return actualDate.toLocaleString("en-us",
+                { weekday: "short", day: "2-digit", month: "short", year: "numeric" }) + " @ " +
+                formatTime(actualDate, {
                     hour: "2-digit", minute: "2-digit"
                 });
         }
@@ -1066,7 +1089,7 @@ function createWindowControls(sectionId, sItem, tileId, windowOpenMode) {
         windowOpenMode,
         null,
         "tileEditWindow modalWindow");
-    let formRowsEnclosure = ControlBuilder.build({tag: "div", id: "formRowsEnclosure"});
+    let formRowsEnclosure = ControlBuilder.build({ tag: "div", id: "formRowsEnclosure" });
     let formRowUrl = createFormRow("", "",
         controlTypes.REGULAR_INPUT,
         {
@@ -1111,10 +1134,10 @@ function createWindowControls(sectionId, sItem, tileId, windowOpenMode) {
             style: "display: flex; flex-direction: row;"
         }
     });
-    let iconPreviewSection = ControlBuilder.build({tag: "div", className: "iconPreviewSection"});
-    let linkTilesSectionIconPreview = ControlBuilder.build({tag: "div", className: "linkTilesSection iconPreview"});
-    let linkTilesSectionIconPreviewInnerDiv = ControlBuilder.build({tag: "div", className: "Preview"});
-    let fullTitleAnchor = ControlBuilder.build({tag: "a", attribs: {href: "#stub"}});
+    let iconPreviewSection = ControlBuilder.build({ tag: "div", className: "iconPreviewSection" });
+    let linkTilesSectionIconPreview = ControlBuilder.build({ tag: "div", className: "linkTilesSection iconPreview" });
+    let linkTilesSectionIconPreviewInnerDiv = ControlBuilder.build({ tag: "div", className: "Preview" });
+    let fullTitleAnchor = ControlBuilder.build({ tag: "a", attribs: { href: "#stub" } });
     let linkTileEditMode = ControlBuilder.build({
         tag: "div",
         innerHTML: windowOpenMode === settingsWindowModes.SET_WIN_EDIT
@@ -1127,8 +1150,8 @@ function createWindowControls(sectionId, sItem, tileId, windowOpenMode) {
     linkTileEditMode.style.backgroundColor = sItem.sectionItemColors[0];
     linkTileEditMode.style.color = sItem.sectionItemColors[1];
 
-    let colorPickerSection = ControlBuilder.build({tag: "div", className: "colorPickerSection"});
-    let colorAutodetect = ControlBuilder.build({tag: "div", className: "color-autodetect"});
+    let colorPickerSection = ControlBuilder.build({ tag: "div", className: "colorPickerSection" });
+    let colorAutodetect = ControlBuilder.build({ tag: "div", className: "color-autodetect" });
 
     let formColorPickerBg = createFormRow(
         "colorPickerInputLabel",
@@ -1179,7 +1202,7 @@ function createWindowControls(sectionId, sItem, tileId, windowOpenMode) {
                     linkTileEditMode);
             }
         });
-    let actionButtonsDiv = ControlBuilder.build({tag: "div", className: "actionButtons"});
+    let actionButtonsDiv = ControlBuilder.build({ tag: "div", className: "actionButtons" });
     let actionButtonOk = ControlBuilder.build({
         tag: "button",
         innerHTML: "OK",
@@ -1210,8 +1233,8 @@ function createWindowControls(sectionId, sItem, tileId, windowOpenMode) {
     chainAppend(iconPreviewSection, [linkTilesSectionIconPreview, colorPickerSection]);
     chainAppend(actionButtonsDiv, [actionButtonOk, actionButtonCancel]);
     chainAppend(formRowsEnclosure, [formRowName.mainDiv,
-        formRowUrl.mainDiv,
-        formRowShortName.mainDiv,
+    formRowUrl.mainDiv,
+    formRowShortName.mainDiv,
         colorPickerSection]);
     iconPreviewSection.appendChild(linkTilesSectionIconPreview);
     chainAppend(addWindowContentWrapper, [iconPreviewSection, formRowsEnclosure]);
@@ -1311,7 +1334,7 @@ function generateContextMenu(tileId, coordX, coordY, sectionId) {
             }
         });
         let strArr = ["Edit tile", "Delete"];
-        let olElement = ControlBuilder.build({tag: "ol"});
+        let olElement = ControlBuilder.build({ tag: "ol" });
         let ulElement;
         for (let i = 0; i < strArr.length; i++) {
             ulElement = ControlBuilder.build({
@@ -1681,12 +1704,12 @@ function createFormRowNew(controls) {
 }
 
 function createFormRow(labelClassName,
-                       labelString,
-                       controlType,
-                       controlParams,
-                       eventType,
-                       eventHandler) {
-    let mainDivElement = ControlBuilder.build({tag: "div", className: "form-row"});
+    labelString,
+    controlType,
+    controlParams,
+    eventType,
+    eventHandler) {
+    let mainDivElement = ControlBuilder.build({ tag: "div", className: "form-row" });
     let formLabel = ControlBuilder.build({
         tag: "label",
         classname: "form-row-label " + labelClassName,
